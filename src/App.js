@@ -1,9 +1,12 @@
-import logo from './logo.svg';
-import './App.css';
+import './App.scss';
+import { Canvas } from '@react-three/fiber'
+import World from './components/World';
+
+
 
 function App() {
   return (
-    <h1>App Vis</h1>
+      <World />
   );
 }
 
