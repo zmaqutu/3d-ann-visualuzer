@@ -4,13 +4,13 @@ import Grid from './Grid'
 import * as THREE from 'three'
 import { Canvas } from '@react-three/fiber'
 
-
 function World() {
         // states
         const [cubeMeshes, setCubes] = useState([])
 
         // refs
-        const cameraPosition = useRef([0,375,0]);
+        const cameraPosition = useRef([0,0,375]);
+        
 
         //hooks
         useEffect( () => {
@@ -19,6 +19,7 @@ function World() {
 
         let width = window.innerWidth;
         let height = window.innerHeigh;
+
 
         function generateCubeArray() {
                 const tempCubes = []
@@ -47,6 +48,7 @@ function World() {
                         {/* <directionalLight color = {"hsl(0.1, 1, 0.95)"} groundColor = {0x87775d} intensity = {0.5} position = {[-70,122.5,70]} castShadow = {true}/> */}
                         <Grid primitives = {cubeMeshes}/>
                         <OrbitControls/> 
+                        {/* <cameraHelper args={[camera]} /> */}
                 </Canvas>
         )
 }

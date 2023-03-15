@@ -1,5 +1,7 @@
 import React, {useRef, useState} from 'react'
 // import { useThree } from 'react-three-fiber'
+import { useThree } from '@react-three/fiber'
+
 
 function Grid(props) {
         
@@ -8,6 +10,12 @@ function Grid(props) {
 
         // useRefs
         const refs = useRef(primitives.map(() => React.createRef()));
+
+        const cameraPosition = useRef([0,375,0]);
+
+        const { camera, scene } = useThree();
+
+
 
         //hooks
         // const { camera, scene } = useThree();
@@ -25,18 +33,19 @@ function Grid(props) {
         // }
   return (
         <>
-                <mesh position = {[0,0,0]}>
+                <mesh position = {[0,0,0]} rotation={[Math.PI /2, 0, 0]}>
                         {/* <gridHelper args = {[300, 30, 0x5c78bd, 0x5c78bd] }/> */}
                         {
                                 primitives.map( (mesh, i) => (
-                                        <mesh key = {i} ref = {refs.current[i]} rotation={[-Math.PI /2, 0, 0]} position = {mesh.position}>
+                                        <mesh key = {i} ref = {refs.current[i]} position = {mesh.position}>
                                                 {mesh.currentMesh}
                                         </mesh>
                                 ))
                         }
       
-                        <axesHelper />
                 </mesh>
+                <axesHelper />
+                        {console.log(camera)}
         </>
   )
 }
