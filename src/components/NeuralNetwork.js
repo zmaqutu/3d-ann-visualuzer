@@ -7,7 +7,6 @@ import * as THREE from 'three'
 import { Canvas } from '@react-three/fiber'
 
 function NeuralNetwork() {
-        // states
 
         // refs
         const cameraPosition = useRef([0,0,375]);
