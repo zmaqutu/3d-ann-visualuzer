@@ -1,8 +1,9 @@
 import React, {useRef, useState, useEffect} from 'react'
 import * as THREE from 'three'
+import HiddenLayerTwo from './HiddenLayerTwo'
 
 
-function HiddenLayer(props) {
+function HiddenLayerOne(props) {
         // states
         const [hiddenLayerMeshes, setHiddenLayer] = useState([])
         const [layerPosition, setLayerPosition] = useState([])
@@ -55,9 +56,9 @@ function HiddenLayer(props) {
                                 }
 
                         </mesh>
-                        {console.log(props)}
+
                 </>
         )
 }
 
-export default HiddenLayer
+export default HiddenLayerOne

@@ -1,10 +1,12 @@
 import { OrbitControls } from '@react-three/drei'
 import React, { useEffect, useRef, useState } from 'react'
-import Grid from './Grid'
+import InputLayer from './InputLayer'
+import HiddenLayerOne from './HiddenLayerOne'
+import HiddenLayerTwo from './HiddenLayerTwo'
 import * as THREE from 'three'
 import { Canvas } from '@react-three/fiber'
 
-function World() {
+function NeuralNetwork() {
         // states
 
         // refs
@@ -21,14 +23,13 @@ function World() {
 
         return (
                 <Canvas camera = {{ position: cameraPosition.current, fov: 53, aspect: width / height, near: 1, far: 5000 }}>
-                        {/* <ambientLight intensity = {1} color = {0xBBC2D0}/> */}
-                        {/* <hemisphereLight color = {"hsl(0.6, 1, 0.6)"} groundColor = {0x87775d} intensity = {0.1} position = {[0,5,0]} /> */}
-                        {/* <directionalLight color = {"hsl(0.1, 1, 0.95)"} groundColor = {0x87775d} intensity = {0.5} position = {[-70,122.5,70]} castShadow = {true}/> */}
-                        <Grid />
+                        <InputLayer />
+                        <HiddenLayerOne dimensions={{width: 4, height: 4}} layerNumber={1} color= "red"/>
+                        <HiddenLayerTwo dimensions={{width: 4, height: 4}} layerNumber={2} color = "hotpink"/>
                         <OrbitControls/> 
                         {/* <cameraHelper args={[camera]} /> */}
                 </Canvas>
         )
 }
 
-export default World
+export default NeuralNetwork

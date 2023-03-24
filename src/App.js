@@ -1,12 +1,12 @@
 import './App.scss';
 import { Canvas } from '@react-three/fiber'
-import World from './components/World';
+import NeuralNetwork from './components/NeuralNetwork';
 
 
 
 function App() {
   return (
-      <World />
+      <NeuralNetwork />
   );
 }
 
