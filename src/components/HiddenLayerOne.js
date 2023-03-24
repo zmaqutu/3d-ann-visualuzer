@@ -8,6 +8,8 @@ function HiddenLayerOne(props) {
         const [hiddenLayerMeshes, setHiddenLayer] = useState([])
         const [layerPosition, setLayerPosition] = useState([])
 
+        const hiddenLayerOneRef = useRef(new THREE.Group());
+
         // memoize positions for each neuron cube
         const positions = useMemo(() => {
                 const positions = []
@@ -20,7 +22,7 @@ function HiddenLayerOne(props) {
         }, [])
 
         return (
-                <group position={[0,0,-150]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log(positions)}}>
+                <group ref={hiddenLayerOneRef} position={[0,0,-150]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log('1ref',hiddenLayerOneRef)}}>
                         {
                                 positions.map( (position, index) => (
                                         <Neuron key = {index} position = {position} color = {'red'} />

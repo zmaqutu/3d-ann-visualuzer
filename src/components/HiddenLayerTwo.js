@@ -8,6 +8,9 @@ function HiddenLayerTwo(props) {
         const [hiddenLayerMeshes, setHiddenLayer] = useState([])
         const [layerPosition, setLayerPosition] = useState([])
 
+        const hiddenLayerTwoRef = useRef(new THREE.Group());
+
+
         // memoize positions for each neuron cube
         const positions = useMemo(() => {
                 const positions = []
@@ -20,7 +23,7 @@ function HiddenLayerTwo(props) {
         }, [])
 
         return (
-                <group position={[0,0,-250]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log(positions)}}>
+                <group ref={hiddenLayerTwoRef} position={[0,0,-250]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log('ref2', hiddenLayerTwoRef)}}>
                         {
                                 positions.map( (position, index) => (
                                         <Neuron key = {index} position = {position} color = {'hotpink'} />
