@@ -1,6 +1,5 @@
 import React, {useRef, useState, useEffect, useMemo} from 'react'
 import * as THREE from 'three'
-import HiddenLayerTwo from './HiddenLayerTwo'
 import Neuron from './Neuron'
 
 

@@ -1,9 +1,6 @@
 import React, {useRef, useState, useEffect, useMemo} from 'react'
 import { useThree } from '@react-three/fiber'
-import HiddenLayerOne from './HiddenLayerOne';
-import HiddenLayerTwo from './HiddenLayerTwo';
 import * as THREE from 'three'
-import OutputLayer from './OutputLayer';
 import Neuron from './Neuron';
 
 

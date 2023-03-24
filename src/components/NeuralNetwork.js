@@ -3,9 +3,9 @@ import React, { useEffect, useRef, useState } from 'react'
 import InputLayer from './InputLayer'
 import HiddenLayerOne from './HiddenLayerOne'
 import HiddenLayerTwo from './HiddenLayerTwo'
+import OutputLayer from './OutputLayer'
 import * as THREE from 'three'
 import { Canvas } from '@react-three/fiber'
-import OutputLayer from './OutputLayer'
 
 function NeuralNetwork() {
 
