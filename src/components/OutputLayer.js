@@ -1,53 +1,30 @@
-import React, {useRef, useState, useEffect} from 'react'
+import React, {useRef, useState, useEffect, useMemo} from 'react'
 import { useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+import Neuron from './Neuron'
 
 
 function OutputLayer(props) {
         //states
         const [outputLayerMeshes, setOutputCubes] = useState([])
 
-        const refs = useRef(outputLayerMeshes.map(() => React.createRef()));
-
-
-        //hooks
-        useEffect( () => {
-                generateOutputLayer()
+         // memoize positions for each neuron cube
+         const positions = useMemo(() => {
+                const positions = []
+                for(let row = -75; row <= 75; row+=15) {
+                        positions.push([row, -1, 0])
+                }
+                return positions
         }, [])
 
-        function generateOutputLayer() {
-                const tempCubes = []
-                for (let row = -75; row < 75; row+=15) {
-                        let position = [row, -1, 0]
-                        const currentGeometry = new THREE.BoxGeometry(10,10,10)
-                        const currentMaterial = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide, color: props.color});
-
-                        const key = row
-                        
-                        let currentMesh = <>
-                                                <primitive attach = 'geometry' object = {currentGeometry} />  
-                                                <primitive attach = 'material' object = {currentMaterial} /> 
-                                        </>
-
-                        tempCubes.push({currentMesh,position})
-                }
-                setOutputCubes(tempCubes)
-
-        }
-
         return (
-        <>
-                <mesh position = {[0,0,-350]} rotation={[Math.PI /2, 0, 0]}>
+                <group position={[0,0,-350]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log(positions)}}>
                         {
-                                outputLayerMeshes.map( (mesh, i) => (
-                                        <mesh key = {i} ref = {refs.current[i]} position = {mesh.position}>
-                                                {mesh.currentMesh}
-                                        </mesh>
-                                ))
+                                positions.map( (position, index) => (
+                                        <Neuron key = {index} position = {position} color = {'green'} />
+                                        ))
                         }
-
-                </mesh>
-        </>
+                </group>
         )
 }
 

@@ -5,6 +5,7 @@ import HiddenLayerOne from './HiddenLayerOne'
 import HiddenLayerTwo from './HiddenLayerTwo'
 import * as THREE from 'three'
 import { Canvas } from '@react-three/fiber'
+import OutputLayer from './OutputLayer'
 
 function NeuralNetwork() {
 
@@ -25,6 +26,7 @@ function NeuralNetwork() {
                         <InputLayer />
                         <HiddenLayerOne dimensions={{width: 4, height: 4}} layerNumber={1} color= "red"/>
                         <HiddenLayerTwo dimensions={{width: 4, height: 4}} layerNumber={2} color = "hotpink"/>
+                        <OutputLayer/>
                         <OrbitControls/> 
                         {/* <cameraHelper args={[camera]} /> */}
                 </Canvas>
