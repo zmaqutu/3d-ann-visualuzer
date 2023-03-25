@@ -5,14 +5,7 @@ import Neuron from './Neuron';
 
 
 
-function InputLayer(props, ref) {
-        
-        //states
-        const [inputLayerMeshes, setInputCubes] = useState([])
-
-        const refs = useRef([])
-        const inputLayerRef = useRef(new THREE.Group())
-
+function InputLayer(props) {
 
         // memoize positions for each neuron cube
         const positions = useMemo(() => {
@@ -26,13 +19,13 @@ function InputLayer(props, ref) {
         }, [])
 
         return (
-                <group ref={inputLayerRef} position={[0,0,0]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log('inputLayerRef',inputLayerRef)}}>
+                <>
                         {
                                 positions.map( (position, index) => (
                                         <Neuron key = {index} position = {position} color = {'white'} />
                                         ))
                         }
-                </group>
+                </>
         )
 }
 
