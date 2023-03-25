@@ -6,7 +6,9 @@ import Neuron from './Neuron'
 
 function OutputLayer(props) {
         //states
-        // const [outputLayerMeshes, setOutputCubes] = useState([])
+        const [outputLayerMeshes, setOutputCubes] = useState([])
+
+        const outputLayerRef = useRef(new THREE.Group());
 
 
          // memoize positions for each neuron cube
@@ -19,13 +21,13 @@ function OutputLayer(props) {
         }, [])
 
         return (
-                <>
+                <group ref={outputLayerRef}  position={[0,0,-350]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log(outputLayerRef)}}>
                         {
                                 positions.map( (position, index) => (
                                         <Neuron key = {index} position = {position} color = {'green'} />
                                         ))
                         }
-                </>
+                </group>
         )
 }
 
