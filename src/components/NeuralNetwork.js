@@ -22,12 +22,20 @@ function NeuralNetwork() {
 
         return (
                 <Canvas camera = {{ position: cameraPosition.current, fov: 53, aspect: width / height, near: 1, far: 5000 }}>
-                        <InputLayer />
+                        <group ref={inputLayerRef} position={[0,0,0]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log('inputLayerRef',typeof inputLayerRef)}}>
+                                <InputLayer />
+                        </group>
+                        <group ref={hiddenLayerOneRef} position={[0,0,-150]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log('1ref',hiddenLayerOneRef)}}>
+                                <HiddenLayerOne dimensions={{width: 4, height: 4}} layerNumber={1} color= "red"/>
+                        </group>
+                        <group ref={hiddenLayerTwoRef} position={[0,0,-250]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log('ref2', hiddenLayerTwoRef)}}>
+                                <HiddenLayerTwo dimensions={{width: 4, height: 4}} layerNumber={2} color = "hotpink"/>
+                        </group>
+                        <group ref={outputLayerRef}  position={[0,0,-350]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log(outputLayerRef)}}>
+                                <OutputLayer/>
+                        </group>
+                        <OrbitControls/>
                         <axesHelper/>
-                        <HiddenLayerOne dimensions={{width: 4, height: 4}} layerNumber={1} color= "red"/>
-                        <HiddenLayerTwo dimensions={{width: 4, height: 4}} layerNumber={2} color = "hotpink"/>
-                        <OutputLayer/>
-                        <OrbitControls/> 
                         {/* <cameraHelper args={[camera]} /> */}
                 </Canvas>
         )
