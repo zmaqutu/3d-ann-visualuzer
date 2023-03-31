@@ -1,8 +1,8 @@
-import React, {useRef, useState, useEffect} from 'react'
+import React, {useRef, useState, useEffect, forwardRef} from 'react'
 import * as THREE from 'three'
+import LineConnection from './LineConnection'
 
-
-function Neuron(props) {
+const Neuron = forwardRef(function Neuron(props,ref) {
         const currentGeometry = new THREE.BoxGeometry(10,10,10)
         const currentMaterial = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide, color: props.color})
 
@@ -10,9 +10,52 @@ function Neuron(props) {
 
         neuronMesh.position.set(props.position[0], props.position[1], props.position[2])
 
+	const neuronRef = useRef()
+	// [{start, end}]
+        const [linePositions, setLinePositions] = useState([])
+
+        useEffect(() => {
+		if(props.layer == 'hiddenLayerOne'){
+			getLinePositions()
+		}
+        }, [])
+
+      function getLinePositions(){
+	let positions = []
+	ref.current.children.forEach( (child) => {
+
+		let startWorldPosition = new THREE.Vector3()
+		// neuronRef.current.localToWorld(startWorldPosition)
+		neuronRef.current.getWorldPosition(startWorldPosition)
+		// startWorldPosition.setFromMatrixPosition(neuronRef.current.matrixWorld)
+
+
+		let endWorldPosition = new THREE.Vector3()
+		// child.localToWorld(endWorldPosition)
+		child.getWorldPosition(endWorldPosition)
+		// endWorldPosition.setFromMatrixPosition(child.matrixWorld)
+
+
+		// positions.push({start: child.position.clone(), end: neuronRef.current.position.clone()})
+		positions.push({start: startWorldPosition, end: endWorldPosition.clone()})
+
+	})
+	setLinePositions(positions)
+      }
+
   return (
-    <primitive object={neuronMesh} />
+	<>
+    		<primitive object={neuronMesh} ref={neuronRef}/>
+		{
+			// linePositions.map( (line, index) => ()
+			linePositions.map( (line, index) => (
+				<LineConnection key = {index} start = {line.start} end = {line.end} />
+			))
+			// <LineConnection  />
+
+		}
+	</>
   )
-}
+})
 
 export default Neuron
