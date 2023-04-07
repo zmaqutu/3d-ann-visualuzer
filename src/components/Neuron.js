@@ -15,7 +15,12 @@ const Neuron = forwardRef(function Neuron(props,ref) {
         const [linePositions, setLinePositions] = useState([])
 
         useEffect(() => {
+		// getLinePositions()
 		if(props.layer == 'hiddenLayerOne'){
+			getLinePositions()
+		}
+		else if(props.layer == 'hiddenLayerTwo'){
+			// console.log(ref)
 			getLinePositions()
 		}
         }, [])
@@ -49,7 +54,7 @@ const Neuron = forwardRef(function Neuron(props,ref) {
 		{
 			// linePositions.map( (line, index) => ()
 			linePositions.map( (line, index) => (
-				<LineConnection key = {index} start = {line.start} end = {line.end} />
+				<LineConnection key = {index} start = {line.start} end = {line.end} layer={props.layer}/>
 			))
 			// <LineConnection  />
 

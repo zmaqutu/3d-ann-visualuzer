@@ -1,4 +1,4 @@
-import { OrbitControls } from '@react-three/drei'
+import { Cloud, Line, MapControls, OrbitControls, Points, Sky, Sparkles, Stars } from '@react-three/drei'
 import React, { useEffect, useRef, useState } from 'react'
 import InputLayer from './InputLayer'
 import HiddenLayerOne from './HiddenLayerOne'
@@ -43,16 +43,25 @@ function NeuralNetwork() {
                         </group>
                         <group ref={hiddenLayerOneRef} position={[0,0,-150]} rotation={[Math.PI /2, 0, 0]} >
                                 {/* <HiddenLayerOne previousLayer={inputLayerRef}/> */}
-                                <HiddenLayerOne previousLayer={inputLayerRef} ref={inputLayerRef}/>
+                                <HiddenLayerOne  ref={inputLayerRef}/>
 
                         </group>
-                        {/* <group ref={hiddenLayerTwoRef} position={[0,0,-250]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log('ref2', hiddenLayerTwoRef)}}>
-                                <HiddenLayerTwo previousLayer={hiddenLayerOneRef}/>
+                        <group ref={hiddenLayerTwoRef} position={[0,0,-250]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log('ref2', hiddenLayerTwoRef)}}>
+                                <HiddenLayerTwo ref={hiddenLayerOneRef}/>
                         </group>
-                        <group ref={outputLayerRef}  position={[0,0,-350]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log(outputLayerRef)}}>
+                        {/* <group ref={outputLayerRef}  position={[0,0,-350]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log(outputLayerRef)}}>
                                 <OutputLayer previousLayer={hiddenLayerTwoRef}/>
                         </group> */}
                         <OrbitControls/>
+                        {/* <MapControls/> */}
+                        {/* <Stars count={10000}/> */}
+                        {/* <Cloud /> */}
+                        
+
+
+                        {/* <Sparkles/> */}
+                        {/* <Points/> */}
+                        {/* <Sky sunPosition={[0, 1, 0]} inclination={0} azimuth={0.25} /> */}
                         <axesHelper/>
                         {/* <cameraHelper args={[camera]} /> */}
                 </Canvas>

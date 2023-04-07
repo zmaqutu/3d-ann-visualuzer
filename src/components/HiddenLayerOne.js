@@ -3,15 +3,15 @@ import * as THREE from 'three'
 import Neuron from './Neuron'
 
 
-const HiddenLayerOne = forwardRef(function HiddenLayerOne(props, ref) {
+const HiddenLayerOne = forwardRef(function HiddenLayerOne(props, inputLayerRef) {
 
        
         const [inputMeshes, setInputMeshes] = useState([])
-        useEffect(() => {
-                // inputLayer = props.previousLayer.current.children
-                // inputLayerPositions = getGlobalPositions()
+        // useEffect(() => {
+        //         // inputLayer = props.previousLayer.current.children
+        //         // inputLayerPositions = getGlobalPositions()
                 
-        }, [props])
+        // }, [props])
         
         // memoize positions for each neuron cube
         const positions = useMemo(() => {
@@ -28,7 +28,7 @@ const HiddenLayerOne = forwardRef(function HiddenLayerOne(props, ref) {
                 <>
                         {
                                 positions.map( (position, index) => (
-                                        <Neuron key = {index} position = {position} color = {'red'} ref={ref} layer={'hiddenLayerOne'}/>
+                                        <Neuron key = {index} position = {position} color = {'red'} ref={inputLayerRef} layer={'hiddenLayerOne'}/>
                                 ))
                         }
                 </>
