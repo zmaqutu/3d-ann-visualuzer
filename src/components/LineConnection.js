@@ -17,6 +17,11 @@ function LineConnection(props) {
                 line.position.y += 255;
                 // line.position.z += -155;
         }
+        else if (props.layer == 'outputLayer'){
+                line.rotation.x = -Math.PI / 2;
+                line.position.y += 355;
+                // line.position.z += -155;
+        }
         
         // line.position.z += -5;
 

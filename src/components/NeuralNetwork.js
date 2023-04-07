@@ -49,12 +49,12 @@ function NeuralNetwork() {
                         <group ref={hiddenLayerTwoRef} position={[0,0,-250]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log('ref2', hiddenLayerTwoRef)}}>
                                 <HiddenLayerTwo ref={hiddenLayerOneRef}/>
                         </group>
-                        {/* <group ref={outputLayerRef}  position={[0,0,-350]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log(outputLayerRef)}}>
-                                <OutputLayer previousLayer={hiddenLayerTwoRef}/>
-                        </group> */}
+                        <group ref={outputLayerRef}  position={[0,0,-350]} rotation={[Math.PI /2, 0, 0]} onClick={ e => {console.log(outputLayerRef)}}>
+                                <OutputLayer ref={hiddenLayerTwoRef}/>
+                        </group>
                         <OrbitControls/>
                         {/* <MapControls/> */}
-                        {/* <Stars count={10000}/> */}
+                        <Stars count={10000}/>
                         {/* <Cloud /> */}
                         
 

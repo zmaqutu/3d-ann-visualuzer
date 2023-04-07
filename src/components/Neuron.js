@@ -23,6 +23,9 @@ const Neuron = forwardRef(function Neuron(props,ref) {
 			// console.log(ref)
 			getLinePositions()
 		}
+		else if(props.layer == 'outputLayer'){
+			getLinePositions()
+		}
         }, [])
 
       function getLinePositions(){

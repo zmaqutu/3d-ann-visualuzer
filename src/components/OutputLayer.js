@@ -1,10 +1,10 @@
-import React, {useRef, useState, useEffect, useMemo} from 'react'
+import React, {useRef, useState, useEffect, useMemo, forwardRef} from 'react'
 import { useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import Neuron from './Neuron'
 
 
-function OutputLayer(props) {
+const OutputLayer = forwardRef(function OutputLayer(props, hiddenLayerTwoRef) {
         //states
         // const [outputLayerMeshes, setOutputCubes] = useState([])
 
@@ -22,11 +22,11 @@ function OutputLayer(props) {
                 <>
                         {
                                 positions.map( (position, index) => (
-                                        <Neuron key = {index} position = {position} color = {'green'} />
+                                        <Neuron key = {index} position = {position} color = {'green'} ref={hiddenLayerTwoRef} layer={'outputLayer'} />
                                         ))
                         }
                 </>
         )
-}
+})
 
 export default OutputLayer
