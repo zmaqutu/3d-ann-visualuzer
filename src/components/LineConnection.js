@@ -10,13 +10,20 @@ function LineConnection(props) {
         const lineMaterial = new THREE.LineBasicMaterial({color: 0x000ff, linewidth:50})
         const line = new THREE.Line(lineGeometry, lineMaterial)
         const lineRef = useRef()
-        const randomColors = [0x0000ff, 0x00ff00, 0xff0000]
+        const randomColors = [0x0000ff, 0x00ff00,]
         useFrame((state,delta) => {
                 // lineRef.current.rotation.x += delta
                 // lineRef.current.rotation.y += delta
-                const randomColor = randomColors[Math.floor(Math.random() * randomColors.length)]
-                lineRef.current.material.color = new THREE.Color(randomColor)
-                lineRef.current.material.needsUpdate = true
+
+                // const randomColor = randomColors[Math.floor(Math.random() * randomColors.length)]
+                // lineRef.current.material.color = new THREE.Color(randomColor)
+                // lineRef.current.material.needsUpdate = true
+
+                // console.log('print')
+                // setTimeout(() => {
+                //         // Run after 100 milliseconds
+                       
+                // }, 100);
         })
         if(props.layer == 'hiddenLayerOne'){
                 line.rotation.x = -Math.PI / 2;

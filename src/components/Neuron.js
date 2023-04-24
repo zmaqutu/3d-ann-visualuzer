@@ -1,6 +1,8 @@
 import React, {useRef, useState, useEffect, forwardRef} from 'react'
 import * as THREE from 'three'
 import LineConnection from './LineConnection'
+import { useFrame } from '@react-three/fiber'
+
 
 const Neuron = forwardRef(function Neuron(props,ref) {
         const currentGeometry = new THREE.BoxGeometry(10,10,10)
@@ -16,6 +18,7 @@ const Neuron = forwardRef(function Neuron(props,ref) {
 
         useEffect(() => {
 		// getLinePositions()
+		// console.log('props',)
 		if(props.layer == 'hiddenLayerOne'){
 			getLinePositions()
 		}
@@ -27,6 +30,22 @@ const Neuron = forwardRef(function Neuron(props,ref) {
 			getLinePositions()
 		}
         }, [])
+        const randomColors = [0x000000, 0xfcba03,]
+
+	useFrame((state,delta) => {
+        //         // lineRef.current.rotation.x += delta
+        //         // lineRef.current.rotation.y += delta
+
+                // const randomColor = randomColors[Math.floor(Math.random() * randomColors.length)]
+                // neuronRef.current.material.color = new THREE.Color(randomColor)
+                // neuronRef.current.material.needsUpdate = true
+                
+        //         // console.log('print')
+        //         // setTimeout(() => {
+        //         //         // Run after 100 milliseconds
+                       
+        //         // }, 100);
+        })
 
       function getLinePositions(){
 	let positions = []

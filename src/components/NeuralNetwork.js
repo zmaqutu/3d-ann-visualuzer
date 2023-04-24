@@ -18,7 +18,9 @@ function NeuralNetwork() {
 
 
         let width = window.innerWidth;
-        let height = window.innerHeigh;
+        let height = window.innerHeight;
+
+        const [rotationEnabled, toggleRotation] = useState(true)
 
         // useEffect(() => {
         //         console.log('inputLayerRef', inputLayerRef)
@@ -29,15 +31,48 @@ function NeuralNetwork() {
         // }, [inputLayerRef, hiddenLayerOneRef, hiddenLayerTwoRef, outputLayerRef])
 
         function drawConnections(){
+                console.log('drawConnections')
+                console.log(inputLayerRef.current)
+                toggleRotation(!rotationEnabled)
                 return
                 const inputLayer = inputLayerRef.current.children;
                 const hiddenLayerOne = hiddenLayerOneRef.current.children;
 
                 console.log('inputLayer', inputLayer, 'hiddenLayerOne', hiddenLayerOne)
         }
+        // function renderLoop(){
+        //         window.requestAnimationFrame(renderLoop)
+
+        //         // hoverLoop()
+        //         visualizeTrainingInstance()
+        // }
+        const randomColors = [0x000000, 0xfcba03,]
+
+        let prevChild = null
+
+        function visualizeTrainingInstance(){
+                // for(let i = 0; i < inputLayerRef.current.chi)
+                inputLayerRef.current.children.forEach( (child, index) => {
+                        setTimeout(() => {
+                                if(prevChild){
+                                        prevChild.material.color = new THREE.Color(0xffffff); // change the previous child back to white
+                                        prevChild.material.needsUpdate = true;
+                                }
+                                child.material.color = new THREE.Color(0xfcba03)
+                                child.material.needsUpdate = true
+                                prevChild = child
+                        }, index * 100);
+
+                })
+
+        }
 
 
         return (
+                <>
+                <div>
+                        <button onClick={visualizeTrainingInstance}>Enable Rotation</button>
+                </div>
                 <Canvas camera = {{ position: cameraPosition.current, fov: 53, aspect: width / height, near: 1, far: 5000 }}>
                         <group ref={inputLayerRef} position={[0,0,100]} rotation={[Math.PI /2, 0, 0]} >
                                 <InputLayer />
@@ -53,9 +88,9 @@ function NeuralNetwork() {
                         <group ref={outputLayerRef}  position={[0,0,-250]} rotation={[Math.PI /2, 0, 0]} >
                                 <OutputLayer ref={hiddenLayerTwoRef}/>
                         </group>
-                        {/* <OrbitControls/> */}
-                        <MapControls/>
-                        <Stars count={1000}/>
+                        <OrbitControls enableRotate={rotationEnabled}/>
+                        {/* <MapControls/> */}
+                        {/* <Stars count={100000} depth={100}/> */}
                         {/* <Cloud /> */}
                         
 
@@ -66,6 +101,7 @@ function NeuralNetwork() {
                         <axesHelper/>
                         {/* <cameraHelper args={[camera]} /> */}
                 </Canvas>
+                </>
         )
 }
 
