@@ -69,10 +69,15 @@ const Neuron = forwardRef(function Neuron(props,ref) {
 	})
 	setLinePositions(positions)
       }
+      function mouseDownHandler(event){
+	event.stopPropagation()
+	console.log('mouseDownHandler', event)
+
+      }
 
   return (
 	<>
-    		<primitive object={neuronMesh} ref={neuronRef}/>
+    		<primitive object={neuronMesh} ref={neuronRef} onMouseOver={e => console.log('over')}/>
 		{
 			// linePositions.map( (line, index) => ()
 			linePositions.map( (line, index) => (
