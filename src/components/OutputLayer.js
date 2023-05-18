@@ -5,13 +5,12 @@ import Neuron from './Neuron'
 
 
 const OutputLayer = forwardRef(function OutputLayer(props, hiddenLayerTwoRef) {
-        //states
-        // const [outputLayerMeshes, setOutputCubes] = useState([])
+        
+        //states and variables
         const outputLayerGeometry = new THREE.BoxGeometry(10,10,10)
         const outputLayerMaterial = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide,color:'green'})
         const outputLayerMesh = new THREE.InstancedMesh(outputLayerGeometry, outputLayerMaterial, 784);
         outputLayerMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-
 
          // memoize positions for each neuron cube
          const positions = useMemo(() => {
@@ -31,13 +30,6 @@ const OutputLayer = forwardRef(function OutputLayer(props, hiddenLayerTwoRef) {
         }
 
         return (
-                // <>
-                //         {
-                //                 positions.map( (position, index) => (
-                //                         <Neuron key = {index} position = {position} color = {'green'} ref={hiddenLayerTwoRef} layer={'outputLayer'} />
-                //                         ))
-                //         }
-                // </>
                 <>
     		        <primitive object={outputLayerMesh} />
                 </>

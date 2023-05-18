@@ -8,11 +8,12 @@ const HiddenLayerOne = forwardRef(function HiddenLayerOne(props, inputLayerRef) 
        
         const nextLayerPositions = props.nextLayerPositions
         
-        // const [inputMeshes, setInputMeshes] = useState([])
         const layerOneGeometry = new THREE.BoxGeometry(10,10,10)
         const layerOneMaterial = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide, color:'red', wireframe: true})
         const layerOneMesh = new THREE.InstancedMesh(layerOneGeometry, layerOneMaterial, 16);
         layerOneMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+
+        
 
         // useEffect(() => {
         //         // inputLayer = props.previousLayer.current.children
@@ -36,21 +37,11 @@ const HiddenLayerOne = forwardRef(function HiddenLayerOne(props, inputLayerRef) 
                 matrix.setPosition(positions[i])
                 layerOneMesh.setMatrixAt(i,matrix)
         }
-        // useEffect(() => {
-        //         console.log('layerTwoPositions',props.nextLayerPositions)
-                 
-        //  }, [nextLayerPositions])
+       
 
         return (
-                // <>
-                //         {
-                //                 positions.map( (position, index) => (
-                //                         <Neuron key = {index} position = {position} color = {'red'} ref={inputLayerRef} layer={'hiddenLayerOne'}/>
-                //                 ))
-                //         }
-                // </>
                 <>
-    		<primitive object={layerOneMesh} />
+    		        <primitive object={layerOneMesh} />
                 </>
         )
 })

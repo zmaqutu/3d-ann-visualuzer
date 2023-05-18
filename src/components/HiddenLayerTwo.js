@@ -4,16 +4,18 @@ import Neuron from './Neuron'
 
 
 const HiddenLayerTwo = forwardRef(function HiddenLayerTwo(props, hiddenLayerOneRef) {
-        // states
-        // const [hiddenLayerMeshes, setHiddenLayer] = useState([])
-        // const [layerPosition, setLayerPosition] = useState([])
+        
+        // states and variables
         const nextLayerPositions = props.nextLayerPositions
-
-
         const layerTwoGeometry = new THREE.BoxGeometry(10,10,10)
         const layerTwoMaterial = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide,color:'hotpink'})
         const layerTwoMesh = new THREE.InstancedMesh(layerTwoGeometry, layerTwoMaterial, 16);
         layerTwoMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+
+        // useEffect(() => {
+        //         console.log('outputLayerPositions',props.nextLayerPositions)
+                 
+        //  }, [nextLayerPositions])
 
         // memoize positions for each neuron cube
         const positions = useMemo(() => {
@@ -32,20 +34,7 @@ const HiddenLayerTwo = forwardRef(function HiddenLayerTwo(props, hiddenLayerOneR
                 matrix.setPosition(positions[i])
                 layerTwoMesh.setMatrixAt(i,matrix)
         }
-
-        // useEffect(() => {
-        //         console.log('outputLayerPositions',props.nextLayerPositions)
-                 
-        //  }, [nextLayerPositions])
-
         return (
-                // <>
-                //         {
-                //                 positions.map( (position, index) => (
-                //                         <Neuron key = {index} position = {position} color = {'hotpink'} ref={hiddenLayerOneRef} layer={'hiddenLayerTwo'} />
-                //                         ))
-                //         }
-                // </>
                 <>
     		        <primitive object={layerTwoMesh} />
                 </>

@@ -21,12 +21,6 @@ function InputLayer(props) {
         //create line connection instanced meshes
         const lineGeometry = new THREE.InstancedBufferGeometry();
 
-        for(let i = 0; i < positions.length;i++){
-                const matrix = new THREE.Matrix4()
-                matrix.setPosition(positions[i])
-                inputLayerMesh.setMatrixAt(i,matrix)
-        }
-
         useEffect(() => {
 		if(nextLayerPositions.length  > 0){
                         const lines = createLineVertices()
@@ -46,6 +40,14 @@ function InputLayer(props) {
                 props.passPositionsUp(positions)
                 return positions
         }, [])
+
+
+        for(let i = 0; i < positions.length;i++){
+                const matrix = new THREE.Matrix4()
+                matrix.setPosition(positions[i])
+                inputLayerMesh.setMatrixAt(i,matrix)
+        }
+
 
         function createLineVertices(){
                 let tempLinePositions = []

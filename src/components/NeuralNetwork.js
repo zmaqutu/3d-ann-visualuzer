@@ -22,10 +22,6 @@ function NeuralNetwork() {
 
         let width = window.innerWidth;
         let height = window.innerHeight;
-        let mouseIsDown = false
-        
-        const raycaster = new THREE.Raycaster()
-        const mouse = new THREE.Vector2()
 
         const [rotationEnabled, toggleRotation] = useState(true)
         const [colors, setColors] = useState([])
@@ -37,6 +33,12 @@ function NeuralNetwork() {
 
 
         let showcaseNumbers = {}
+        const randomColors = [0x000000, 0xfcba03,]
+
+        let prevChild = null
+
+        //machine Learning variables
+        const LEARNING_RATE = 0.1
 
         useEffect(() => {
                 // inputLayer = props.previousLayer.current.children
@@ -93,9 +95,7 @@ function NeuralNetwork() {
                 }
                 // showColors()
         }
-        const randomColors = [0x000000, 0xfcba03,]
-
-        let prevChild = null
+        
 
         function visualizeTrainingInstance(){
                 // for(let i = 0; i < inputLayerRef.current.chi)
@@ -113,25 +113,6 @@ function NeuralNetwork() {
                 })
 
         }
-        function mouseDownHandler(event){
-                // console.log(event)
-                return
-                event.stopPropagation()
-                // inputLayerRef.current.traverse( (child) => {
-                        // if(child.isMesh){
-                        //         child.material.color = new THREE.Color(0x000000)
-                        //         child.material.needsUpdate = true
-                        // }
-                        if (event.intersects.length > 0) {
-                                const mesh = event.intersects[0].object;
-                                // mesh.material.color.set(0xff0000); // Set the color of the intersected child mesh to red
-                                // mesh.material.needsUpdate = true;
-                                mesh.material.color = new THREE.Color(0x000000)
-                                mesh.material.needsUpdate = true
-                        }
-                // })
-                // console.log('mouseDownHandler',e)
-        }
 
         function showColors(){
                 for(let i in showcaseNumbers){
@@ -145,10 +126,6 @@ function NeuralNetwork() {
                         }, 5000);
 
                 }
-                
-
-                
-
         }
         function setInputLayerPositions(positions){
                 // console.log('positions',positions)
@@ -166,9 +143,6 @@ function NeuralNetwork() {
                 // console.log('positions',positions)
                 setOutputPositions(positions)
         }
-
-        //machine Learning code
-        const LEARNING_RATE = 0.1
 
         return (
                 <>
