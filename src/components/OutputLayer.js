@@ -20,6 +20,7 @@ const OutputLayer = forwardRef(function OutputLayer(props, hiddenLayerTwoRef) {
                         positions.push(new THREE.Vector3(row, -1, 0))
 
                 }
+                props.passPositionsUp(positions)
                 return positions
         }, [])
 

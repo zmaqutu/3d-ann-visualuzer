@@ -7,6 +7,8 @@ const HiddenLayerTwo = forwardRef(function HiddenLayerTwo(props, hiddenLayerOneR
         // states
         // const [hiddenLayerMeshes, setHiddenLayer] = useState([])
         // const [layerPosition, setLayerPosition] = useState([])
+        const nextLayerPositions = props.nextLayerPositions
+
 
         const layerTwoGeometry = new THREE.BoxGeometry(10,10,10)
         const layerTwoMaterial = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide,color:'hotpink'})
@@ -21,6 +23,7 @@ const HiddenLayerTwo = forwardRef(function HiddenLayerTwo(props, hiddenLayerOneR
                                 positions.push(new THREE.Vector3(col, -1, row))
                         }
                 }
+                props.passPositionsUp(positions)
                 return positions
         }, [])
 
@@ -29,6 +32,11 @@ const HiddenLayerTwo = forwardRef(function HiddenLayerTwo(props, hiddenLayerOneR
                 matrix.setPosition(positions[i])
                 layerTwoMesh.setMatrixAt(i,matrix)
         }
+
+        // useEffect(() => {
+        //         console.log('outputLayerPositions',props.nextLayerPositions)
+                 
+        //  }, [nextLayerPositions])
 
         return (
                 // <>

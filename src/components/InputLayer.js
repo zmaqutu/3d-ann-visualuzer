@@ -1,17 +1,35 @@
 import React, {useRef, useState, useEffect, useMemo} from 'react'
-import { useThree } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import Neuron from './Neuron';
+import { Segments, Segment, SegmentObject } from '@react-three/drei';
 
 
 
 function InputLayer(props) {
+        const nextLayerPositions = props.nextLayerPositions
 
         const [inputMeshes, setInputMeshes] = useState([])
+        const [linePositions,setLinePositions] = useState([])
+        const lineRef = React.useRef([])
+
+        // create inputLayer instance mesh
         const inputLayerGeometry = new THREE.BoxGeometry(10,10,10)
-        const inputLayerMaterial = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide,color:0x181c20})
+        const inputLayerMaterial = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide,color:0x181c20,wireframe: true})
         const inputLayerMesh = new THREE.InstancedMesh(inputLayerGeometry, inputLayerMaterial, 784);
         inputLayerMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+
+        //create line connection instanced meshes
+        const lineGeometry = new THREE.InstancedBufferGeometry();
+
+        useEffect(() => {
+		if(nextLayerPositions.length  > 0){
+                        const lines = createLineVertices()
+                        setLinePositions(lines)
+                }
+		
+        }, [nextLayerPositions])
+
         // memoize positions for each neuron cube
         const positions = useMemo(() => {
                 const positions = []
@@ -20,26 +38,76 @@ function InputLayer(props) {
                                 positions.push(new THREE.Vector3(col, -1, row))
                         }
                 }
+                props.passPositionsUp(positions)
                 return positions
         }, [])
+
+        function createLineVertices(){
+                let tempLinePositions = []
+
+                for (let i = 0; i < positions.length; i++) {
+                        for (let j = 0; j < props.nextLayerPositions.length; j++) {
+                                // vertices[index++] = positions[i].x;
+                                // vertices[index++] = positions[i].y;
+                                // vertices[index++] = positions[i].z;
+
+                                // vertices[index++] = props.nextLayerPositions[j].x;
+                                // vertices[index++] = props.nextLayerPositions[j].y;
+                                // vertices[index++] = props.nextLayerPositions[j].z;
+
+                                const startPoint = {x: positions[i].x, y: positions[i].y, z:positions[i].z}
+                                const endPoint = {x:props.nextLayerPositions[j].x, y: props.nextLayerPositions[j].y, z: props.nextLayerPositions[j].z}
+                                
+                                tempLinePositions.push({startPoint,endPoint})
+                                // linePositions.push({startPoint,endPoint})
+
+                        }
+                }
+                return tempLinePositions
+        }
+
         for(let i = 0; i < positions.length;i++){
                 const matrix = new THREE.Matrix4()
                 matrix.setPosition(positions[i])
                 inputLayerMesh.setMatrixAt(i,matrix)
         }
-        console.log(inputLayerMesh)
+       
+        function createLineIndices(){
 
+        }
+        // useFrame(({ clock }) => {
+        //         lineRef.current.forEach((r, i) => {
+        //                 const time = clock.elapsedTime
+        //                 const x = Math.sin((i / 5000) * Math.PI) * 10
+        //                 const y = Math.cos((i / 5000) * Math.PI) * 10
+        //                 const z = Math.cos((i * time) / 1000)
+        //                 // r.start.set(x, y, z)
+        //                 // r.end.set(x + Math.sin(time + i), y + Math.cos(time + i), z)
+        //                 r.color.setRGB(x / 100, y / 10, z)
+        //                 })
+        // })
 
         return (
-                // <>
-                //         {
-                //                 positions.map( (position, index) => (
-                //                         <Neuron key = {index} position = {position} color = {0x181c20} layer={'inputLayer'}/>
-                //                         ))
-                //         }
-                // </>
                 <>
-    		<primitive object={inputLayerMesh} />
+                        <primitive object={inputLayerMesh}/>
+                        {/* <Segments limit={2} lineWidth={1.0} rotation={[Math.PI /2, 0, 0]}>
+                                <Segment start={[-210, -1, -210]} end={[-30, -150, -30]} color={'green'} />
+                                <Segment start={[-210, -1, -210]} end={[-15, -1, -30]} color={'blue'} />
+                        </Segments> */}
+                        { linePositions.length > 0 
+                                ?
+                                        <Segments limit={linePositions.length} lineWidth={0.1}>
+                                                {linePositions.map((line, i) => (
+                                                        <Segment key={i} 
+                                                                ref={(r) => (lineRef.current[i] = r)} 
+                                                                color="blue" 
+                                                                start={[line.startPoint.x,line.startPoint.y,line.startPoint.z]} 
+                                                                end={[line.endPoint.x,line.endPoint.y-150,line.endPoint.z]}
+                                                        />
+                                                ))}
+                                        </Segments>
+                                : null
+                        }
                 </>
         )
 }

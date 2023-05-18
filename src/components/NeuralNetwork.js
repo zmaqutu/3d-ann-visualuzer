@@ -30,6 +30,12 @@ function NeuralNetwork() {
         const [rotationEnabled, toggleRotation] = useState(true)
         const [colors, setColors] = useState([])
 
+        const [inputLayerPositions, setInputPositions] = useState([])
+        const [layerOnePositions, setLayerOnePositions] = useState([])
+        const [layerTwoPositions, setLayerTwoPositions] = useState([])
+        const [outputLayerPositions, setOutputPositions] = useState([])
+
+
         let showcaseNumbers = {}
 
         useEffect(() => {
@@ -37,7 +43,7 @@ function NeuralNetwork() {
                 // inputLayerPositions = getGlobalPositions()
                 // loadExamples()
                 // renderLoop()
-                console.log('',hiddenLayerOneRef)
+                // console.log('',hiddenLayerOneRef)
                 
         }, [])
 
@@ -48,7 +54,6 @@ function NeuralNetwork() {
                 await data.load()
                 const examples = data.nextTestBatch(20)
                 const numExamples = examples.xs.shape[0];
-                console.log('examples',numExamples)
 
                 for(let i = 0; i < numExamples; i++){
                         const imageTensor = tf.tidy(() => {
@@ -59,7 +64,6 @@ function NeuralNetwork() {
                               });
 
                         const pixels = await tf.browser.toPixels(imageTensor)
-                        // console.log(pixels)
                         let tempColors = []
                         for(let j = 0; j <pixels.length; j+=4){
                                 const r = pixels[j] / 255
@@ -70,28 +74,13 @@ function NeuralNetwork() {
                                 tempColors.push(color)
 
                         }
-                        // setColors(tempColors)
                         showcaseNumbers[i]= tempColors
-                        // console.log(colors)
-                        // console.log(inputLayerRef)
-                        // console.log(inputLayerRef.current)
-
-                        // inputLayerRef.current.children.forEach( (child, index) => {
-                                        
-                        //         child.material.color = colors[index]
-                        //         child.material.needsUpdate = true
-                        //         // prevChild = child
-
-                        // })
-
                 }
-                // console.log(showcaseNumbers)
 
                 return
                 const inputLayer = inputLayerRef.current.children;
                 const hiddenLayerOne = hiddenLayerOneRef.current.children;
 
-                console.log('inputLayer', inputLayer, 'hiddenLayerOne', hiddenLayerOne)
         }
         function renderLoop(){
                 window.requestAnimationFrame(renderLoop)
@@ -122,9 +111,6 @@ function NeuralNetwork() {
                         }, index * 100);
 
                 })
-                // if(mouseIsDown){
-                //         return
-                // }
 
         }
         function mouseDownHandler(event){
@@ -164,6 +150,22 @@ function NeuralNetwork() {
                 
 
         }
+        function setInputLayerPositions(positions){
+                // console.log('positions',positions)
+                setInputPositions(positions)
+        }
+        function setLOnePositions(positions){
+                // console.log('positions',positions)
+                setLayerOnePositions(positions)
+        }
+        function setLTwoPositions(positions){
+                // console.log('positions',positions)
+                setLayerTwoPositions(positions)
+        }
+        function setOutputLayerPositions(positions){
+                // console.log('positions',positions)
+                setOutputPositions(positions)
+        }
 
         //machine Learning code
         const LEARNING_RATE = 0.1
@@ -176,17 +178,17 @@ function NeuralNetwork() {
 
                 </div>
                 <Canvas camera = {{ position: cameraPosition.current, fov: 53, aspect: width / height, near: 1, far: 5000 }}>
-                        <group ref={inputLayerRef} position={[0,0,100]} rotation={[Math.PI /2, 0, 0]}  >
-                                <InputLayer />
+                        <group  position={[0,0,100]} rotation={[Math.PI /2, 0, 0]}  >
+                                <InputLayer nextLayerPositions = {layerOnePositions} passPositionsUp={setLayerOnePositions}/>
                         </group>
-                        <group ref={hiddenLayerOneRef} position={[0,0,-50]} rotation={[Math.PI /2, 0, 0]} >
-                                <HiddenLayerOne  ref={inputLayerRef}/>
+                        <group  position={[0,0,-50]} rotation={[Math.PI /2, 0, 0]} >
+                                <HiddenLayerOne nextLayerPositions={layerTwoPositions} passPositionsUp = {setLOnePositions} ref={inputLayerRef}/>
                         </group>
                         <group ref={hiddenLayerTwoRef} position={[0,0,-150]} rotation={[Math.PI /2, 0, 0]} >
-                                <HiddenLayerTwo ref={hiddenLayerOneRef}/>
+                                <HiddenLayerTwo nextLayerPositions = {outputLayerPositions} passPositionsUp = {setLTwoPositions}ref={hiddenLayerOneRef}/>
                         </group>
                         <group ref={outputLayerRef}  position={[0,0,-250]} rotation={[Math.PI /2, 0, 0]} >
-                                <OutputLayer ref={hiddenLayerTwoRef}/>
+                                <OutputLayer passPositionsUp={setOutputLayerPositions} ref={hiddenLayerTwoRef}/>
                         </group> 
                         <OrbitControls enableRotate={rotationEnabled}/>
                         {/* <MapControls/> */}
