@@ -14,12 +14,9 @@ function InputLayer(props) {
 
         // create inputLayer instance mesh
         const inputLayerGeometry = new THREE.BoxGeometry(10,10,10)
-        const inputLayerMaterial = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide,color:0x181c20,wireframe: true})
+        const inputLayerMaterial = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide,color:0x181c20})
         const inputLayerMesh = new THREE.InstancedMesh(inputLayerGeometry, inputLayerMaterial, 784);
         inputLayerMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-
-        //create line connection instanced meshes
-        const lineGeometry = new THREE.InstancedBufferGeometry();
 
         useEffect(() => {
 		if(nextLayerPositions.length  > 0){
@@ -62,6 +59,17 @@ function InputLayer(props) {
                 }
                 return tempLinePositions
         }
+        // useFrame(({ clock }) => {
+        //             lineRef.current.forEach((r, i) => {
+        //               const time = clock.elapsedTime
+        //               const x = Math.sin((i / 5000) * Math.PI) * 10
+        //               const y = Math.cos((i / 5000) * Math.PI) * 10
+        //               const z = Math.cos((i * time) / 1000)
+        //               r.start.set(x  , y  , z  )
+        //               r.end.set(x + Math.sin(time + i)  , y + Math.cos(time + i)  , z  )
+        //               r.color.setRGB(x / 10, y / 10, z)
+        //             })
+        //           })
        
         return (
                 <>
@@ -80,6 +88,11 @@ function InputLayer(props) {
                                         </Segments>
                                 : null
                         }
+                        {/* <Segments limit={10000} lineWidth={5.0}>
+                                {Array.from({ length: 10000 }).map((_, i) => (
+                                        <Segment key={i} ref={(r) => (lineRef.current[i] = r)} color="orange" start={[0, 0, 0]} end={[0, 0, 0]} />
+                                ))}
+                        </Segments> */}
                 </>
         )
 }

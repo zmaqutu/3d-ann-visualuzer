@@ -5,7 +5,7 @@ import HiddenLayerOne from './HiddenLayerOne'
 import HiddenLayerTwo from './HiddenLayerTwo'
 import OutputLayer from './OutputLayer'
 import * as THREE from 'three'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { MnistData } from '../ML Files/mnist_data'
 import * as tf from '@tensorflow/tfjs';
 
@@ -36,6 +36,8 @@ function NeuralNetwork() {
         const randomColors = [0x000000, 0xfcba03,]
 
         let prevChild = null
+
+        
 
         //machine Learning variables
         const LEARNING_RATE = 0.1

@@ -1,21 +1,31 @@
 import React, {useRef, useState, useEffect, useMemo, forwardRef} from 'react'
 import * as THREE from 'three'
 import Neuron from './Neuron'
+import { Segments, Segment, SegmentObject } from '@react-three/drei';
+
 
 
 const HiddenLayerTwo = forwardRef(function HiddenLayerTwo(props, hiddenLayerOneRef) {
         
         // states and variables
         const nextLayerPositions = props.nextLayerPositions
+
+        const [linePositions,setLinePositions] = useState([])
+        const lineRef = React.useRef([])
+
+
         const layerTwoGeometry = new THREE.BoxGeometry(10,10,10)
         const layerTwoMaterial = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide,color:'hotpink'})
         const layerTwoMesh = new THREE.InstancedMesh(layerTwoGeometry, layerTwoMaterial, 16);
         layerTwoMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
-        // useEffect(() => {
-        //         console.log('outputLayerPositions',props.nextLayerPositions)
-                 
-        //  }, [nextLayerPositions])
+        useEffect(() => {
+		if(nextLayerPositions.length  > 0){
+                        const lines = createLineVertices()
+                        setLinePositions(lines)
+                }
+		
+        }, [nextLayerPositions])
 
         // memoize positions for each neuron cube
         const positions = useMemo(() => {
@@ -34,9 +44,37 @@ const HiddenLayerTwo = forwardRef(function HiddenLayerTwo(props, hiddenLayerOneR
                 matrix.setPosition(positions[i])
                 layerTwoMesh.setMatrixAt(i,matrix)
         }
+
+        function createLineVertices(){
+                let tempLinePositions = []
+
+                for (let i = 0; i < positions.length; i++) {
+                        for (let j = 0; j < props.nextLayerPositions.length; j++) {
+                                const startPoint = {x: positions[i].x, y: positions[i].y, z:positions[i].z}
+                                const endPoint = {x:props.nextLayerPositions[j].x, y: props.nextLayerPositions[j].y, z: props.nextLayerPositions[j].z}
+                                
+                                tempLinePositions.push({startPoint,endPoint})
+                        }
+                }
+                return tempLinePositions
+        }
         return (
                 <>
     		        <primitive object={layerTwoMesh} />
+                        { linePositions.length > 0 
+                                ?
+                                        <Segments limit={linePositions.length} lineWidth={0.1}>
+                                                {linePositions.map((line, i) => (
+                                                        <Segment key={i} 
+                                                                ref={(r) => (lineRef.current[i] = r)} 
+                                                                color="blue" 
+                                                                start={[line.startPoint.x,line.startPoint.y,line.startPoint.z]} 
+                                                                end={[line.endPoint.x,line.endPoint.y-100,line.endPoint.z]}
+                                                        />
+                                                ))}
+                                        </Segments>
+                                : null
+                        }
                 </>
         )
 })
