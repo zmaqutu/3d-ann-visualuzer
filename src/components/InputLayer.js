@@ -8,36 +8,24 @@ import { Segments, Segment, SegmentObject } from '@react-three/drei';
 
 const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
         const nextLayerPositions = props.nextLayerPositions
+        const colorAttributesArray = props.inputColorAttributes
+        const visualizingModel = props.visualizingModel
+        let colorIndex = 0
 
         const [linePositions,setLinePositions] = useState([])
         const lineRef = React.useRef([])
 
         // create inputLayer instance mesh
         const inputLayerGeometry = new THREE.BoxGeometry(10,10,10)
-        const inputLayerMaterial = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide,color:0x181c20})
+        const inputLayerMaterial = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide, vertexColors: true})
         const inputLayerMesh = new THREE.InstancedMesh(inputLayerGeometry, inputLayerMaterial, 784);
         inputLayerMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-        // inputLayerMesh.makeScale(1, 1, 1)
-        // inputLayerMesh.setColorAt(1, new THREE.Color(0xebe534))
-        // inputLayerMesh.instanceColor.needsUpdate = true;
 
-        // const uv = inputLayerGeometry.attributes.uv; // Assuming the boxGeometry has UV coordinates
-        // instancedGeometry.setAttribute('uv', new THREE.InstancedBufferAttribute(uv.array, uv.itemSize).setDynamic(true));
-
-        // console.log('inputLayerMesh',inputLayerMesh)
-        const offsets = []; // Array to hold the offset values for each instance
-
-        for (let i = 0; i < 784; i++) {
-                // Calculate the position offset for each instance in the grid
-                const col = i % 28;
-                const row = Math.floor(i / 28);
-                const offset = new THREE.Vector3(col * 15, row * 15, 0);
-                offsets.push(offset.x, offset.y, offset.z);
-        }
-
-        inputLayerMesh.geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(new Float32Array(offsets), 3));
-
-
+        // create a color buffer attribute for the instanced mesh
+        const colorBuffer = new Float32Array(784 * 4);
+        const colorAttribute = new THREE.InstancedBufferAttribute(colorBuffer, 4);
+        inputLayerGeometry.setAttribute('color', colorAttribute);
+        
 
         useEffect(() => {
 		if(nextLayerPositions.length  > 0){
@@ -46,6 +34,23 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                 }
 		
         }, [nextLayerPositions])
+
+        useEffect(() => {
+                // console.log(props.inputColorAttributes.length > 0, props.visualizingModel)
+		if(props.inputColorAttributes.length > 0 && props.visualizingModel){
+                        setInterval(() => {
+                                console.log('interval',colorIndex)
+                                inputLayerMesh.geometry.setAttribute('color', props.inputColorAttributes[colorIndex])
+                                inputLayerMesh.geometry.getAttribute('color').needsUpdate = true;
+                                colorIndex++
+                                if(colorIndex >= props.inputColorAttributes.length){
+                                        colorIndex = 0
+                                }
+
+                        }, 1500);
+                }
+		
+        }, [colorAttributesArray, visualizingModel])
 
         // memoize positions for each neuron cube
         const positions = useMemo(() => {
@@ -82,16 +87,20 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
         }
         
         // useFrame(({ clock }) => {
-        //             lineRef.current.forEach((r, i) => {
-        //               const time = clock.elapsedTime
-        //               const x = Math.sin((i / 5000) * Math.PI) * 10
-        //               const y = Math.cos((i / 5000) * Math.PI) * 10
-        //               const z = Math.cos((i * time) / 1000)
-        //         //       r.start.set(x  , y  , z  )
-        //         //       r.end.set(x + Math.sin(time + i)  , y + Math.cos(time + i)  , z  )
-        //               r.color.setRGB(x / 30, y / 30, z*2)
-        //             })
-        //           })
+        //         // if we are visualizing our
+        //         if(props.visualizingModel){
+        //                 setTimeout(() => {
+        //                 for(let i = 0; i < props.inputColorAttributes.length; i++){
+        //                         console.log('ite', i)
+        //                                 inputLayerMesh.geometry.setAttribute('color', props.inputColorAttributes[i])
+        //                                 inputLayerMesh.geometry.getAttribute('color').needsUpdate = true;
+        //                 }
+        //                 }, 3000);  
+
+                        
+                        
+        //         }   
+        // })
        
         return (
                 <>

@@ -24,38 +24,33 @@ function NeuralNetwork() {
         let height = window.innerHeight;
 
         const [rotationEnabled, toggleRotation] = useState(true)
-        const [colors, setColors] = useState([])
 
         const [inputLayerPositions, setInputPositions] = useState([])
         const [layerOnePositions, setLayerOnePositions] = useState([])
         const [layerTwoPositions, setLayerTwoPositions] = useState([])
         const [outputLayerPositions, setOutputPositions] = useState([])
+        const [visualizationState, togglePretrainedVisualization] = useState(false)
 
 
-        let colorBuffers = []
-        const randomColors = [0x000000, 0xfcba03,]
+        // an array of 20 color InstancedBufferAttributes
+        const [colorAttributesArray, setColorAttributesArray] = useState([])
 
-        let prevChild = null
-
-
-        //machine Learning variables
-        const LEARNING_RATE = 0.1
 
         useEffect(() => {
-                // loadExamples()
-                console.log('inputLayerPos useffect',inputLayerPositions)
-
+                if(inputLayerPositions.length > 0){
+                        loadExamples()
+                }
         }, [inputLayerPositions])
 
 
-        async function loadExamples(){
-                // toggleRotation(!rotationEnabled)
-                console.log('loading examples')
-                return
+
+        const loadExamples = useCallback( async () => {
                 const data = new MnistData()
                 await data.load()
-                const examples = data.nextTestBatch(1)
+                const examples = data.nextTestBatch(20)
                 const numExamples = examples.xs.shape[0];
+
+                let tempColorBuffers = []
 
                 for(let i = 0; i < numExamples; i++){
                         console.log('iteration', i)
@@ -67,56 +62,20 @@ function NeuralNetwork() {
                         });
 
                         const pixels = await tf.browser.toPixels(imageTensor)
-                        // console.log('imageTensor',imageTensor.dataSync())
-                        // const dataArr = imageTensor.dataSync()
-                        console.log('pixels',pixels)
+
+                        const colorScheme = Float32Array.from(pixels)
+
+                        const currentColorAttribute = new THREE.InstancedBufferAttribute(colorScheme, 4)
+                        tempColorBuffers.push(currentColorAttribute)
                         
                 }
+                setColorAttributesArray(tempColorBuffers)
 
-        }
-        function renderLoop(){
-                window.requestAnimationFrame(renderLoop)
+        },[])
 
-                // hoverLoop()
-                if(inputLayerRef.current != null){
-                        // visualizeTrainingInstance()
-                        showColors()
-
-                }
-                // showColors()
-        }
-        
-
-        function visualizeTrainingInstance(){
-                // for(let i = 0; i < inputLayerRef.current.chi)
-                inputLayerRef.current.children.forEach( (child, index) => {
-                        setTimeout(() => {
-                                if(prevChild){
-                                        prevChild.material.color = new THREE.Color(0xffffff); // change the previous child back to white
-                                        prevChild.material.needsUpdate = true;
-                                }
-                                child.material.color = new THREE.Color(0xfcba03)
-                                child.material.needsUpdate = true
-                                prevChild = child
-                        }, index * 100);
-
-                })
-
-        }
-
-        function showColors(){
-                console.log(inputLayerPositions)
-                // for(let i in showcaseNumbers){
-                //         // console.log('i',i)
-                //         setTimeout(() => {
-                //                 inputLayerRef.current.children.forEach( (child, index) => {
-                //                         console.log('drawing')
-                //                         child.material.color = showcaseNumbers[i][index]
-                //                         child.material.needsUpdate = true
-                //                 })
-                //         }, 5000);
-
-                // }
+        function visualizePretrainedModel(){
+                // toggleShowCasing(true)
+                togglePretrainedVisualization(!visualizationState)
         }
         const setInputLayerPositions = useCallback((positions) => {
                 setInputPositions(positions)
@@ -131,21 +90,19 @@ function NeuralNetwork() {
                 setOutputPositions(positions)
         },[])
 
-        const planeGeo = new THREE.PlaneGeometry( 500, 500);
-        const planeMat = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
-        const plane = new THREE.Mesh( planeGeo, planeMat );
-
+        const updateVisualizationState = useCallback(() => {
+                // toggleShowCasing(newState)
+                togglePretrainedVisualization(!visualizationState)
+        },[])
 
         return (
                 <>
                 <div>
-                        {/* <button onClick={drawExamples} dir={'rtl'}>Load data</button> */}
-                        <button onClick={showColors} dir={'rtl'}>Show numbers</button>
-
+                        <button onClick={updateVisualizationState} dir={'rtl'}>Visualize Pretrained Model</button>
                 </div>
                 <Canvas camera = {{ position: cameraPosition.current, fov: 53, aspect: width / height, near: 1, far: 5000 }}>
                         <group  position={[0,0,100]} rotation={[Math.PI /2, 0, 0]}  >
-                                <InputLayer ref={inputLayerRef} nextLayerPositions = {layerOnePositions} passPositionsUp = {setInputLayerPositions}/>
+                                <InputLayer ref={inputLayerRef} nextLayerPositions = {layerOnePositions} passPositionsUp = {setInputLayerPositions} inputColorAttributes={colorAttributesArray} visualizingModel={visualizationState}  />
                         </group>
                         <group  position={[0,0,-50]} rotation={[Math.PI /2, 0, 0]} >
                                 <HiddenLayerOne nextLayerPositions={layerTwoPositions} passPositionsUp = {setLOnePositions} ref={inputLayerRef}/>
@@ -157,10 +114,6 @@ function NeuralNetwork() {
                                 <OutputLayer passPositionsUp={setOutputLayerPositions} ref={hiddenLayerTwoRef}/>
                         </group> 
                         <OrbitControls enableRotate={rotationEnabled}/>
-                        {/* <group position={[0,0,100]}  >
-                                <primitive object={plane}/>
-
-                        </group>  */}
                         {/* <MapControls/> */}
                         {/* <Stars count={100000} depth={100}/> */}
                         {/* <Cloud /> */}
@@ -178,13 +131,3 @@ function NeuralNetwork() {
 }
 
 export default NeuralNetwork
-
-// const kat = {
-//         name: 'Kat',
-//         age: 25,
-//         location: 'New York',
-//         getName: function(){
-//                 return this.name
-//         }
-// }
-// console.log(kat.getName())
