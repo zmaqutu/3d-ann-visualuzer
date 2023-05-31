@@ -1,5 +1,5 @@
 import { Cloud, Line, MapControls, OrbitControls, Points, Sky, Sparkles, Stars } from '@react-three/drei'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import InputLayer from './InputLayer'
 import HiddenLayerOne from './HiddenLayerOne'
 import HiddenLayerTwo from './HiddenLayerTwo'
@@ -32,58 +32,46 @@ function NeuralNetwork() {
         const [outputLayerPositions, setOutputPositions] = useState([])
 
 
-        let showcaseNumbers = {}
+        let colorBuffers = []
         const randomColors = [0x000000, 0xfcba03,]
 
         let prevChild = null
 
-        
 
         //machine Learning variables
         const LEARNING_RATE = 0.1
 
         useEffect(() => {
-                // inputLayer = props.previousLayer.current.children
-                // inputLayerPositions = getGlobalPositions()
                 // loadExamples()
-                // renderLoop()
-                // console.log('',hiddenLayerOneRef)
-                
-        }, [])
+                console.log('inputLayerPos useffect',inputLayerPositions)
+
+        }, [inputLayerPositions])
 
 
         async function loadExamples(){
                 // toggleRotation(!rotationEnabled)
+                console.log('loading examples')
+                return
                 const data = new MnistData()
                 await data.load()
-                const examples = data.nextTestBatch(20)
+                const examples = data.nextTestBatch(1)
                 const numExamples = examples.xs.shape[0];
 
                 for(let i = 0; i < numExamples; i++){
+                        console.log('iteration', i)
                         const imageTensor = tf.tidy(() => {
                                 // Reshape the image to 28x28 px
                                 return examples.xs
                                   .slice([i, 0], [1, examples.xs.shape[1]])
                                   .reshape([28, 28, 1]);
-                              });
+                        });
 
                         const pixels = await tf.browser.toPixels(imageTensor)
-                        let tempColors = []
-                        for(let j = 0; j <pixels.length; j+=4){
-                                const r = pixels[j] / 255
-                                const g = pixels[j+1] / 255
-                                const b = pixels[j+2] / 255
-                                const alpha = pixels[j+3] / 255
-                                const color = new THREE.Color(r,g,b,alpha)
-                                tempColors.push(color)
-
-                        }
-                        showcaseNumbers[i]= tempColors
+                        // console.log('imageTensor',imageTensor.dataSync())
+                        // const dataArr = imageTensor.dataSync()
+                        console.log('pixels',pixels)
+                        
                 }
-
-                return
-                const inputLayer = inputLayerRef.current.children;
-                const hiddenLayerOne = hiddenLayerOneRef.current.children;
 
         }
         function renderLoop(){
@@ -117,34 +105,36 @@ function NeuralNetwork() {
         }
 
         function showColors(){
-                for(let i in showcaseNumbers){
-                        // console.log('i',i)
-                        setTimeout(() => {
-                                inputLayerRef.current.children.forEach( (child, index) => {
-                                        console.log('drawing')
-                                        child.material.color = showcaseNumbers[i][index]
-                                        child.material.needsUpdate = true
-                                })
-                        }, 5000);
+                console.log(inputLayerPositions)
+                // for(let i in showcaseNumbers){
+                //         // console.log('i',i)
+                //         setTimeout(() => {
+                //                 inputLayerRef.current.children.forEach( (child, index) => {
+                //                         console.log('drawing')
+                //                         child.material.color = showcaseNumbers[i][index]
+                //                         child.material.needsUpdate = true
+                //                 })
+                //         }, 5000);
 
-                }
+                // }
         }
-        function setInputLayerPositions(positions){
-                // console.log('positions',positions)
+        const setInputLayerPositions = useCallback((positions) => {
                 setInputPositions(positions)
-        }
-        function setLOnePositions(positions){
-                // console.log('positions',positions)
+        },[])
+        const setLOnePositions = useCallback((positions) => {
                 setLayerOnePositions(positions)
-        }
-        function setLTwoPositions(positions){
-                // console.log('positions',positions)
+        },[])
+        const setLTwoPositions = useCallback((positions) => {
                 setLayerTwoPositions(positions)
-        }
-        function setOutputLayerPositions(positions){
-                // console.log('positions',positions)
+        },[])
+        const setOutputLayerPositions = useCallback((positions) => {
                 setOutputPositions(positions)
-        }
+        },[])
+
+        const planeGeo = new THREE.PlaneGeometry( 500, 500);
+        const planeMat = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+        const plane = new THREE.Mesh( planeGeo, planeMat );
+
 
         return (
                 <>
@@ -155,7 +145,7 @@ function NeuralNetwork() {
                 </div>
                 <Canvas camera = {{ position: cameraPosition.current, fov: 53, aspect: width / height, near: 1, far: 5000 }}>
                         <group  position={[0,0,100]} rotation={[Math.PI /2, 0, 0]}  >
-                                <InputLayer nextLayerPositions = {layerOnePositions} passPositionsUp={setLayerOnePositions}/>
+                                <InputLayer ref={inputLayerRef} nextLayerPositions = {layerOnePositions} passPositionsUp = {setInputLayerPositions}/>
                         </group>
                         <group  position={[0,0,-50]} rotation={[Math.PI /2, 0, 0]} >
                                 <HiddenLayerOne nextLayerPositions={layerTwoPositions} passPositionsUp = {setLOnePositions} ref={inputLayerRef}/>
@@ -167,6 +157,10 @@ function NeuralNetwork() {
                                 <OutputLayer passPositionsUp={setOutputLayerPositions} ref={hiddenLayerTwoRef}/>
                         </group> 
                         <OrbitControls enableRotate={rotationEnabled}/>
+                        {/* <group position={[0,0,100]}  >
+                                <primitive object={plane}/>
+
+                        </group>  */}
                         {/* <MapControls/> */}
                         {/* <Stars count={100000} depth={100}/> */}
                         {/* <Cloud /> */}
@@ -184,3 +178,13 @@ function NeuralNetwork() {
 }
 
 export default NeuralNetwork
+
+// const kat = {
+//         name: 'Kat',
+//         age: 25,
+//         location: 'New York',
+//         getName: function(){
+//                 return this.name
+//         }
+// }
+// console.log(kat.getName())

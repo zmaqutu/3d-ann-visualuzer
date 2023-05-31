@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect, useMemo} from 'react'
+import React, {useRef, useState, useEffect, useMemo, forwardRef} from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import Neuron from './Neuron';
@@ -6,7 +6,7 @@ import { Segments, Segment, SegmentObject } from '@react-three/drei';
 
 
 
-function InputLayer(props) {
+const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
         const nextLayerPositions = props.nextLayerPositions
 
         const [linePositions,setLinePositions] = useState([])
@@ -17,6 +17,27 @@ function InputLayer(props) {
         const inputLayerMaterial = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide,color:0x181c20})
         const inputLayerMesh = new THREE.InstancedMesh(inputLayerGeometry, inputLayerMaterial, 784);
         inputLayerMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        // inputLayerMesh.makeScale(1, 1, 1)
+        // inputLayerMesh.setColorAt(1, new THREE.Color(0xebe534))
+        // inputLayerMesh.instanceColor.needsUpdate = true;
+
+        // const uv = inputLayerGeometry.attributes.uv; // Assuming the boxGeometry has UV coordinates
+        // instancedGeometry.setAttribute('uv', new THREE.InstancedBufferAttribute(uv.array, uv.itemSize).setDynamic(true));
+
+        // console.log('inputLayerMesh',inputLayerMesh)
+        const offsets = []; // Array to hold the offset values for each instance
+
+        for (let i = 0; i < 784; i++) {
+                // Calculate the position offset for each instance in the grid
+                const col = i % 28;
+                const row = Math.floor(i / 28);
+                const offset = new THREE.Vector3(col * 15, row * 15, 0);
+                offsets.push(offset.x, offset.y, offset.z);
+        }
+
+        inputLayerMesh.geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(new Float32Array(offsets), 3));
+
+
 
         useEffect(() => {
 		if(nextLayerPositions.length  > 0){
@@ -59,24 +80,25 @@ function InputLayer(props) {
                 }
                 return tempLinePositions
         }
+        
         // useFrame(({ clock }) => {
         //             lineRef.current.forEach((r, i) => {
         //               const time = clock.elapsedTime
         //               const x = Math.sin((i / 5000) * Math.PI) * 10
         //               const y = Math.cos((i / 5000) * Math.PI) * 10
         //               const z = Math.cos((i * time) / 1000)
-        //               r.start.set(x  , y  , z  )
-        //               r.end.set(x + Math.sin(time + i)  , y + Math.cos(time + i)  , z  )
-        //               r.color.setRGB(x / 10, y / 10, z)
+        //         //       r.start.set(x  , y  , z  )
+        //         //       r.end.set(x + Math.sin(time + i)  , y + Math.cos(time + i)  , z  )
+        //               r.color.setRGB(x / 30, y / 30, z*2)
         //             })
         //           })
        
         return (
                 <>
-                        <primitive object={inputLayerMesh}/>
+                        <primitive ref = {inputLayerRef} object={inputLayerMesh}/>
                         { linePositions.length > 0 
                                 ?
-                                        <Segments limit={linePositions.length} lineWidth={0.1}>
+                                        <Segments limit={linePositions.length} lineWidth={0.05}>
                                                 {linePositions.map((line, i) => (
                                                         <Segment key={i} 
                                                                 ref={(r) => (lineRef.current[i] = r)} 
@@ -95,6 +117,6 @@ function InputLayer(props) {
                         </Segments> */}
                 </>
         )
-}
+})
 
 export default InputLayer

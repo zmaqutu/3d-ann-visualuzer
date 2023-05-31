@@ -78,6 +78,7 @@ const HiddenLayerOne = forwardRef(function HiddenLayerOne(props, inputLayerRef) 
                                         </Segments>
                                 : null
                         }
+                        {/* {console.log('gl',gl)} */}
                 </>
         )
 })
