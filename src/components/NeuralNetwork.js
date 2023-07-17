@@ -37,10 +37,21 @@ function NeuralNetwork() {
 
 
         useEffect(() => {
-                if(inputLayerPositions.length > 0){
-                        loadExamples()
-                }
+                // const worker = new Worker('../workers/worker.js')
+                // if(inputLayerPositions.length > 0){
+                //         loadExamples()
+                // }
         }, [inputLayerPositions])
+
+        useEffect(() => {
+                const worker = new Worker(new URL('../workers/worker.js', import.meta.url));
+
+                return () => {
+                        console.log('terminating worker')
+                        worker.terminate()
+                }
+
+        }, [])
 
 
 
