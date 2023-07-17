@@ -85,21 +85,20 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                 }
                 return tempLinePositions
         }
-        
-        // useFrame(({ clock }) => {
-        //         // if we are visualizing our
-        //         if(props.visualizingModel){
-        //                 setTimeout(() => {
-        //                 for(let i = 0; i < props.inputColorAttributes.length; i++){
-        //                         console.log('ite', i)
-        //                                 inputLayerMesh.geometry.setAttribute('color', props.inputColorAttributes[i])
-        //                                 inputLayerMesh.geometry.getAttribute('color').needsUpdate = true;
-        //                 }
-        //                 }, 3000);  
 
-                        
-                        
-        //         }   
+        // useFrame(({ clock }) => {
+        //         lineRef.current.forEach((r, i) => {
+        //                 const time = clock.elapsedTime
+        //                 const x = Math.sin((i / 5000) * Math.PI) * 10
+        //                 const y = Math.cos((i / 5000) * Math.PI) * 10
+        //                 const z = Math.cos((i * time) / 1000)
+        //                 // r.start.set(x, y, z)
+        //                 // r.end.set(x + Math.sin(time + i), y + Math.cos(time + i), z)
+        //                 r.color.setRGB(x / 100, y / 10, z)
+        //                 })
+        //         lineRef.current[0].color.setRGB(1,0,0)
+        //         lineRef.current[1].color.setRGB(0,1,0)
+        //         lineRef.current[2].color.setRGB(1,1,0)
         // })
        
         return (
