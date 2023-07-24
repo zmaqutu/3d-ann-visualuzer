@@ -30,29 +30,41 @@ function NeuralNetwork() {
         const [layerTwoPositions, setLayerTwoPositions] = useState([])
         const [outputLayerPositions, setOutputPositions] = useState([])
         const [visualizationState, togglePretrainedVisualization] = useState(false)
+        // const [worker, setWorker] = useState(new Worker(new URL('../workers/worker.js', import.meta.url)))
 
 
         // an array of 20 color InstancedBufferAttributes
         const [colorAttributesArray, setColorAttributesArray] = useState([])
 
 
-        useEffect(() => {
-                // const worker = new Worker('../workers/worker.js')
-                // if(inputLayerPositions.length > 0){
-                //         loadExamples()
-                // }
-        }, [inputLayerPositions])
+        // useEffect(() => {
+        //         // const worker = new Worker('../workers/worker.js')
+        //         if(inputLayerPositions.length > 0){
+        //                 loadExamples()
+        //         }
+        // }, [inputLayerPositions])
 
-        useEffect(() => {
-                const worker = new Worker(new URL('../workers/worker.js', import.meta.url));
+        // useEffect(() => {
+        //         worker.onmessage = (e) => {
+        //                 console.log('Message received from worker', e.data)
+        //         }
+        //         const message = {action: 'loadExamples'}
+        //         worker.postMessage(message)
+        //         // return () => {
+        //         //         console.log('terminating worker')
+        //         //         worker.terminate()
+        //         // }
 
-                return () => {
-                        console.log('terminating worker')
-                        worker.terminate()
-                }
+        // }, [])
 
-        }, [])
+        // useEffect(() => {
+        //         console.log('useffect')
+        //         // return () => {
+        //         //         console.log('terminating worker')
+        //         //         worker.terminate()
+        //         // }
 
+        // }, [])
 
 
         const loadExamples = useCallback( async () => {
