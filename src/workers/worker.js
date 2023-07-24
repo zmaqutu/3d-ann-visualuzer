@@ -4,10 +4,11 @@ import * as THREE from 'three'
 
 
 // global variables
-const IMAGE_SIZE = 784;
+const IMAGE_WIDTH = 28;
+const IMAGE_HEIGHT = 28;
 const NUM_CLASSES = 10;
 const NUM_DATASET_ELEMENTS = 65000;
-let someArray = []
+const model = tf.sequential();
 
 /**Potential list of actions the worker will recieve
  * initialize network
@@ -19,20 +20,58 @@ let someArray = []
 self.onmessage = async function(event){
         const { action, data } = event.data;
                 
-        postMessage({action: action, data: data})
-        // console.log(action, data)
-        
+        // postMessage({action: action, data: data})
 
-        // let colorAttributesArray = []
-        // if(action == 'loadExamples'){
-        //         colorAttributesArray = await loadExamples()
-        //         postMessage({action: 'provideExamples', numbersMatrix: colorAttributesArray})
-        // }
-        if(action == 'printGlobals'){
-                console.log('someArray Before', someArray)
-                someArray.push(Math.random())
-                console.log('someArray After', someArray)
+        switch(action){
+                case 'initializeNetwork':
+                        initializeNetwork()
+                        break;
+                // case 'loadExamples':
+                //         loadExamples()
+                //         break;
+                // case 'trainNetwork':
+                //         trainNetwork()
+                //         break;
+                // case 'visualizeNetwork':
+                //         visualizeNetwork()
+                //         break;
+                default:
+                        console.log('no valid action provided')
         }
+        
+}
+
+/** Function to define model architecture */
+function initializeNetwork(){
+
+        // input layer with 784 neurons
+        model.add(tf.layers.dense({
+                inputShape: [784],
+                units: 16,
+                activation: 'relu'
+        }))
+
+        // hidden layer with 16 neurons
+        model.add(tf.layers.dense({
+                units: 16,
+                activation: 'relu'
+        }))
+
+        // output layer with 10 neurons
+        model.add(tf.layers.dense({
+                units: 10,
+                activation: 'softmax'
+        }))
+
+        // Compile the model with Adam optimizer and categorical crossentropy loss
+        model.compile({
+                optimizer: tf.train.adam(),
+                loss: 'categoricalCrossentropy',
+                metrics: ['accuracy']
+        })
+
+        console.log('model initialized', model)
+        // postMessage({action: 'modelInitialized', data: model})
 }
 
 // async function loadExamples (){

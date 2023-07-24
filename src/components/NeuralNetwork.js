@@ -51,7 +51,7 @@ function NeuralNetwork() {
                         //         setColorAttributesArray(e.data.numbersMatrix)
                         // }
                 }
-                const message = {action: 'loadExamples'}
+                const message = {action: 'initializeNetwork'}
                 worker.postMessage(message)
                 return () => {
                         console.log('terminating worker')
