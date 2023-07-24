@@ -30,41 +30,35 @@ function NeuralNetwork() {
         const [layerTwoPositions, setLayerTwoPositions] = useState([])
         const [outputLayerPositions, setOutputPositions] = useState([])
         const [visualizationState, togglePretrainedVisualization] = useState(false)
-        // const [worker, setWorker] = useState(new Worker(new URL('../workers/worker.js', import.meta.url)))
+        const [worker, setWorker] = useState(new Worker(new URL('../workers/worker.js', import.meta.url)))
 
 
         // an array of 20 color InstancedBufferAttributes
         const [colorAttributesArray, setColorAttributesArray] = useState([])
 
 
-        // useEffect(() => {
-        //         // const worker = new Worker('../workers/worker.js')
-        //         if(inputLayerPositions.length > 0){
-        //                 loadExamples()
-        //         }
-        // }, [inputLayerPositions])
+        useEffect(() => {
+                // const worker = new Worker('../workers/worker.js')
+                if(inputLayerPositions.length > 0){
+                        loadExamples()
+                }
+        }, [inputLayerPositions])
 
-        // useEffect(() => {
-        //         worker.onmessage = (e) => {
-        //                 console.log('Message received from worker', e.data)
-        //         }
-        //         const message = {action: 'loadExamples'}
-        //         worker.postMessage(message)
-        //         // return () => {
-        //         //         console.log('terminating worker')
-        //         //         worker.terminate()
-        //         // }
+        useEffect(() => {
+                worker.onmessage = (e) => {
+                        console.log('Message received from worker', e.data)
+                        // if(e.data.action == 'provideExamples'){
+                        //         setColorAttributesArray(e.data.numbersMatrix)
+                        // }
+                }
+                const message = {action: 'loadExamples'}
+                worker.postMessage(message)
+                return () => {
+                        console.log('terminating worker')
+                        worker.terminate()
+                }
 
-        // }, [])
-
-        // useEffect(() => {
-        //         console.log('useffect')
-        //         // return () => {
-        //         //         console.log('terminating worker')
-        //         //         worker.terminate()
-        //         // }
-
-        // }, [])
+        }, [])
 
 
         const loadExamples = useCallback( async () => {
@@ -76,7 +70,7 @@ function NeuralNetwork() {
                 let tempColorBuffers = []
 
                 for(let i = 0; i < numExamples; i++){
-                        console.log('iteration', i)
+                        // console.log('iteration', i)
                         const imageTensor = tf.tidy(() => {
                                 // Reshape the image to 28x28 px
                                 return examples.xs
@@ -115,6 +109,7 @@ function NeuralNetwork() {
 
         const updateVisualizationState = useCallback(() => {
                 // toggleShowCasing(newState)
+                worker.postMessage({action: 'printGlobals'})
                 togglePretrainedVisualization(!visualizationState)
         },[])
 
