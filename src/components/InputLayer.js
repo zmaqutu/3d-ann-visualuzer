@@ -37,7 +37,11 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
 
         useEffect(() => {
                 // console.log(props.inputColorAttributes.length > 0, props.visualizingModel)
-		if(props.inputColorAttributes.length > 0 && props.visualizingModel){
+		if(props.inputColorAttributes.length == 1){
+                        inputLayerMesh.geometry.setAttribute('color', props.inputColorAttributes[colorIndex])
+                        inputLayerMesh.geometry.getAttribute('color').needsUpdate = true;
+                }
+                else if(props.inputColorAttributes.length > 0 && props.visualizingModel){
                         setInterval(() => {
                                 // console.log('interval',colorIndex)
                                 inputLayerMesh.geometry.setAttribute('color', props.inputColorAttributes[colorIndex])

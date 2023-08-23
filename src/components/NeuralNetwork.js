@@ -47,9 +47,17 @@ function NeuralNetwork() {
         useEffect(() => {
                 worker.onmessage = (e) => {
                         console.log('Message received from worker', e.data)
-                        // if(e.data.action == 'provideExamples'){
-                        //         setColorAttributesArray(e.data.numbersMatrix)
-                        // }
+                        if(e.data.action == 'drawPredictionInput'){
+                                const imagePixels = e.data.imagePixels
+                                let tempColorBuffers = []
+                                const colorScheme = Float32Array.from(imagePixels)
+
+                                const currentColorAttribute = new THREE.InstancedBufferAttribute(colorScheme, 4)
+
+                                tempColorBuffers.push(currentColorAttribute)
+
+                                setColorAttributesArray(tempColorBuffers)
+                        }
                 }
                 const message = {action: 'initializeNetwork'}
                 worker.postMessage(message)
@@ -126,6 +134,7 @@ function NeuralNetwork() {
         function predictInput(){
                 // console.log('predicting input')
                 worker.postMessage({action: 'predictInput'})
+                updateVisualizationState()
                 // loadXExamples()
         }
 

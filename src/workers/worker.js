@@ -117,14 +117,12 @@ async function trainNetwork(){
 
 }
 
-function predict(){
-        console.log('Predicting...')
+async function predict(){
+        // console.log('Predicting...')
         const batch = data.nextTestBatch(1);
+        const imagePixels = await getImagePixels(batch)
+        postMessage({action: 'drawPredictionInput', imagePixels: imagePixels})
         tf.tidy(() => {
-                // const input = tf.tensor2d(batch, [1, 784]);
-                // const result = model.predict(input);
-                // const output = result.dataSync();
-                // console.log(output)
                 const input = Array.from(batch.labels.argMax(1).dataSync());
 
                 const output = model.predict(batch.xs.reshape([-1, 784]))
@@ -135,6 +133,16 @@ function predict(){
                 console.log('Original Value', input)
                 console.log('Predicted Value', prediction)
         })
-        console.log('Prediction complete')
+        // console.log('Prediction complete')
+}
+
+async function getImagePixels(batch){
+        const imageTensor = tf.tidy(() => {
+                // Reshape the image to 28x28 px
+                return batch.xs
+                  .slice([0, 0], [1, batch.xs.shape[1]])
+                  .reshape([28, 28, 1]);
+        });
+        return await tf.browser.toPixels(imageTensor)
 }
 /* eslint-enable no-restricted-globals */
