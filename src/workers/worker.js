@@ -9,6 +9,9 @@ const IMAGE_HEIGHT = 28;
 const NUM_CLASSES = 10;
 const NUM_DATASET_ELEMENTS = 65000;
 const model = tf.sequential();
+const BATCH_SIZE = 64;
+const TRAIN_BATCHES = 150;
+let data;
 
 /**Potential list of actions the worker will recieve
  * initialize network
@@ -25,13 +28,14 @@ self.onmessage = async function(event){
         switch(action){
                 case 'initializeNetwork':
                         initializeNetwork()
+                        loadTrainingExamples()
                         break;
                 // case 'loadExamples':
                 //         loadExamples()
                 //         break;
-                // case 'trainNetwork':
-                //         trainNetwork()
-                //         break;
+                case 'trainNetwork':
+                        trainNetwork()
+                        break;
                 // case 'visualizeNetwork':
                 //         visualizeNetwork()
                 //         break;
@@ -43,6 +47,11 @@ self.onmessage = async function(event){
 
 /** Function to define model architecture */
 function initializeNetwork(){
+        console.log('Initializing model...')
+        // if model is already initialized, return
+        if(model.layers.length > 0){
+                return
+        }
 
         // input layer with 784 neurons
         model.add(tf.layers.dense({
@@ -69,37 +78,42 @@ function initializeNetwork(){
                 loss: 'categoricalCrossentropy',
                 metrics: ['accuracy']
         })
+        console.log('Model initialized')
 
-        console.log('model initialized', model)
+        // console.log('model initialized', model.layers[0].getWeights()[0].print())
+        // model.weights.forEach(w => {
+        //         console.log(w.name, w.shape);
+        // });
         // postMessage({action: 'modelInitialized', data: model})
+        // model.layers[1].getWeights()[0].print()
 }
 
-// async function loadExamples (){
-//         const data = new MnistData()
-//         await data.load()
-//         const examples = data.nextTestBatch(20)
-//         const numExamples = examples.xs.shape[0];
+async function loadTrainingExamples(){
+        console.log('Loading training examples...')
+        data = new MnistData()
+        await data.load()
+        console.log('Training examples loaded')
+}
 
-//         let tempColorBuffers = []
-
-//         for(let i = 0; i < numExamples; i++){
-//                 console.log('iteration', i)
-//                 const imageTensor = tf.tidy(() => {
-//                         // Reshape the image to 28x28 px
-//                         return examples.xs
-//                           .slice([i, 0], [1, examples.xs.shape[1]])
-//                           .reshape([28, 28, 1]);
-//                 });
-
-//                 const pixels = await tf.browser.toPixels(imageTensor)
-
-//                 const colorScheme = Float32Array.from(pixels)
-
-//                 const currentColorAttribute = new THREE.InstancedBufferAttribute(colorScheme, 4)
-//                 tempColorBuffers.push(currentColorAttribute)
-                
-//         }
-//         return tempColorBuffers
-
-// }
+async function trainNetwork(){
+        console.log('Start training...')
+        for(let i = 0; i < TRAIN_BATCHES; i++){
+                const batch = tf.tidy(() => {
+                        // retrieve the next batch of training data of size BATCH_SIZE
+                        const currentBatch = data.nextTrainBatch(BATCH_SIZE);
+                        
+                        // train the model on the batch
+                        currentBatch.xs = currentBatch.xs.reshape([BATCH_SIZE, 784]);
+                        return currentBatch;
+                });
+                await model.fit(
+                        batch.xs,                               // input data
+                        batch.labels,                           // classification data
+                        {batchSize: BATCH_SIZE, epochs: 1}      // training parameters
+                );
+                tf.dispose(batch);
+                await tf.nextFrame();
+        }
+        console.log('Training complete')
+}
 /* eslint-enable no-restricted-globals */

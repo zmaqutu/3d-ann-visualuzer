@@ -47,10 +47,17 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                                         colorIndex = 0
                                 }
 
-                        }, 1500);
+                        }, 1000);
                 }
 		
         }, [colorAttributesArray, visualizingModel])
+        // a fyber hook that runs on every frame
+        useFrame(() => {
+                // inputLayerMesh.rotation.x += 0.01
+                // inputLayerMesh.rotation.y += 0.01
+                // inputLayerMesh.rotation.z += 0.01
+        })
+
 
         // memoize positions for each neuron cube
         const positions = useMemo(() => {

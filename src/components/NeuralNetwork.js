@@ -37,12 +37,12 @@ function NeuralNetwork() {
         const [colorAttributesArray, setColorAttributesArray] = useState([])
 
 
-        useEffect(() => {
-                // const worker = new Worker('../workers/worker.js')
-                if(inputLayerPositions.length > 0){
-                        loadExamples()
-                }
-        }, [inputLayerPositions])
+        // useEffect(() => {
+        //         // const worker = new Worker('../workers/worker.js')
+        //         if(inputLayerPositions.length > 0){
+        //                 loadInitialExamples()
+        //         }
+        // }, [inputLayerPositions])
 
         useEffect(() => {
                 worker.onmessage = (e) => {
@@ -61,7 +61,7 @@ function NeuralNetwork() {
         }, [])
 
 
-        const loadExamples = useCallback( async () => {
+        const loadInitialExamples = useCallback( async () => {
                 const data = new MnistData()
                 await data.load()
                 const examples = data.nextTestBatch(20)
@@ -113,10 +113,28 @@ function NeuralNetwork() {
                 togglePretrainedVisualization(!visualizationState)
         },[])
 
+        function toggleWorldSetup(){
+
+        }
+
+        function predictInput(){
+                // worker.postMessage({action: 'predictInput'})
+                // loadXExamples()
+        }
+
+        function trainNetwork(){
+                worker.postMessage({action: 'trainNetwork'})
+        }
+
         return (
                 <>
                 <div>
                         <button onClick={updateVisualizationState} dir={'rtl'}>Visualize Pretrained Model</button>
+                        <button onClick={toggleWorldSetup}>Setup Input</button>
+                        <button onClick={predictInput}>Predict Number</button>
+                        <button onClick={trainNetwork}>Train Network</button>
+
+
                 </div>
                 <Canvas camera = {{ position: cameraPosition.current, fov: 53, aspect: width / height, near: 1, far: 5000 }}>
                         <group  position={[0,0,100]} rotation={[Math.PI /2, 0, 0]}  >
