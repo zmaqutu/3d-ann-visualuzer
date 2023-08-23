@@ -30,15 +30,13 @@ self.onmessage = async function(event){
                         initializeNetwork()
                         loadTrainingExamples()
                         break;
-                // case 'loadExamples':
-                //         loadExamples()
-                //         break;
                 case 'trainNetwork':
                         trainNetwork()
                         break;
-                // case 'visualizeNetwork':
-                //         visualizeNetwork()
-                //         break;
+                case 'predictInput':
+                        console.log('predicting input from worker')
+                        predict()
+                        break;
                 default:
                         console.log('no valid action provided')
         }
@@ -115,5 +113,28 @@ async function trainNetwork(){
                 await tf.nextFrame();
         }
         console.log('Training complete')
+        // model.layers[1].getWeights()[0].print()
+
+}
+
+function predict(){
+        console.log('Predicting...')
+        const batch = data.nextTestBatch(1);
+        tf.tidy(() => {
+                // const input = tf.tensor2d(batch, [1, 784]);
+                // const result = model.predict(input);
+                // const output = result.dataSync();
+                // console.log(output)
+                const input = Array.from(batch.labels.argMax(1).dataSync());
+
+                const output = model.predict(batch.xs.reshape([-1, 784]))
+
+                const prediction = Array.from(output.argMax(1).dataSync());
+                const image = batch.xs.slice([0, 0], [1, batch.xs.shape[1]]);
+
+                console.log('Original Value', input)
+                console.log('Predicted Value', prediction)
+        })
+        console.log('Prediction complete')
 }
 /* eslint-enable no-restricted-globals */

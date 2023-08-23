@@ -117,13 +117,16 @@ function NeuralNetwork() {
 
         }
 
-        function predictInput(){
-                // worker.postMessage({action: 'predictInput'})
-                // loadXExamples()
-        }
-
         function trainNetwork(){
                 worker.postMessage({action: 'trainNetwork'})
+        }
+
+        // this function is called when the user clicks the predict button
+        // it randomly selects a test example, draws it on our inputLayer and predicts the number
+        function predictInput(){
+                // console.log('predicting input')
+                worker.postMessage({action: 'predictInput'})
+                // loadXExamples()
         }
 
         return (
@@ -131,7 +134,7 @@ function NeuralNetwork() {
                 <div>
                         <button onClick={updateVisualizationState} dir={'rtl'}>Visualize Pretrained Model</button>
                         <button onClick={toggleWorldSetup}>Setup Input</button>
-                        <button onClick={predictInput}>Predict Number</button>
+                        <button onClick={predictInput}>Randomly Select Test Data and Predict</button>
                         <button onClick={trainNetwork}>Train Network</button>
 
 
