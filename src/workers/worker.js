@@ -156,14 +156,21 @@ function getActivations(imageTensor){
         const intermediateModel1 = tf.model({inputs: model.input, outputs: model.getLayer('hiddenLayerOne').output});
         const activations1 = intermediateModel1.predict(imageTensor)
         const activationsArray1 = Array.from(activations1.dataSync())
-        console.log('activations1', activations1)
+        console.log('activations1', activationsArray1)
         
         // intermediate model from hiddenLayerTwo to outputLayer
-        
-        // const intermediateModel2 = tf.model({inputs: tf.tensor2d(activations1), outputs: model.getLayer('hiddenLayerTwo').output});
-        // const activations2 = intermediateModel2.predict(activations1)
-        // const activationsArray2 = Array.from(activations2.dataSync())
-        // console.log('intermediate model 2', activationsArray2)
+        const layerTwo = model.getLayer('hiddenLayerTwo')
+        const intermediateModel2 = tf.model({inputs: model.input, outputs: model.getLayer('hiddenLayerTwo').output});
+        const activations2 = intermediateModel2.predict(imageTensor)
+        const activationsArray2 = Array.from(activations2.dataSync())
+        console.log('intermediate model 2', activationsArray2)
+
+        // output layer
+        const outputLayer = model.getLayer('outputLayer')
+        const intermediateModel3 = tf.model({inputs: model.input, outputs: model.getLayer('outputLayer').output});
+        const activations3 = intermediateModel3.predict(imageTensor)
+        const activationsArray3 = Array.from(activations3.dataSync())
+        console.log('intermediate model 3', activationsArray3)
 
 }
 /* eslint-enable no-restricted-globals */
