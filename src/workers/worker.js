@@ -51,23 +51,26 @@ function initializeNetwork(){
                 return
         }
 
-        // input layer with 784 neurons
+        // the first hidden layer with 16 neurons takes in the input of 784 pixels
         model.add(tf.layers.dense({
                 inputShape: [784],
                 units: 16,
-                activation: 'relu'
+                activation: 'relu',
+                name: 'hiddenLayerOne'
         }))
 
         // hidden layer with 16 neurons
         model.add(tf.layers.dense({
                 units: 16,
-                activation: 'relu'
+                activation: 'relu',
+                name: 'hiddenLayerTwo'
         }))
 
         // output layer with 10 neurons
         model.add(tf.layers.dense({
                 units: 10,
-                activation: 'softmax'
+                activation: 'softmax',
+                name: 'outputLayer'
         }))
 
         // Compile the model with Adam optimizer and categorical crossentropy loss
@@ -133,7 +136,10 @@ async function predict(){
                 console.log('Original Value', input)
                 console.log('Predicted Value', prediction)
         })
+        getActivations(batch.xs)
         // console.log('Prediction complete')
+        // console.log('modz',model.layers)
+        // model.summary()
 }
 
 async function getImagePixels(batch){
@@ -144,5 +150,20 @@ async function getImagePixels(batch){
                   .reshape([28, 28, 1]);
         });
         return await tf.browser.toPixels(imageTensor)
+}
+function getActivations(imageTensor){
+        // intermediate model from hiddenLayerOne to to hiddenLayerTwo
+        const intermediateModel1 = tf.model({inputs: model.input, outputs: model.getLayer('hiddenLayerOne').output});
+        const activations1 = intermediateModel1.predict(imageTensor)
+        const activationsArray1 = Array.from(activations1.dataSync())
+        console.log('activations1', activations1)
+        
+        // intermediate model from hiddenLayerTwo to outputLayer
+        
+        // const intermediateModel2 = tf.model({inputs: tf.tensor2d(activations1), outputs: model.getLayer('hiddenLayerTwo').output});
+        // const activations2 = intermediateModel2.predict(activations1)
+        // const activationsArray2 = Array.from(activations2.dataSync())
+        // console.log('intermediate model 2', activationsArray2)
+
 }
 /* eslint-enable no-restricted-globals */
