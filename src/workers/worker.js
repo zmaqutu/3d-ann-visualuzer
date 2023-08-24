@@ -22,8 +22,6 @@ let data;
 /* eslint-disable no-restricted-globals */
 self.onmessage = async function(event){
         const { action, data } = event.data;
-                
-        // postMessage({action: action, data: data})
 
         switch(action){
                 case 'initializeNetwork':
@@ -80,13 +78,6 @@ function initializeNetwork(){
                 metrics: ['accuracy']
         })
         console.log('Model initialized')
-
-        // console.log('model initialized', model.layers[0].getWeights()[0].print())
-        // model.weights.forEach(w => {
-        //         console.log(w.name, w.shape);
-        // });
-        // postMessage({action: 'modelInitialized', data: model})
-        // model.layers[1].getWeights()[0].print()
 }
 
 async function loadTrainingExamples(){
@@ -116,8 +107,6 @@ async function trainNetwork(){
                 await tf.nextFrame();
         }
         console.log('Training complete')
-        // model.layers[1].getWeights()[0].print()
-
 }
 
 async function predict(){
@@ -137,9 +126,6 @@ async function predict(){
                 console.log('Predicted Value', prediction)
         })
         getActivations(batch.xs)
-        // console.log('Prediction complete')
-        // console.log('modz',model.layers)
-        // model.summary()
 }
 
 async function getImagePixels(batch){
@@ -153,24 +139,26 @@ async function getImagePixels(batch){
 }
 function getActivations(imageTensor){
         // intermediate model from hiddenLayerOne to to hiddenLayerTwo
-        const intermediateModel1 = tf.model({inputs: model.input, outputs: model.getLayer('hiddenLayerOne').output});
-        const activations1 = intermediateModel1.predict(imageTensor)
-        const activationsArray1 = Array.from(activations1.dataSync())
-        console.log('activations1', activationsArray1)
+        const layerOneBinaryActivations = getLayerBinaryActivations(imageTensor, 'hiddenLayerOne')
         
         // intermediate model from hiddenLayerTwo to outputLayer
-        const layerTwo = model.getLayer('hiddenLayerTwo')
-        const intermediateModel2 = tf.model({inputs: model.input, outputs: model.getLayer('hiddenLayerTwo').output});
-        const activations2 = intermediateModel2.predict(imageTensor)
-        const activationsArray2 = Array.from(activations2.dataSync())
-        console.log('intermediate model 2', activationsArray2)
+        const layerTwoBinaryActivations = getLayerBinaryActivations(imageTensor, 'hiddenLayerTwo')
 
         // output layer
         const outputLayer = model.getLayer('outputLayer')
-        const intermediateModel3 = tf.model({inputs: model.input, outputs: model.getLayer('outputLayer').output});
-        const activations3 = intermediateModel3.predict(imageTensor)
-        const activationsArray3 = Array.from(activations3.dataSync())
-        console.log('intermediate model 3', activationsArray3)
+        const intermediateModelOutput = tf.model({inputs: model.input, outputs: outputLayer.output});
+        const activationsOutput = intermediateModelOutput.predict(imageTensor)
+        const activationsArrayOutput = Array.from(activationsOutput.dataSync())
+        const outputIndex = activationsArrayOutput.indexOf(Math.max(...activationsArrayOutput))
+}
+function getLayerBinaryActivations(imageTensor, layerName){
+        const layer = model.getLayer(layerName)
+        const intermediateModel = tf.model({inputs: model.input, outputs: layer.output});
+
+        const activations = intermediateModel.predict(imageTensor)
+        const binaryActivations = activations.greater(tf.scalar(0)).toInt().dataSync();         //relu
+
+        return binaryActivations
 
 }
 /* eslint-enable no-restricted-globals */
