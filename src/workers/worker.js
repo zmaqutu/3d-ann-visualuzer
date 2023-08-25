@@ -150,6 +150,9 @@ function getActivations(imageTensor){
         const activationsOutput = intermediateModelOutput.predict(imageTensor)
         const activationsArrayOutput = Array.from(activationsOutput.dataSync())
         const outputIndex = activationsArrayOutput.indexOf(Math.max(...activationsArrayOutput))
+
+        tf.dispose([layerOneBinaryActivations, layerTwoBinaryActivations, activationsOutput, intermediateModelOutput])
+        
 }
 function getLayerBinaryActivations(imageTensor, layerName){
         const layer = model.getLayer(layerName)
@@ -158,6 +161,7 @@ function getLayerBinaryActivations(imageTensor, layerName){
         const activations = intermediateModel.predict(imageTensor)
         const binaryActivations = activations.greater(tf.scalar(0)).toInt().dataSync();         //relu
 
+        tf.dispose([activations, intermediateModel])
         return binaryActivations
 
 }
