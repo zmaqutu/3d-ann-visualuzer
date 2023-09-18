@@ -10,7 +10,7 @@ const NUM_CLASSES = 10;
 const NUM_DATASET_ELEMENTS = 65000;
 const model = tf.sequential();
 const BATCH_SIZE = 64;
-const TRAIN_BATCHES = 150;
+const TRAIN_BATCHES = 5;
 let data;
 
 /**Potential list of actions the worker will recieve
@@ -151,17 +151,29 @@ function getActivations(imageTensor){
         const activationsArrayOutput = Array.from(activationsOutput.dataSync())
         const outputIndex = activationsArrayOutput.indexOf(Math.max(...activationsArrayOutput))
 
-        tf.dispose([layerOneBinaryActivations, layerTwoBinaryActivations, activationsOutput, intermediateModelOutput])
-        
+        //get weights and biases
+        // const weightsAndBiases = model.getWeights()
+        // const weights = []
+        // const biases = []
+
+        // for(const tensor of weightsAndBiases){
+        //         if(tensor.shape.length == 1){
+        //                 biases.push(tensor.dataSync())
+        //         }else{
+        //                 weights.push(tensor.dataSync())
+        //         }
+        // }
+        // console.log('weights', weights)
+        // console.log('biases', biases)        
 }
 function getLayerBinaryActivations(imageTensor, layerName){
         const layer = model.getLayer(layerName)
         const intermediateModel = tf.model({inputs: model.input, outputs: layer.output});
+        
 
         const activations = intermediateModel.predict(imageTensor)
         const binaryActivations = activations.greater(tf.scalar(0)).toInt().dataSync();         //relu
 
-        tf.dispose([activations, intermediateModel])
         return binaryActivations
 
 }
