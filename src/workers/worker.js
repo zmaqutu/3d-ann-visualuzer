@@ -113,7 +113,6 @@ async function predict(){
         // console.log('Predicting...')
         const batch = data.nextTestBatch(1);
         const imagePixels = await getImagePixels(batch)
-        postMessage({action: 'drawPredictionInput', imagePixels: imagePixels})
         tf.tidy(() => {
                 const input = Array.from(batch.labels.argMax(1).dataSync());
 
@@ -125,7 +124,13 @@ async function predict(){
                 console.log('Original Value', input)
                 console.log('Predicted Value', prediction)
         })
-        getActivations(batch.xs)
+
+        // post animation information to main thread
+        // postMessage({action: 'drawPredictionInput', imagePixels: imagePixels})
+
+        const predictionInstance = getActivations(batch.xs)
+        console.log('sendIT')
+        postMessage({action: 'animatePrediction', imagePixels: imagePixels, ...predictionInstance})
 }
 
 async function getImagePixels(batch){
@@ -151,6 +156,7 @@ function getActivations(imageTensor){
         const activationsArrayOutput = Array.from(activationsOutput.dataSync())
         const outputIndex = activationsArrayOutput.indexOf(Math.max(...activationsArrayOutput))
 
+        return {layerOneBinaryActivations, layerTwoBinaryActivations, outputIndex}
         //get weights and biases
         // const weightsAndBiases = model.getWeights()
         // const weights = []

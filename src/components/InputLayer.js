@@ -10,6 +10,7 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
         const nextLayerPositions = props.nextLayerPositions
         const colorAttributesArray = props.inputColorAttributes
         const visualizingModel = props.visualizingModel
+        const animateLines = props.animateLines
         let colorIndex = 0
 
         const [linePositions,setLinePositions] = useState([])
@@ -36,14 +37,12 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
         }, [nextLayerPositions])
 
         useEffect(() => {
-                // console.log(props.inputColorAttributes.length > 0, props.visualizingModel)
 		if(props.inputColorAttributes.length == 1){
                         inputLayerMesh.geometry.setAttribute('color', props.inputColorAttributes[colorIndex])
                         inputLayerMesh.geometry.getAttribute('color').needsUpdate = true;
                 }
                 else if(props.inputColorAttributes.length > 0 && props.visualizingModel){
                         setInterval(() => {
-                                // console.log('interval',colorIndex)
                                 inputLayerMesh.geometry.setAttribute('color', props.inputColorAttributes[colorIndex])
                                 inputLayerMesh.geometry.getAttribute('color').needsUpdate = true;
                                 colorIndex++
@@ -55,12 +54,6 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                 }
 		
         }, [colorAttributesArray, visualizingModel])
-        // a fyber hook that runs on every frame
-        useFrame(() => {
-                // inputLayerMesh.rotation.x += 0.01
-                // inputLayerMesh.rotation.y += 0.01
-                // inputLayerMesh.rotation.z += 0.01
-        })
 
 
         // memoize positions for each neuron cube
@@ -90,42 +83,28 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                         for (let j = 0; j < props.nextLayerPositions.length; j++) {
                                 const startPoint = {x: positions[i].x, y: positions[i].y, z:positions[i].z}
                                 const endPoint = {x:props.nextLayerPositions[j].x, y: props.nextLayerPositions[j].y, z: props.nextLayerPositions[j].z}
-                                
                                 tempLinePositions.push({startPoint,endPoint})
                         }
                 }
                 return tempLinePositions
         }
 
-        // useFrame(({ clock }) => {
-        //         lineRef.current.forEach((r, i) => {
-        //                 const time = clock.elapsedTime
-        //                 const x = Math.sin((i / 5000) * Math.PI) * 10
-        //                 const y = Math.cos((i / 5000) * Math.PI) * 10
-        //                 const z = Math.cos((i * time) / 1000)
-        //                 // r.start.set(x, y, z)
-        //                 // r.end.set(x + Math.sin(time + i), y + Math.cos(time + i), z)
-        //                 r.color.setRGB(x / 100, y / 10, z)
-        //                 })
-        //         lineRef.current[0].color.setRGB(1,0,0)
-        //         lineRef.current[1].color.setRGB(0,1,0)
-        //         lineRef.current[2].color.setRGB(1,1,0)
-        // })
+        const prevLine = null
 
-        // useFrame(({ clock }) => {
-        //         lineRef.current.forEach((r, i) => {
-        //                 const time = clock.elapsedTime
-        //                 // const x = Math.sin((i / 5000) * Math.PI) * 10
-        //                 // const y = Math.cos((i / 5000) * Math.PI) * 10
-        //                 // const z = Math.cos((i * time) / 1000)
-        //                 // r.start.set(x, y, z)
-        //                 // r.end.set(x + Math.sin(time + i), y + Math.cos(time + i), z)
-        //                 r.color.setRGB(0, 1, 1)
-        //                 })
-        //         // lineRef.current[0].color.setRGB(1,0,0)
-        //         // lineRef.current[1].color.setRGB(0,1,0)
-        //         // lineRef.current[2].color.setRGB(1,1,0)
-        // })
+        useEffect(() => {
+                if(animateLines){
+                        lineRef.current.forEach((r, i) => {
+                                setTimeout(() => {
+                                        if(prevLine){
+                                                prevLine.color.setRGB(0,0,1)
+                                        }
+                                        r.color.setRGB(1,1,0)
+                                        prevLine = r
+                                        
+                                }, 1);
+                        })
+                }
+        }, [animateLines])
        
         return (
                 <>
@@ -144,11 +123,6 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                                         </Segments>
                                 : null
                         }
-                        {/* <Segments limit={10000} lineWidth={5.0}>
-                                {Array.from({ length: 10000 }).map((_, i) => (
-                                        <Segment key={i} ref={(r) => (lineRef.current[i] = r)} color="orange" start={[0, 0, 0]} end={[0, 0, 0]} />
-                                ))}
-                        </Segments> */}
                 </>
         )
 })

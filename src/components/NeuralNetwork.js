@@ -30,6 +30,7 @@ function NeuralNetwork() {
         const [layerTwoPositions, setLayerTwoPositions] = useState([])
         const [outputLayerPositions, setOutputPositions] = useState([])
         const [visualizationState, togglePretrainedVisualization] = useState(false)
+        const [animateLines, setAnimateLines] = useState(false)
         const [worker, setWorker] = useState(new Worker(new URL('../workers/worker.js', import.meta.url)))
 
 
@@ -44,29 +45,32 @@ function NeuralNetwork() {
         //         }
         // }, [inputLayerPositions])
 
-        useEffect(() => {
-                worker.onmessage = (e) => {
-                        console.log('Message received from worker', e.data)
-                        if(e.data.action == 'drawPredictionInput'){
-                                const imagePixels = e.data.imagePixels
-                                let tempColorBuffers = []
-                                const colorScheme = Float32Array.from(imagePixels)
+        // useEffect(() => {
+        //         worker.onmessage = (e) => {
+        //                 console.log('Message received from worker', e.data)
+        //                 if(e.data.action == 'drawPredictionInput'){
+        //                         const imagePixels = e.data.imagePixels
+        //                         let tempColorBuffers = []
+        //                         const colorScheme = Float32Array.from(imagePixels)
 
-                                const currentColorAttribute = new THREE.InstancedBufferAttribute(colorScheme, 4)
+        //                         const currentColorAttribute = new THREE.InstancedBufferAttribute(colorScheme, 4)
 
-                                tempColorBuffers.push(currentColorAttribute)
+        //                         tempColorBuffers.push(currentColorAttribute)
 
-                                setColorAttributesArray(tempColorBuffers)
-                        }
-                }
-                const message = {action: 'initializeNetwork'}
-                worker.postMessage(message)
-                return () => {
-                        console.log('terminating worker')
-                        worker.terminate()
-                }
+        //                         setColorAttributesArray(tempColorBuffers)
+        //                 }
+        //                 if(e.data.action == 'animatePrediction'){
+        //                         console.log(e.data)
+        //                 }
+        //         }
+        //         const message = {action: 'initializeNetwork'}
+        //         worker.postMessage(message)
+        //         return () => {
+        //                 console.log('terminating worker')
+        //                 worker.terminate()
+        //         }
 
-        }, [])
+        // }, [])
 
 
         const loadInitialExamples = useCallback( async () => {
@@ -138,6 +142,10 @@ function NeuralNetwork() {
                 // loadXExamples()
         }
 
+        function toggleLineAnimation(){
+                setAnimateLines(!animateLines)
+        }
+
         return (
                 <>
                 <div>
@@ -145,12 +153,14 @@ function NeuralNetwork() {
                         <button onClick={toggleWorldSetup}>Setup Input</button>
                         <button onClick={predictInput}>Randomly Select Test Data and Predict</button>
                         <button onClick={trainNetwork}>Train Network</button>
+                        <button onClick={toggleLineAnimation}>Animate Lines</button>
+
 
 
                 </div>
                 <Canvas camera = {{ position: cameraPosition.current, fov: 53, aspect: width / height, near: 1, far: 5000 }}>
                         <group  position={[0,0,100]} rotation={[Math.PI /2, 0, 0]}  >
-                                <InputLayer ref={inputLayerRef} nextLayerPositions = {layerOnePositions} passPositionsUp = {setInputLayerPositions} inputColorAttributes={colorAttributesArray} visualizingModel={visualizationState}  />
+                                <InputLayer ref={inputLayerRef} nextLayerPositions = {layerOnePositions} passPositionsUp = {setInputLayerPositions} inputColorAttributes={colorAttributesArray} visualizingModel={visualizationState} animateLines={animateLines} />
                         </group>
                         <group  position={[0,0,-50]} rotation={[Math.PI /2, 0, 0]} >
                                 <HiddenLayerOne nextLayerPositions={layerTwoPositions} passPositionsUp = {setLOnePositions} ref={inputLayerRef}/>
