@@ -18,12 +18,19 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
         const lineRef = React.useRef([])
         const sphere = useRef(null)
         const group = useRef(null)
+        const inputTrailRef = useRef(null)
 
         // create inputLayer instance mesh
         const inputLayerGeometry = new THREE.BoxGeometry(10,10,10)
         const inputLayerMaterial = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide, vertexColors: true})
         const inputLayerMesh = new THREE.InstancedMesh(inputLayerGeometry, inputLayerMaterial, 784);
         inputLayerMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+
+        // create instanced mesh for trail objects
+        const trailGeometry = new THREE.SphereGeometry( 5, 32, 32 );
+        const trailMaterial = new THREE.MeshNormalMaterial();
+        const trailMesh = new THREE.InstancedMesh(trailGeometry, trailMaterial, inputLayerMesh.count);
+        trailMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
         // create a color buffer attribute for the instanced mesh
         const colorBuffer = new Float32Array(784 * 4);
@@ -76,6 +83,7 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                 const matrix = new THREE.Matrix4()
                 matrix.setPosition(positions[i])
                 inputLayerMesh.setMatrixAt(i,matrix)
+                trailMesh.setMatrixAt(i,matrix)
         }
 
 
@@ -105,16 +113,21 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
 
         useFrame(({ clock }) => {
                 const time = clock.elapsedTime
-                sphere.current.position.x = Math.sin(time * 2) * 20
-                // sphere.current.position.y = Math.tan(time * 2) * 2
-                group.current.rotation.z = time
+                
+                const x = Math.sin(time * 2) * 20
+                const z = Math.cos(time * 2) * 20
+                group.current.rotation.z = time 
 
-                sphere.current.position.z = Math.cos(time * 2) * 20
-                // if(animateLines){
-                //         lineRef.current.forEach((r, i) => {
-                //         r.color.setRGB(1,1,0)
-                //         })
-                // }
+                // group.current.position.z = Math.tan(time * 2) * 20
+
+
+                const matrix = new THREE.Matrix4()
+                matrix.setPosition(new THREE.Vector3(x, 0, z))
+                trailMesh.setMatrixAt(0,matrix)
+                // console.log(x,z)
+                // trailMesh.geometry.getAttribute('position').needsUpdate = true;
+                trailMesh.instanceMatrix.needsUpdate = true;
+
         })
        
         return (
@@ -143,9 +156,10 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                                 return t * t
                           }}
                         >
-                                <Sphere ref={sphere} args={[5, 32, 32]} position-y={3}>
+                                {/* <Sphere ref={sphere} args={[5, 32, 32]} position-y={3}>
                                         <meshNormalMaterial />
-                                </Sphere>
+                                </Sphere> */}
+                                <primitive ref = {inputTrailRef} object={trailMesh}/>
                         </Trail>
                         </group>
                 </>
