@@ -2,7 +2,7 @@ import React, {useRef, useState, useEffect, useMemo, forwardRef} from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import Neuron from './Neuron';
-import { Segments, Segment, SegmentObject } from '@react-three/drei';
+import { Segments, Segment, SegmentObject, Trail, Sphere } from '@react-three/drei';
 
 
 
@@ -16,6 +16,8 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
         const [linePositions,setLinePositions] = useState([])
         const [lineColor, setLineColor] = useState('blue')
         const lineRef = React.useRef([])
+        const sphere = useRef(null)
+        const group = useRef(null)
 
         // create inputLayer instance mesh
         const inputLayerGeometry = new THREE.BoxGeometry(10,10,10)
@@ -92,37 +94,33 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
 
         const prevLine = null
 
-        // useEffect(() => {
-        //         if(animateLines){
-        //                 setLineColor('yellow')
-        //         }
-        //         else{
-        //                 setLineColor('blue')
-        //         }
-        // }, [animateLines])
-
-        useFrame(({ clock }) => {
-                const colors = ['red','green','blue','yellow']
-                const randomColor = colors[Math.floor(Math.random() * colors.length)]
-
-                const colorMap = {
-                        red: [255, 0, 0],
-                        green: [0, 255, 0],
-                        blue: [0, 0, 255],
-                        yellow: [255, 255, 0],
-                };
+        useEffect(() => {
                 if(animateLines){
                         lineRef.current.forEach((r, i) => {
-                        const time = clock.elapsedTime
+                        // const time = clock.elapsedTime
                         r.color.setRGB(1,1,0)
                         })
                 }
+        }, [animateLines])
+
+        useFrame(({ clock }) => {
+                const time = clock.elapsedTime
+                sphere.current.position.x = Math.sin(time * 2) * 20
+                // sphere.current.position.y = Math.tan(time * 2) * 2
+                group.current.rotation.z = time
+
+                sphere.current.position.z = Math.cos(time * 2) * 20
+                // if(animateLines){
+                //         lineRef.current.forEach((r, i) => {
+                //         r.color.setRGB(1,1,0)
+                //         })
+                // }
         })
        
         return (
                 <>
                         <primitive ref = {inputLayerRef} object={inputLayerMesh}/>
-                        { linePositions.length > 0 
+                        {/* { linePositions.length > 0 
                                 ?
                                         <Segments limit={linePositions.length} lineWidth={0.05}>
                                                 {linePositions.map((line, i) => (
@@ -135,7 +133,21 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                                                 ))}
                                         </Segments>
                                 : null
-                        }
+                        } */}
+                        <group ref={group}>
+                        <Trail 
+                          width={15}
+                          length={15}
+                          color={'#F8D628'}
+                          attenuation={(t) => {
+                                return t * t
+                          }}
+                        >
+                                <Sphere ref={sphere} args={[5, 32, 32]} position-y={3}>
+                                        <meshNormalMaterial />
+                                </Sphere>
+                        </Trail>
+                        </group>
                 </>
         )
 })
