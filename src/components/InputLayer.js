@@ -111,11 +111,11 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                 }
         }, [animateLines])
 
-        // useFrame(({ clock }) => {
-        //         const time = clock.elapsedTime
+        useFrame(({ clock }) => {
+                const time = clock.elapsedTime
                 
-        //         const x = Math.sin(time * 2) * 20
-        //         const z = Math.cos(time * 2) * 20
+                const x = Math.sin(time * 2) * 20
+                const z = Math.cos(time * 2) * 20
         //         // group.current.rotation.z = time 
 
         //         // group.current.position.z = Math.tan(time * 2) * 20
@@ -130,13 +130,33 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
         //         // trailMesh.instanceMatrix.array[14] = z;
         //         trailMesh.instanceMatrix.needsUpdate = true;
 
+                // inputTrailRef.current[0].position.x = x
+                // inputTrailRef.current[0].position.z = z
 
-        // })
-        console.log(positions)
+                // const trail2PosX = Math.sin(time * 2) * 60
+                // const trail2PosZ = Math.cos(time * 2) * 60
+                // inputTrailRef.current[1].position.x = trail2PosX
+                // inputTrailRef.current[1].position.z = trail2PosZ 
+
+                // const trail3PosX = Math.sin(time * 2) * 100
+                // const trail3PosZ = Math.cos(time * 2) * 100
+                // inputTrailRef.current[2].position.x = trail3PosX
+                // inputTrailRef.current[2].position.z = trail3PosZ
+
+                for(let i = 0; i < inputTrailRef.current.length; i++){
+                        inputTrailRef.current[i].position.x = Math.sin(time * 2) * (20 * (i+1))
+                        inputTrailRef.current[i].position.z = Math.cos(time * 2) * (20 * (i+1))
+                }
+
+
+
+        })
+        // console.log(positions)
+        const tempPositions = [ new THREE.Vector3(10,60,100), new THREE.Vector3(40,100,70), new THREE.Vector3(15,12,6)]
        
         return (
                 <>
-                        <primitive ref = {inputLayerRef} object={inputLayerMesh}/>
+                        {/* <primitive ref = {inputLayerRef} object={inputLayerMesh}/> */}
                         {/* { linePositions.length > 0 
                                 ?
                                         <Segments limit={linePositions.length} lineWidth={0.05}>
@@ -151,8 +171,27 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                                         </Segments>
                                 : null
                         } */}
-                        
-                        <group ref={group}>
+                        {
+                                tempPositions.map((cubePosition, i) => (
+                                        <Trail
+                                                key={i}
+                                                width={15}
+                                                length={15}
+                                                color={'#F8D628'}
+                                                attenuation={(t) => {
+                                                        return t * t
+                                                }}
+                                                target={inputTrailRef.current[i]}
+                                                decay={0.1}
+                                        >
+                                                <Sphere ref={(r) => (inputTrailRef.current[i] = r)} args={[5, 32, 32]} position={cubePosition}>
+                                                        <meshNormalMaterial />
+                                                </Sphere>
+                                        </Trail>
+
+                                ))
+                        }
+                        {/* <group ref={group}>
                         <Trail 
                           width={15}
                           length={15}
@@ -163,17 +202,13 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                         >
                                 {
                                         positions.map((cubePosition, i) => (
-                                                <Sphere key={i} ref={(r) => (inputTrailRef.current[i] = r)} args={[15, 32, 32]} position={cubePosition}>
+                                                <Sphere key={i} ref={(r) => (inputTrailRef.current[i] = r)} args={[5, 32, 32]} position={cubePosition}>
                                                         <meshNormalMaterial />
                                                 </Sphere>
                                         ))
                                 }
-                                {/* <Sphere ref={sphere} args={[5, 32, 32]} position-y={3}>
-                                        <meshNormalMaterial />
-                                </Sphere> */}
-                                {/* <primitive ref = {inputTrailRef} object={trailMesh}/> */}
                         </Trail>
-                        </group>
+                        </group> */}
                 </>
         )
 })
