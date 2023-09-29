@@ -2,7 +2,7 @@ import React, {useRef, useState, useEffect, useMemo, forwardRef} from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import Neuron from './Neuron';
-import { Segments, Segment, SegmentObject, Trail, Sphere } from '@react-three/drei';
+import { Segments, Segment, SegmentObject, Trail, Sphere, useTrail } from '@react-three/drei';
 
 
 
@@ -18,7 +18,7 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
         const lineRef = React.useRef([])
         const sphere = useRef(null)
         const group = useRef(null)
-        const inputTrailRef = useRef(null)
+        const inputTrailRef = useRef([])
 
         // create inputLayer instance mesh
         const inputLayerGeometry = new THREE.BoxGeometry(10,10,10)
@@ -111,24 +111,28 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                 }
         }, [animateLines])
 
-        useFrame(({ clock }) => {
-                const time = clock.elapsedTime
+        // useFrame(({ clock }) => {
+        //         const time = clock.elapsedTime
                 
-                const x = Math.sin(time * 2) * 20
-                const z = Math.cos(time * 2) * 20
-                group.current.rotation.z = time 
+        //         const x = Math.sin(time * 2) * 20
+        //         const z = Math.cos(time * 2) * 20
+        //         // group.current.rotation.z = time 
 
-                // group.current.position.z = Math.tan(time * 2) * 20
+        //         // group.current.position.z = Math.tan(time * 2) * 20
 
 
-                const matrix = new THREE.Matrix4()
-                matrix.setPosition(new THREE.Vector3(x, 0, z))
-                trailMesh.setMatrixAt(0,matrix)
-                // console.log(x,z)
-                // trailMesh.geometry.getAttribute('position').needsUpdate = true;
-                trailMesh.instanceMatrix.needsUpdate = true;
+        //         const matrix = new THREE.Matrix4()
+        //         matrix.setPosition(new THREE.Vector3(x, 0, z))
+        //         inputTrailRef.current.setMatrixAt(0,matrix)
+        //         trailMesh.setMatrixAt(0,matrix)
 
-        })
+        //         // trailMesh.instanceMatrix.array[12] = x;
+        //         // trailMesh.instanceMatrix.array[14] = z;
+        //         trailMesh.instanceMatrix.needsUpdate = true;
+
+
+        // })
+        console.log(positions)
        
         return (
                 <>
@@ -147,6 +151,7 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                                         </Segments>
                                 : null
                         } */}
+                        
                         <group ref={group}>
                         <Trail 
                           width={15}
@@ -156,10 +161,17 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                                 return t * t
                           }}
                         >
+                                {
+                                        positions.map((cubePosition, i) => (
+                                                <Sphere key={i} ref={(r) => (inputTrailRef.current[i] = r)} args={[15, 32, 32]} position={cubePosition}>
+                                                        <meshNormalMaterial />
+                                                </Sphere>
+                                        ))
+                                }
                                 {/* <Sphere ref={sphere} args={[5, 32, 32]} position-y={3}>
                                         <meshNormalMaterial />
                                 </Sphere> */}
-                                <primitive ref = {inputTrailRef} object={trailMesh}/>
+                                {/* <primitive ref = {inputTrailRef} object={trailMesh}/> */}
                         </Trail>
                         </group>
                 </>
