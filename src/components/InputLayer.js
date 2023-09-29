@@ -14,6 +14,7 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
         let colorIndex = 0
 
         const [linePositions,setLinePositions] = useState([])
+        const [lineColor, setLineColor] = useState('blue')
         const lineRef = React.useRef([])
 
         // create inputLayer instance mesh
@@ -91,20 +92,32 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
 
         const prevLine = null
 
-        useEffect(() => {
+        // useEffect(() => {
+        //         if(animateLines){
+        //                 setLineColor('yellow')
+        //         }
+        //         else{
+        //                 setLineColor('blue')
+        //         }
+        // }, [animateLines])
+
+        useFrame(({ clock }) => {
+                const colors = ['red','green','blue','yellow']
+                const randomColor = colors[Math.floor(Math.random() * colors.length)]
+
+                const colorMap = {
+                        red: [255, 0, 0],
+                        green: [0, 255, 0],
+                        blue: [0, 0, 255],
+                        yellow: [255, 255, 0],
+                };
                 if(animateLines){
                         lineRef.current.forEach((r, i) => {
-                                setTimeout(() => {
-                                        if(prevLine){
-                                                prevLine.color.setRGB(0,0,1)
-                                        }
-                                        r.color.setRGB(1,1,0)
-                                        prevLine = r
-                                        
-                                }, 1);
+                        const time = clock.elapsedTime
+                        r.color.setRGB(1,1,0)
                         })
                 }
-        }, [animateLines])
+        })
        
         return (
                 <>
@@ -115,7 +128,7 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                                                 {linePositions.map((line, i) => (
                                                         <Segment key={i} 
                                                                 ref={(r) => (lineRef.current[i] = r)} 
-                                                                color="blue" 
+                                                                color={'blue'} 
                                                                 start={[line.startPoint.x,line.startPoint.y,line.startPoint.z]} 
                                                                 end={[line.endPoint.x,line.endPoint.y-150,line.endPoint.z]}
                                                         />
