@@ -35,6 +35,11 @@ function NeuralNetwork() {
         const [animateLines, setAnimateLines] = useState(false)
         const [worker, setWorker] = useState(new Worker(new URL('../workers/worker.js', import.meta.url)))
 
+        const [inputWeightMesh, setInputWeightMesh] = useState(null)
+        const [layerOneWeightMesh, setLayerOneWeightMesh] = useState([])
+        const [layerTwoWeightMesh, setLayerTwoWeightMesh] = useState([])
+
+
 
         // an array of 20 color InstancedBufferAttributes
         const [colorAttributesArray, setColorAttributesArray] = useState([])
@@ -46,6 +51,10 @@ function NeuralNetwork() {
         //                 loadInitialExamples()
         //         }
         // }, [inputLayerPositions])
+
+        // useEffect(() => {
+        //         console.log(inputWeightMesh)
+        // }, [inputWeightMesh])
 
         // useEffect(() => {
         //         worker.onmessage = (e) => {
@@ -147,7 +156,7 @@ function NeuralNetwork() {
 
 
                 </div>
-                <NeuralNetworkContext.Provider value = {[setInputPositions, setLayerOnePositions, setLayerTwoPositions, setOutputPositions, inputLayerPositions]}>
+                <NeuralNetworkContext.Provider value = {{setInputPositions, setLayerOnePositions, setLayerTwoPositions, setOutputPositions,setInputWeightMesh, setLayerOneWeightMesh, setLayerTwoWeightMesh}}>
                         <Canvas camera = {{ position: cameraPosition.current, fov: 53, aspect: width / height, near: 1, far: 5000 }}>
                                 <group  position={[0,0,100]} rotation={[Math.PI /2, 0, 0]}  >
                                         <InputLayer ref={inputLayerRef} nextLayerPositions = {layerOnePositions} inputColorAttributes={colorAttributesArray} visualizingModel={visualizationState} animateLines={animateLines} />

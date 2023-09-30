@@ -14,13 +14,13 @@ const OutputLayer = forwardRef(function OutputLayer(props, hiddenLayerTwoRef) {
         const outputLayerMesh = new THREE.InstancedMesh(outputLayerGeometry, outputLayerMaterial, 784);
         outputLayerMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
-        const [
+        const {
                 setInputPositions, 
                 setLayerOnePositions, 
                 setLayerTwoPositions, 
                 setOutputPositions, 
                 inputLayerPositions
-        ]  = useContext(NeuralNetworkContext)
+          }  = useContext(NeuralNetworkContext)
 
          // memoize positions for each neuron cube
          const positions = useMemo(() => {

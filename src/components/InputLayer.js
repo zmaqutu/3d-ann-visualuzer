@@ -14,13 +14,10 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
         const animateLines = props.animateLines
         let colorIndex = 0
 
-        const [
-                setInputPositions, 
-                setLayerOnePositions, 
-                setLayerTwoPositions, 
-                setOutputPositions, 
-                inputLayerPositions
-        ]  = useContext(NeuralNetworkContext)
+        const {
+                setInputPositions,
+                setInputWeightMesh
+          }  = useContext(NeuralNetworkContext)
 
         const [linePositions,setLinePositions] = useState([])
         const [lineColor, setLineColor] = useState('blue')
@@ -54,6 +51,8 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
 		if(nextLayerPositions.length  > 0){
                         const lines = createLineVertices()
                         setLinePositions(lines)
+                        setInputWeightMesh(trailMesh)
+
                 }
 		
         }, [nextLayerPositions])
@@ -87,7 +86,8 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                         }
                 }
                 // props.passPositionsUp(positions)
-                setInputPositions(positions)
+                // setInputPositions(positions)
+                // setInputWeightMesh(trailMeshRef)
                 return positions
         }, [])
 
@@ -122,11 +122,11 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                 }
         }, [animateLines])
 
-        // useFrame(({ clock }) => {
-        //         const time = clock.elapsedTime
-        //         forwardPass()
+        useFrame(({ clock }) => {
+                const time = clock.elapsedTime
+                // forwardPass()
                 
-        // })
+        })
 
 
         // TODO rename this function

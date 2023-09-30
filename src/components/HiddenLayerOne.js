@@ -24,13 +24,10 @@ const HiddenLayerOne = forwardRef(function HiddenLayerOne(props, inputLayerRef) 
 
         const { scene, camera, gl } = useThree();
 
-        const [
-                setInputPositions, 
-                setLayerOnePositions, 
-                setLayerTwoPositions, 
-                setOutputPositions, 
-                inputLayerPositions
-        ]  = useContext(NeuralNetworkContext)
+        const {
+                setLayerOnePositions,
+                setLayerOneWeightMesh,
+          }  = useContext(NeuralNetworkContext)
 
         useEffect(() => {
                 if(nextLayerPositions.length  > 0){

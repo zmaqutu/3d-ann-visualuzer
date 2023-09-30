@@ -15,13 +15,10 @@ const HiddenLayerTwo = forwardRef(function HiddenLayerTwo(props, hiddenLayerOneR
         const [linePositions,setLinePositions] = useState([])
         const lineRef = React.useRef([])
 
-        const [
-                setInputPositions, 
-                setLayerOnePositions, 
+        const {
                 setLayerTwoPositions, 
-                setOutputPositions, 
-                inputLayerPositions
-        ]  = useContext(NeuralNetworkContext)
+                setLayerTwoWeightMesh,
+          }  = useContext(NeuralNetworkContext)
 
 
         const layerTwoGeometry = new THREE.BoxGeometry(10,10,10)
