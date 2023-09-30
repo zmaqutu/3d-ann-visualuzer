@@ -1,7 +1,9 @@
-import React, {useRef, useState, useEffect, useMemo, forwardRef} from 'react'
+import React, {useRef, useState, useEffect, useMemo, forwardRef, useContext} from 'react'
 import { useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import Neuron from './Neuron'
+import { NeuralNetworkContext } from './NeuralNetwork';
+
 
 
 const OutputLayer = forwardRef(function OutputLayer(props, hiddenLayerTwoRef) {
@@ -12,6 +14,14 @@ const OutputLayer = forwardRef(function OutputLayer(props, hiddenLayerTwoRef) {
         const outputLayerMesh = new THREE.InstancedMesh(outputLayerGeometry, outputLayerMaterial, 784);
         outputLayerMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
+        const [
+                setInputPositions, 
+                setLayerOnePositions, 
+                setLayerTwoPositions, 
+                setOutputPositions, 
+                inputLayerPositions
+        ]  = useContext(NeuralNetworkContext)
+
          // memoize positions for each neuron cube
          const positions = useMemo(() => {
                 const positions = []
@@ -19,7 +29,7 @@ const OutputLayer = forwardRef(function OutputLayer(props, hiddenLayerTwoRef) {
                         positions.push(new THREE.Vector3(row, -1, 0))
 
                 }
-                props.passPositionsUp(positions)
+                setOutputPositions(positions)
                 return positions
         }, [])
 

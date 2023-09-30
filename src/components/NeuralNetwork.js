@@ -10,6 +10,8 @@ import { MnistData } from '../ML Files/mnist_data'
 import * as tf from '@tensorflow/tfjs';
 
 
+export const NeuralNetworkContext = React.createContext()
+
 function NeuralNetwork() {
 
         // refs
@@ -106,19 +108,6 @@ function NeuralNetwork() {
                 // toggleShowCasing(true)
                 togglePretrainedVisualization(!visualizationState)
         }
-        const setInputLayerPositions = useCallback((positions) => {
-                setInputPositions(positions)
-        },[])
-        const setLOnePositions = useCallback((positions) => {
-                setLayerOnePositions(positions)
-        },[])
-        const setLTwoPositions = useCallback((positions) => {
-                setLayerTwoPositions(positions)
-        },[])
-        const setOutputLayerPositions = useCallback((positions) => {
-                setOutputPositions(positions)
-        },[])
-
         const updateVisualizationState = useCallback(() => {
                 // toggleShowCasing(newState)
                 worker.postMessage({action: 'printGlobals'})
@@ -158,33 +147,35 @@ function NeuralNetwork() {
 
 
                 </div>
-                <Canvas camera = {{ position: cameraPosition.current, fov: 53, aspect: width / height, near: 1, far: 5000 }}>
-                        <group  position={[0,0,100]} rotation={[Math.PI /2, 0, 0]}  >
-                                <InputLayer ref={inputLayerRef} nextLayerPositions = {layerOnePositions} passPositionsUp = {setInputLayerPositions} inputColorAttributes={colorAttributesArray} visualizingModel={visualizationState} animateLines={animateLines} />
-                        </group>
-                        <group  position={[0,0,-50]} rotation={[Math.PI /2, 0, 0]} >
-                                <HiddenLayerOne nextLayerPositions={layerTwoPositions} passPositionsUp = {setLOnePositions} ref={inputLayerRef}/>
-                        </group>
-                        {/* 
-                        <group ref={hiddenLayerTwoRef} position={[0,0,-150]} rotation={[Math.PI /2, 0, 0]} >
-                                <HiddenLayerTwo nextLayerPositions = {outputLayerPositions} passPositionsUp = {setLTwoPositions}ref={hiddenLayerOneRef}/>
-                        </group>
-                        <group ref={outputLayerRef}  position={[0,0,-250]} rotation={[Math.PI /2, 0, 0]} >
-                                <OutputLayer passPositionsUp={setOutputLayerPositions} ref={hiddenLayerTwoRef}/>
-                        </group>  */}
-                        <OrbitControls enableRotate={rotationEnabled}/>
-                        {/* <MapControls/> */}
-                        {/* <Stars count={100000} depth={100}/> */}
-                        {/* <Cloud /> */}
-                        
+                <NeuralNetworkContext.Provider value = {[setInputPositions, setLayerOnePositions, setLayerTwoPositions, setOutputPositions, inputLayerPositions]}>
+                        <Canvas camera = {{ position: cameraPosition.current, fov: 53, aspect: width / height, near: 1, far: 5000 }}>
+                                <group  position={[0,0,100]} rotation={[Math.PI /2, 0, 0]}  >
+                                        <InputLayer ref={inputLayerRef} nextLayerPositions = {layerOnePositions} inputColorAttributes={colorAttributesArray} visualizingModel={visualizationState} animateLines={animateLines} />
+                                </group>
+                                <group  position={[0,0,-50]} rotation={[Math.PI /2, 0, 0]} >
+                                        <HiddenLayerOne nextLayerPositions={layerTwoPositions} ref={inputLayerRef}/>
+                                </group>
+                                
+                                <group ref={hiddenLayerTwoRef} position={[0,0,-150]} rotation={[Math.PI /2, 0, 0]} >
+                                        <HiddenLayerTwo nextLayerPositions = {outputLayerPositions} ref={hiddenLayerOneRef}/>
+                                </group>
+                                <group ref={outputLayerRef}  position={[0,0,-250]} rotation={[Math.PI /2, 0, 0]} >
+                                        <OutputLayer ref={hiddenLayerTwoRef}/>
+                                </group> 
+                                <OrbitControls enableRotate={rotationEnabled}/>
+                                {/* <MapControls/> */}
+                                <Stars count={100000} depth={400}/>
+                                {/* <Cloud /> */}
+                                
 
 
-                        {/* <Sparkles/> */}
-                        {/* <Points/> */}
-                        {/* <Sky sunPosition={[0, 1, 0]} inclination={0} azimuth={0.25} /> */}
-                        <axesHelper/>
-                        {/* <cameraHelper args={[camera]} /> */}
-                </Canvas>
+                                {/* <Sparkles/> */}
+                                {/* <Points/> */}
+                                {/* <Sky sunPosition={[0, 1, 0]} inclination={0} azimuth={0.25} /> */}
+                                <axesHelper/>
+                                {/* <cameraHelper args={[camera]} /> */}
+                        </Canvas>
+                </NeuralNetworkContext.Provider>
                 </>
         )
 }

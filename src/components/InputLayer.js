@@ -1,8 +1,9 @@
-import React, {useRef, useState, useEffect, useMemo, forwardRef} from 'react'
+import React, {useRef, useState, useEffect, useMemo, forwardRef, useContext} from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import Neuron from './Neuron';
 import { Segments, Segment, SegmentObject, Trail, Sphere, useTrail } from '@react-three/drei';
+import { NeuralNetworkContext } from './NeuralNetwork';
 
 
 
@@ -12,6 +13,14 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
         const visualizingModel = props.visualizingModel
         const animateLines = props.animateLines
         let colorIndex = 0
+
+        const [
+                setInputPositions, 
+                setLayerOnePositions, 
+                setLayerTwoPositions, 
+                setOutputPositions, 
+                inputLayerPositions
+        ]  = useContext(NeuralNetworkContext)
 
         const [linePositions,setLinePositions] = useState([])
         const [lineColor, setLineColor] = useState('blue')
@@ -77,7 +86,8 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                                 positions.push(new THREE.Vector3(col, -1, row))
                         }
                 }
-                props.passPositionsUp(positions)
+                // props.passPositionsUp(positions)
+                setInputPositions(positions)
                 return positions
         }, [])
 
@@ -112,11 +122,11 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                 }
         }, [animateLines])
 
-        useFrame(({ clock }) => {
-                const time = clock.elapsedTime
-                forwardPass()
+        // useFrame(({ clock }) => {
+        //         const time = clock.elapsedTime
+        //         forwardPass()
                 
-        })
+        // })
 
 
         // TODO rename this function
@@ -142,7 +152,7 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                         const dy = targetPoint.y - currentPosition.y;
                         const dz = targetPoint.z - currentPosition.z;
 
-                        const speed = 0.01; // Adjust the speed of animation as needed
+                        const speed = 0.05; // Adjust the speed of animation as needed
 
 
                         const x = currentPosition.x + dx * speed;
@@ -163,11 +173,11 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                         <primitive ref = {inputLayerRef} object={inputLayerMesh}/>
                         { linePositions.length > 0 
                                 ?
-                                        <Segments limit={linePositions.length} lineWidth={0.05}>
+                                        <Segments limit={linePositions.length} lineWidth={0.01}>
                                                 {linePositions.map((line, i) => (
                                                         <Segment key={i} 
                                                                 ref={(r) => (lineRef.current[i] = r)} 
-                                                                color={'white'} 
+                                                                color={'#396e04'} 
                                                                 start={[line.startPoint.x,line.startPoint.y,line.startPoint.z]} 
                                                                 end={[line.endPoint.x,line.endPoint.y-150,line.endPoint.z]}
                                                         />

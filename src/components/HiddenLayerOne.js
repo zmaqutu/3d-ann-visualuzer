@@ -1,8 +1,10 @@
-import React, {useRef, useState, useEffect, useMemo, forwardRef} from 'react'
+import React, {useRef, useState, useEffect, useMemo, forwardRef, useContext} from 'react'
 import * as THREE from 'three'
 import Neuron from './Neuron'
 import { useThree } from '@react-three/fiber'
 import { Segments, Segment, SegmentObject } from '@react-three/drei';
+import { NeuralNetworkContext } from './NeuralNetwork';
+
 
 
 
@@ -22,6 +24,14 @@ const HiddenLayerOne = forwardRef(function HiddenLayerOne(props, inputLayerRef) 
 
         const { scene, camera, gl } = useThree();
 
+        const [
+                setInputPositions, 
+                setLayerOnePositions, 
+                setLayerTwoPositions, 
+                setOutputPositions, 
+                inputLayerPositions
+        ]  = useContext(NeuralNetworkContext)
+
         useEffect(() => {
                 if(nextLayerPositions.length  > 0){
                         const lines = createLineVertices()
@@ -37,7 +47,7 @@ const HiddenLayerOne = forwardRef(function HiddenLayerOne(props, inputLayerRef) 
                                 positions.push(new THREE.Vector3(col, -1, row))
                         }
                 }
-                props.passPositionsUp(positions)
+                setLayerOnePositions(positions)
                 return positions
         }, [])
         for(let i = 0; i < positions.length;i++){
@@ -59,7 +69,6 @@ const HiddenLayerOne = forwardRef(function HiddenLayerOne(props, inputLayerRef) 
                 }
                 return tempLinePositions
         }
-        console.log(layerOneMesh)
        
 
         return (
@@ -71,7 +80,7 @@ const HiddenLayerOne = forwardRef(function HiddenLayerOne(props, inputLayerRef) 
                                                 {linePositions.map((line, i) => (
                                                         <Segment key={i} 
                                                                 ref={(r) => (lineRef.current[i] = r)} 
-                                                                color="blue" 
+                                                                color={'#396e04'} 
                                                                 start={[line.startPoint.x,line.startPoint.y,line.startPoint.z]} 
                                                                 end={[line.endPoint.x,line.endPoint.y-100,line.endPoint.z]}
                                                         />

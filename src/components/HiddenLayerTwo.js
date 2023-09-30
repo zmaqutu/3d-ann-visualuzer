@@ -1,7 +1,9 @@
-import React, {useRef, useState, useEffect, useMemo, forwardRef} from 'react'
+import React, {useRef, useState, useEffect, useMemo, forwardRef, useContext} from 'react'
 import * as THREE from 'three'
 import Neuron from './Neuron'
 import { Segments, Segment, SegmentObject } from '@react-three/drei';
+import { NeuralNetworkContext } from './NeuralNetwork';
+
 
 
 
@@ -12,6 +14,14 @@ const HiddenLayerTwo = forwardRef(function HiddenLayerTwo(props, hiddenLayerOneR
 
         const [linePositions,setLinePositions] = useState([])
         const lineRef = React.useRef([])
+
+        const [
+                setInputPositions, 
+                setLayerOnePositions, 
+                setLayerTwoPositions, 
+                setOutputPositions, 
+                inputLayerPositions
+        ]  = useContext(NeuralNetworkContext)
 
 
         const layerTwoGeometry = new THREE.BoxGeometry(10,10,10)
@@ -35,7 +45,7 @@ const HiddenLayerTwo = forwardRef(function HiddenLayerTwo(props, hiddenLayerOneR
                                 positions.push(new THREE.Vector3(col, -1, row))
                         }
                 }
-                props.passPositionsUp(positions)
+                setLayerTwoPositions(positions)
                 return positions
         }, [])
 
@@ -67,7 +77,7 @@ const HiddenLayerTwo = forwardRef(function HiddenLayerTwo(props, hiddenLayerOneR
                                                 {linePositions.map((line, i) => (
                                                         <Segment key={i} 
                                                                 ref={(r) => (lineRef.current[i] = r)} 
-                                                                color="blue" 
+                                                                color={'#396e04'} 
                                                                 start={[line.startPoint.x,line.startPoint.y,line.startPoint.z]} 
                                                                 end={[line.endPoint.x,line.endPoint.y-100,line.endPoint.z]}
                                                         />
