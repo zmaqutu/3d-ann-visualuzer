@@ -165,12 +165,13 @@ function NeuralNetwork() {
                         <group  position={[0,0,-50]} rotation={[Math.PI /2, 0, 0]} >
                                 <HiddenLayerOne nextLayerPositions={layerTwoPositions} passPositionsUp = {setLOnePositions} ref={inputLayerRef}/>
                         </group>
+                        {/* 
                         <group ref={hiddenLayerTwoRef} position={[0,0,-150]} rotation={[Math.PI /2, 0, 0]} >
                                 <HiddenLayerTwo nextLayerPositions = {outputLayerPositions} passPositionsUp = {setLTwoPositions}ref={hiddenLayerOneRef}/>
                         </group>
                         <group ref={outputLayerRef}  position={[0,0,-250]} rotation={[Math.PI /2, 0, 0]} >
                                 <OutputLayer passPositionsUp={setOutputLayerPositions} ref={hiddenLayerTwoRef}/>
-                        </group> 
+                        </group>  */}
                         <OrbitControls enableRotate={rotationEnabled}/>
                         {/* <MapControls/> */}
                         {/* <Stars count={100000} depth={100}/> */}

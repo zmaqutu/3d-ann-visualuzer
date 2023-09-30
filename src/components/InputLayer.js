@@ -18,7 +18,10 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
         const lineRef = React.useRef([])
         const sphere = useRef(null)
         const group = useRef(null)
-        const inputTrailRef = useRef([])
+        const trailMeshRef = useRef([])
+
+        const dummyPositions = [ new THREE.Vector3(10,60,100), new THREE.Vector3(40,100,70), new THREE.Vector3(15,12,6)]
+
 
         // create inputLayer instance mesh
         const inputLayerGeometry = new THREE.BoxGeometry(10,10,10)
@@ -104,74 +107,75 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
 
         useEffect(() => {
                 if(animateLines){
-                        lineRef.current.forEach((r, i) => {
-                        // const time = clock.elapsedTime
-                        r.color.setRGB(1,1,0)
-                        })
+                        // inputTrailRef.current[0].position.x = Math.sin(time * 2) * (20 * (i+1))
+                        
                 }
         }, [animateLines])
 
         useFrame(({ clock }) => {
                 const time = clock.elapsedTime
+                forwardPass()
                 
-                const x = Math.sin(time * 2) * 20
-                const z = Math.cos(time * 2) * 20
-        //         // group.current.rotation.z = time 
-
-        //         // group.current.position.z = Math.tan(time * 2) * 20
+        })
 
 
-        //         const matrix = new THREE.Matrix4()
-        //         matrix.setPosition(new THREE.Vector3(x, 0, z))
-        //         inputTrailRef.current.setMatrixAt(0,matrix)
-        //         trailMesh.setMatrixAt(0,matrix)
+        // TODO rename this function
+        function forwardPass(){
+                // define a target position for the instances
+                const targetPoint = new THREE.Vector3(0,-150,0)
+                
 
-        //         // trailMesh.instanceMatrix.array[12] = x;
-        //         // trailMesh.instanceMatrix.array[14] = z;
-        //         trailMesh.instanceMatrix.needsUpdate = true;
+                // update the position of all the instances
+                for(let i = 0; i < 784; i++){
+                        // variables to store the current values of the trail object
+                        const currentMatrix = new THREE.Matrix4()
+                        const currentPosition = new THREE.Vector3()
 
-                // inputTrailRef.current[0].position.x = x
-                // inputTrailRef.current[0].position.z = z
+                        // get the instanceMatrix of the trail object
+                        trailMesh.getMatrixAt(i,currentMatrix)
 
-                // const trail2PosX = Math.sin(time * 2) * 60
-                // const trail2PosZ = Math.cos(time * 2) * 60
-                // inputTrailRef.current[1].position.x = trail2PosX
-                // inputTrailRef.current[1].position.z = trail2PosZ 
+                        // get the current position from the instanceMatrix
+                        currentPosition.setFromMatrixPosition(currentMatrix)
 
-                // const trail3PosX = Math.sin(time * 2) * 100
-                // const trail3PosZ = Math.cos(time * 2) * 100
-                // inputTrailRef.current[2].position.x = trail3PosX
-                // inputTrailRef.current[2].position.z = trail3PosZ
 
-                for(let i = 0; i < inputTrailRef.current.length; i++){
-                        inputTrailRef.current[i].position.x = Math.sin(time * 2) * (20 * (i+1))
-                        inputTrailRef.current[i].position.z = Math.cos(time * 2) * (20 * (i+1))
+                        const dx = targetPoint.x - currentPosition.x;
+                        const dy = targetPoint.y - currentPosition.y;
+                        const dz = targetPoint.z - currentPosition.z;
+
+                        const speed = 0.01; // Adjust the speed of animation as needed
+
+
+                        const x = currentPosition.x + dx * speed;
+                        const y = currentPosition.y + dy * speed;
+                        const z = currentPosition.z + dz * speed;
+
+                        const matrix = new THREE.Matrix4()
+                        matrix.setPosition(new THREE.Vector3(x,y,z))
+                        trailMesh.setMatrixAt(i,matrix)
+                        trailMesh.instanceMatrix.needsUpdate = true;
                 }
 
-
-
-        })
-        // console.log(positions)
-        const tempPositions = [ new THREE.Vector3(10,60,100), new THREE.Vector3(40,100,70), new THREE.Vector3(15,12,6)]
+        }
+        const tempPositions = [new THREE.Vector3(110,-15,100), new THREE.Vector3(-70,-150,30), new THREE.Vector3(0,150,90)]
        
         return (
                 <>
-                        {/* <primitive ref = {inputLayerRef} object={inputLayerMesh}/> */}
-                        {/* { linePositions.length > 0 
+                        <primitive ref = {inputLayerRef} object={inputLayerMesh}/>
+                        { linePositions.length > 0 
                                 ?
                                         <Segments limit={linePositions.length} lineWidth={0.05}>
                                                 {linePositions.map((line, i) => (
                                                         <Segment key={i} 
                                                                 ref={(r) => (lineRef.current[i] = r)} 
-                                                                color={'blue'} 
+                                                                color={'white'} 
                                                                 start={[line.startPoint.x,line.startPoint.y,line.startPoint.z]} 
                                                                 end={[line.endPoint.x,line.endPoint.y-150,line.endPoint.z]}
                                                         />
                                                 ))}
                                         </Segments>
                                 : null
-                        } */}
-                        {
+                        }
+                        {/* {
                                 tempPositions.map((cubePosition, i) => (
                                         <Trail
                                                 key={i}
@@ -181,34 +185,27 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                                                 attenuation={(t) => {
                                                         return t * t
                                                 }}
-                                                target={inputTrailRef.current[i]}
-                                                decay={0.1}
+                                                target={trailMeshRef.current[i]}
+                                                decay={0.01}
                                         >
-                                                <Sphere ref={(r) => (inputTrailRef.current[i] = r)} args={[5, 32, 32]} position={cubePosition}>
+                                                <Sphere visible={true} ref={(r) => (trailMeshRef.current[i] = r)} args={[15, 32, 32]} position={cubePosition}>
                                                         <meshNormalMaterial />
                                                 </Sphere>
                                         </Trail>
 
                                 ))
-                        }
-                        {/* <group ref={group}>
+                        } */}
                         <Trail 
-                          width={15}
+                          width={5}
                           length={15}
                           color={'#F8D628'}
                           attenuation={(t) => {
                                 return t * t
                           }}
+                          target={trailMesh}
                         >
-                                {
-                                        positions.map((cubePosition, i) => (
-                                                <Sphere key={i} ref={(r) => (inputTrailRef.current[i] = r)} args={[5, 32, 32]} position={cubePosition}>
-                                                        <meshNormalMaterial />
-                                                </Sphere>
-                                        ))
-                                }
+                                <primitive ref = {trailMeshRef} object={trailMesh}/>
                         </Trail>
-                        </group> */}
                 </>
         )
 })

@@ -59,11 +59,12 @@ const HiddenLayerOne = forwardRef(function HiddenLayerOne(props, inputLayerRef) 
                 }
                 return tempLinePositions
         }
+        console.log(layerOneMesh)
        
 
         return (
                 <>
-    		        <primitive object={layerOneMesh} />
+    		        <primitive object={layerOneMesh} wireframe/>
                         { linePositions.length > 0 
                                 ?
                                         <Segments limit={linePositions.length} lineWidth={0.1}>
