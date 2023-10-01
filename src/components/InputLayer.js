@@ -124,7 +124,7 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
 
         useFrame(({ clock }) => {
                 const time = clock.elapsedTime
-                // forwardPass()
+                forwardPass()
                 
         })
 
@@ -152,7 +152,7 @@ const InputLayer = forwardRef(function InputLayer(props,inputLayerRef) {
                         const dy = targetPoint.y - currentPosition.y;
                         const dz = targetPoint.z - currentPosition.z;
 
-                        const speed = 0.05; // Adjust the speed of animation as needed
+                        const speed = 0.01; // Adjust the speed of animation as needed
 
 
                         const x = currentPosition.x + dx * speed;
