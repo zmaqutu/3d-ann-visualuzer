@@ -25,7 +25,7 @@ const OutputLayer = forwardRef(function OutputLayer(props, hiddenLayerTwoRef) {
          // memoize positions for each neuron cube
          const positions = useMemo(() => {
                 const positions = []
-                for(let row = -75; row <= 75; row+=15) {
+                for(let row = -75; row < 75; row+=15) {
                         positions.push(new THREE.Vector3(row, -1, 0))
 
                 }
