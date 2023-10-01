@@ -82,7 +82,8 @@ function NeuralNetwork() {
 
         const [neuralNetwork, setNeuralNetwork] = useState({
 		networkMeshes,
-		connectionVertices
+		connectionVertices,
+		animationPackage: {}		// a package of neural network properties that will be used to animate the network, sent from the worker
         })
 
 
@@ -150,7 +151,7 @@ function NeuralNetwork() {
 		outputLayerMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
                 // create instanced mesh for weight trail objects
-                const inputWeightGeometry = new THREE.SphereGeometry( 5, 32, 32 );
+                const inputWeightGeometry = new THREE.SphereGeometry( 1, 32, 32 );
                 const inputWeightMaterial = new THREE.MeshNormalMaterial();
                 const inputWeightMesh = new THREE.InstancedMesh(inputWeightGeometry, inputWeightMaterial, inputLayerMesh.count);
 		inputWeightMesh.name = 'inputWeightMesh';
@@ -321,7 +322,7 @@ function NeuralNetwork() {
 		if(action == 'pass-input-to-one'){
 
 			// temporarily hardcoded targetPosition
-			const targetPosition = new THREE.Vector3(0,-150,0)
+			const targetPosition = new THREE.Vector3(-7.5,-200,-7.5)
 
 			for(let i = 0; i < 784; i++){
 				// variables to store the current values of the trail object
@@ -376,17 +377,17 @@ function NeuralNetwork() {
                                                                 // ref={(r) => (lineRef.current[i] = r)} 
                                                                 color={'#396e04'} 
                                                                 start={[line.startPoint.x,line.startPoint.y,line.startPoint.z]} 
-                                                                end={[line.endPoint.x,line.endPoint.y-150,line.endPoint.z]}
+                                                                end={[line.endPoint.x,line.endPoint.y-200,line.endPoint.z]}
                                                         />
                                                 ))}
                                 </Segments>
 
                         </group>
-                        <group  position={[0,0,-50]} rotation={[Math.PI /2, 0, 0]} >
+                        <group  position={[0,0,-100]} rotation={[Math.PI /2, 0, 0]} >
 				{/* <primitive ref = {hiddenLayerOneRef} object={neuralNetwork.networkMeshes.layerOneMesh}/> */}
 				<primitive object={neuralNetwork.networkMeshes.layerOneWeightMesh} />
 				<Segments 
-					limit={neuralNetwork.connectionVertices.layerOneToLayerTwoVertices.length} lineWidth={0.1}>
+					limit={neuralNetwork.connectionVertices.layerOneToLayerTwoVertices.length} lineWidth={0.2}>
 						{neuralNetwork.connectionVertices.layerOneToLayerTwoVertices.map((line, i) => (
                                                         <Segment key={i} 
                                                                 // ref={(r) => (lineRef.current[i] = r)} 
@@ -398,7 +399,7 @@ function NeuralNetwork() {
                                 </Segments>
                         </group>
                         
-                        <group position={[0,0,-200]} rotation={[Math.PI /2, 0, 0]} >
+                        <group position={[0,0,-250]} rotation={[Math.PI /2, 0, 0]} >
 				{/* <primitive ref={hiddenLayerTwoRef} object={neuralNetwork.networkMeshes.layerTwoMesh}/> */}
 				<primitive object={neuralNetwork.networkMeshes.layerTwoWeightMesh} />
 				<Segments 
@@ -413,7 +414,7 @@ function NeuralNetwork() {
                                                 ))}
                                 </Segments>
                         </group>
-                        <group position={[0,0,-350]} rotation={[Math.PI /2, 0, 0]} >
+                        <group position={[0,0,-400]} rotation={[Math.PI /2, 0, 0]} >
 				<primitive ref={outputLayerRef} object={neuralNetwork.networkMeshes.outputLayerMesh}/>
                         </group> 
                         <OrbitControls enableRotate={rotationEnabled}/>
