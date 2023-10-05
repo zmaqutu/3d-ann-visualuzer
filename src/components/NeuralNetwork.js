@@ -10,6 +10,7 @@ import { MnistData } from '../ML Files/mnist_data'
 import * as tf from '@tensorflow/tfjs';
 import { Segments, Segment, Trail, useTrail } from '@react-three/drei';
 import { useTimer } from 'use-timer';
+import { useSpring, animated, a } from '@react-spring/three'
 
 
 
@@ -27,6 +28,21 @@ function NeuralNetwork(props) {
         // const { time, start, pause, reset, status } = useTimer({
         //         autoStart: true
         // });
+        const [active, setActive] = useState(false)
+
+        // useSpring value to animate the input layer
+
+        // const { position } = useSpring({
+        //         position: active ? [20, 10, 100] : [0,0,0], // Target position for your object
+        // config: { duration: 5000 }, // Animation duration and easing
+        //       });
+
+        // console.log('active',position)
+
+        const dummyPositions = [ new THREE.Vector3(10,60,100), new THREE.Vector3(40,100,70), new THREE.Vector3(15,12,6)]
+
+
+
 
         // state values for layer animation
         const [animateLayerOneWeights, setAnimateLayerOneWeights] = useState(false)
@@ -368,22 +384,22 @@ function NeuralNetwork(props) {
                         currentPosition.setFromMatrixPosition(currentMatrix)
 
                         // console.log(currentPosition.y, targetPosition.y)
-                        if(Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 1){
+                        if(Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 15){
                                 setAnimateLayerOneWeights(true)
                         }
 		}
 		else if(action == 'pass-one-to-two'){
                         for(let i = 0; i < 16;i++){
-                                // const targetPosition = new THREE.Vector3(-7.5,-150,-7.5)
+                                const targetPosition = new THREE.Vector3(-7.5,-150,-7.5)
 
                                 // get the position of the corresponding instance in hidden layer two
-                                const targetMatrix = new THREE.Matrix4()
-                                const targetPosition = new THREE.Vector3()
-                                neuralNetwork.networkMeshes.layerTwoWeightMesh.getMatrixAt(i,targetMatrix)
-                                targetPosition.setFromMatrixPosition(targetMatrix)
+                                // const targetMatrix = new THREE.Matrix4()
+                                // const targetPosition = new THREE.Vector3()
+                                // neuralNetwork.networkMeshes.layerTwoWeightMesh.getMatrixAt(i,targetMatrix)
+                                // targetPosition.setFromMatrixPosition(targetMatrix)
 
 
-                                targetPosition.y = targetPosition.y - 150
+                                // targetPosition.y = targetPosition.y - 150
 
 
 
@@ -424,7 +440,7 @@ function NeuralNetwork(props) {
                         forwardPass('pass-input-to-one')
                 }
                 if(animateLayerOneWeights){
-                        console.log('animating layer one weights')
+                        // console.log('animating layer one weights')
                         forwardPass('pass-one-to-two')
                 }
                 
@@ -432,8 +448,8 @@ function NeuralNetwork(props) {
 
         return (
                 <>
-                        <group  position={[0,0,100]} rotation={[Math.PI /2, 0, 0]}  >
-				<primitive ref = {inputLayerRef} object={neuralNetwork.networkMeshes.inputLayerMesh}/>
+                        <group position={[0,0,100]} rotation={[Math.PI /2, 0, 0]} onClick={() => setActive(!active)} >
+                                <primitive ref = {inputLayerRef} object={neuralNetwork.networkMeshes.inputLayerMesh}/>  
 				<primitive object={neuralNetwork.networkMeshes.inputWeightMesh} />
 				<Segments 
 					limit={neuralNetwork.connectionVertices.inputToLayerOneVertices.length} lineWidth={0.01}>
@@ -449,7 +465,7 @@ function NeuralNetwork(props) {
 
                         </group>
                         <group  position={[0,0,-100]} rotation={[Math.PI /2, 0, 0]} >
-				{/* <primitive ref = {hiddenLayerOneRef} object={neuralNetwork.networkMeshes.layerOneMesh}/> */}
+				<primitive ref = {hiddenLayerOneRef} object={neuralNetwork.networkMeshes.layerOneMesh}/>
 				<primitive object={neuralNetwork.networkMeshes.layerOneWeightMesh} />
 				<Segments 
 					limit={neuralNetwork.connectionVertices.layerOneToLayerTwoVertices.length} lineWidth={0.2}>
@@ -465,7 +481,7 @@ function NeuralNetwork(props) {
                         </group>
                         
                         <group position={[0,0,-250]} rotation={[Math.PI /2, 0, 0]} >
-				{/* <primitive ref={hiddenLayerTwoRef} object={neuralNetwork.networkMeshes.layerTwoMesh}/> */}
+				<primitive ref={hiddenLayerTwoRef} object={neuralNetwork.networkMeshes.layerTwoMesh}/>
 				<primitive object={neuralNetwork.networkMeshes.layerTwoWeightMesh} />
 				<Segments 
 					limit={neuralNetwork.connectionVertices.layerTwoToOutputVertices.length} lineWidth={1}>
@@ -482,7 +498,7 @@ function NeuralNetwork(props) {
                         <group position={[0,0,-400]} rotation={[Math.PI /2, 0, 0]} >
 				<primitive ref={outputLayerRef} object={neuralNetwork.networkMeshes.outputLayerMesh}/>
                         </group> 
-                        <OrbitControls enableRotate={rotationEnabled}/>
+                        <OrbitControls enableRotate={rotationEnabled} maxDistance={1000}/>
                         <Stars count={100000} depth={400}/>
                         <axesHelper/>
                 </>
