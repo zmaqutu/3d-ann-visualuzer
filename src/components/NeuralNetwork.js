@@ -111,43 +111,32 @@ function NeuralNetwork(props) {
                 animationPackage: {}		// a package of neural network properties that will be used to animate the network, sent from the worker
         })
 
-        // useEffect(() => {
-        //         // const worker = new Worker('../workers/worker.js')
-        //         if(inputLayerPositions.length > 0){
-        //                 loadInitialExamples()
-        //         }
-        // }, [inputLayerPositions])
+        useEffect(() => {
+                worker.onmessage = (e) => {
+                        console.log('Message received from worker', e.data)
+                        if(e.data.action == 'drawPredictionInput'){
+                                const imagePixels = e.data.imagePixels
+                                let tempColorBuffers = []
+                                const colorScheme = Float32Array.from(imagePixels)
 
-        // useEffect(() => {
-        //         console.log(inputWeightMesh)
-        // }, [inputWeightMesh])
+                                const currentColorAttribute = new THREE.InstancedBufferAttribute(colorScheme, 4)
 
-        // useEffect(() => {
-        //         worker.onmessage = (e) => {
-        //                 console.log('Message received from worker', e.data)
-        //                 if(e.data.action == 'drawPredictionInput'){
-        //                         const imagePixels = e.data.imagePixels
-        //                         let tempColorBuffers = []
-        //                         const colorScheme = Float32Array.from(imagePixels)
+                                tempColorBuffers.push(currentColorAttribute)
 
-        //                         const currentColorAttribute = new THREE.InstancedBufferAttribute(colorScheme, 4)
+                                setColorAttributesArray(tempColorBuffers)
+                        }
+                        if(e.data.action == 'animatePrediction'){
+                                console.log(e.data)
+                        }
+                }
+                const message = {action: 'initializeNetwork'}
+                worker.postMessage(message)
+                return () => {
+                        console.log('terminating worker')
+                        worker.terminate()
+                }
 
-        //                         tempColorBuffers.push(currentColorAttribute)
-
-        //                         setColorAttributesArray(tempColorBuffers)
-        //                 }
-        //                 if(e.data.action == 'animatePrediction'){
-        //                         console.log(e.data)
-        //                 }
-        //         }
-        //         const message = {action: 'initializeNetwork'}
-        //         worker.postMessage(message)
-        //         return () => {
-        //                 console.log('terminating worker')
-        //                 worker.terminate()
-        //         }
-
-        // }, [])
+        }, [])
 
         function initializeNeuralNetworkMesh() {
                 //create instance mesh for each layer
