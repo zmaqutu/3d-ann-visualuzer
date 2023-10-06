@@ -11,7 +11,6 @@ import * as tf from '@tensorflow/tfjs';
 import { Segments, Segment, Trail, useTrail } from '@react-three/drei';
 import { useTimer } from 'use-timer';
 import { useSpring, animated, a } from '@react-spring/three'
-import * as TWEEN from '@tweenjs/tween.js';
 
 
 
