@@ -46,8 +46,8 @@ function NeuralNetwork(props) {
 
 
         // state values for layer animation
-        const [animateLayerOneWeights, setAnimateLayerOneWeights] = useState(false)
-        const [animateLayerTwoWeights, setAnimateLayerTwoWeights] = useState(false)
+        let animateLayerOneWeights = false
+        let animateLayerTwoWeights = false
 
         const [rotationEnabled, toggleRotation] = useState(true)
 
@@ -357,7 +357,6 @@ function NeuralNetwork(props) {
                 
                         instanceMesh.setMatrixAt(i, matrix);
                 }
-                
                 instanceMesh.instanceMatrix.needsUpdate = true;
         }
 
@@ -371,7 +370,7 @@ function NeuralNetwork(props) {
                         const targetPosition = new THREE.Vector3(-7.5, -200, -7.5)
 
                         // animate the input layer instances to the target position
-                        animateInstancesToTarget(neuralNetwork.networkMeshes.inputWeightMesh, targetPosition, 0.1)
+                        animateInstancesToTarget(neuralNetwork.networkMeshes.inputWeightMesh, targetPosition, 0.05)
                         
                         // check if we are at the target position
                         const currentMatrix = new THREE.Matrix4()
@@ -381,12 +380,13 @@ function NeuralNetwork(props) {
 
                         // console.log(currentPosition.y, targetPosition.y)
                         if (Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 15 && !animateLayerOneWeights) {
-                                setAnimateLayerOneWeights(true)
+                                // setAnimateLayerOneWeights(true)
+                                animateLayerOneWeights = true
                         }
                 }
                 else if (action == 'pass-one-to-two') {
                         const targetPosition = new THREE.Vector3(-7.5, -150, -7.5)
-                        animateInstancesToTarget(neuralNetwork.networkMeshes.layerOneWeightMesh, targetPosition, 0.1)
+                        animateInstancesToTarget(neuralNetwork.networkMeshes.layerOneWeightMesh, targetPosition, 0.05)
                 }
                 else if (action == 'pass-two-to-output') {
                 }
