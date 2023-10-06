@@ -46,6 +46,7 @@ function NeuralNetwork(props) {
 
 
         // state values for layer animation
+        let animateInputWeights = props.animateForwardPass
         let animateLayerOneWeights = false
         let animateLayerTwoWeights = false
 
@@ -370,7 +371,7 @@ function NeuralNetwork(props) {
                         const targetPosition = new THREE.Vector3(-7.5, -200, -7.5)
 
                         // animate the input layer instances to the target position
-                        animateInstancesToTarget(neuralNetwork.networkMeshes.inputWeightMesh, targetPosition, 0.05)
+                        animateInstancesToTarget(neuralNetwork.networkMeshes.inputWeightMesh, targetPosition, 0.075)
                         
                         // check if we are at the target position
                         const currentMatrix = new THREE.Matrix4()
@@ -379,29 +380,51 @@ function NeuralNetwork(props) {
                         currentPosition.setFromMatrixPosition(currentMatrix)
 
                         // console.log(currentPosition.y, targetPosition.y)
-                        if (Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 15 && !animateLayerOneWeights) {
+                        if (Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 1 && !animateLayerOneWeights) {
+                                console.log('this condition should be met once')
                                 // setAnimateLayerOneWeights(true)
                                 animateLayerOneWeights = true
                         }
                 }
                 else if (action == 'pass-one-to-two') {
                         const targetPosition = new THREE.Vector3(-7.5, -150, -7.5)
-                        animateInstancesToTarget(neuralNetwork.networkMeshes.layerOneWeightMesh, targetPosition, 0.05)
+                        animateInstancesToTarget(neuralNetwork.networkMeshes.layerOneWeightMesh, targetPosition, 0.075)
+
+                        // check if we are at the target position
+                        const currentMatrix = new THREE.Matrix4()
+                        const currentPosition = new THREE.Vector3()
+                        neuralNetwork.networkMeshes.layerOneWeightMesh.getMatrixAt(0, currentMatrix)
+                        currentPosition.setFromMatrixPosition(currentMatrix)
+
+                        if (Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 1 && !animateLayerTwoWeights) {
+                                console.log('this 2 condition should be met once')
+                                animateLayerTwoWeights = true
+                        }
                 }
                 else if (action == 'pass-two-to-output') {
+
+                        // remember to set the target position value to the position of the predicted output value of the neural network
+                        const targetPosition = new THREE.Vector3(-7.5, -150, 0)
+                        animateInstancesToTarget(neuralNetwork.networkMeshes.layerTwoWeightMesh, targetPosition, 0.075)
                 }
 
         }
 
         useFrame(({ clock }) => {
                 const time = clock.elapsedTime
-                if (props.animateForwardPass) {
+                if (animateInputWeights) {
+                        // console.log('calling forwardPass')
                         forwardPass('pass-input-to-one')
                 }
                 if (animateLayerOneWeights) {
-                        // console.log('animating layer one weights')
+                        // console.log('calling forward pass 2')
                         forwardPass('pass-one-to-two')
                 }
+                if (animateLayerTwoWeights ){
+                        // console.log('calling forwardpass 3')
+                        forwardPass('pass-two-to-output')
+                }
+
 
         })
 
@@ -443,11 +466,11 @@ function NeuralNetwork(props) {
                                 <primitive ref={hiddenLayerTwoRef} object={neuralNetwork.networkMeshes.layerTwoMesh} />
                                 <primitive object={neuralNetwork.networkMeshes.layerTwoWeightMesh} />
                                 <Segments
-                                        limit={neuralNetwork.connectionVertices.layerTwoToOutputVertices.length} lineWidth={1}>
+                                        limit={neuralNetwork.connectionVertices.layerTwoToOutputVertices.length} lineWidth={0.2}>
                                         {neuralNetwork.connectionVertices.layerTwoToOutputVertices.map((line, i) => (
                                                 <Segment key={i}
                                                         // ref={(r) => (lineRef.current[i] = r)} 
-                                                        color={'blue'}
+                                                        color={'#396e04'}
                                                         start={[line.startPoint.x, line.startPoint.y, line.startPoint.z]}
                                                         end={[line.endPoint.x, line.endPoint.y - 150, line.endPoint.z]}
                                                 />
