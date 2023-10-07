@@ -8,7 +8,7 @@ import * as THREE from 'three'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { MnistData } from '../ML Files/mnist_data'
 import * as tf from '@tensorflow/tfjs';
-import { Segments, Segment, Trail, useTrail } from '@react-three/drei';
+import { Segments, Segment, Trail, useTrail, Text, Billboard } from '@react-three/drei';
 import { useTimer } from 'use-timer';
 import { useSpring, animated, a } from '@react-spring/three'
 
@@ -48,6 +48,10 @@ function NeuralNetwork(props) {
         let animateInputWeights = props.animateForwardPass
         let animateLayerOneWeights = false
         let animateLayerTwoWeights = false
+
+        const outputLabels = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+        
+        let outputLabelPositions = []
 
         const [rotationEnabled, toggleRotation] = useState(true)
 
@@ -94,6 +98,7 @@ function NeuralNetwork(props) {
                 const positions = []
                 for (let row = -75; row < 75; row += 15) {
                         positions.push(new THREE.Vector3(row, -1, 0))
+                        outputLabelPositions.push(new THREE.Vector3(row, 15, 0))
 
                 }
                 return positions
@@ -111,32 +116,32 @@ function NeuralNetwork(props) {
                 animationPackage: {}		// a package of neural network properties that will be used to animate the network, sent from the worker
         })
 
-        useEffect(() => {
-                worker.onmessage = (e) => {
-                        console.log('Message received from worker', e.data)
-                        if(e.data.action == 'drawPredictionInput'){
-                                const imagePixels = e.data.imagePixels
-                                let tempColorBuffers = []
-                                const colorScheme = Float32Array.from(imagePixels)
+        // useEffect(() => {
+        //         worker.onmessage = (e) => {
+        //                 console.log('Message received from worker', e.data)
+        //                 if(e.data.action == 'drawPredictionInput'){
+        //                         const imagePixels = e.data.imagePixels
+        //                         let tempColorBuffers = []
+        //                         const colorScheme = Float32Array.from(imagePixels)
 
-                                const currentColorAttribute = new THREE.InstancedBufferAttribute(colorScheme, 4)
+        //                         const currentColorAttribute = new THREE.InstancedBufferAttribute(colorScheme, 4)
 
-                                tempColorBuffers.push(currentColorAttribute)
+        //                         tempColorBuffers.push(currentColorAttribute)
 
-                                setColorAttributesArray(tempColorBuffers)
-                        }
-                        if(e.data.action == 'animatePrediction'){
-                                console.log(e.data)
-                        }
-                }
-                const message = {action: 'initializeNetwork'}
-                worker.postMessage(message)
-                return () => {
-                        console.log('terminating worker')
-                        worker.terminate()
-                }
+        //                         setColorAttributesArray(tempColorBuffers)
+        //                 }
+        //                 if(e.data.action == 'animatePrediction'){
+        //                         console.log(e.data)
+        //                 }
+        //         }
+        //         const message = {action: 'initializeNetwork'}
+        //         worker.postMessage(message)
+        //         return () => {
+        //                 console.log('terminating worker')
+        //                 worker.terminate()
+        //         }
 
-        }, [])
+        // }, [])
 
         function initializeNeuralNetworkMesh() {
                 //create instance mesh for each layer
@@ -465,8 +470,17 @@ function NeuralNetwork(props) {
                                         ))}
                                 </Segments>
                         </group>
-                        <group position={[0, 0, -400]} rotation={[Math.PI / 2, 0, 0]} >
+                        <group position={[0, 0, -400]}  >
                                 <primitive ref={outputLayerRef} object={neuralNetwork.networkMeshes.outputLayerMesh} />
+                                {outputLabels.map((value, i) => (
+                                        <group key={i} position={outputLabelPositions[i]}>
+                                                <Billboard follow={true} lockX={false} lockY={false} lockZ={false}>
+                                                        <Text color="white" anchorX="center" key={i} scale={15}>
+                                                                {value}
+                                                        </Text>
+                                                </Billboard>
+                                        </group>
+                                ))}
                         </group>
                         <OrbitControls enableRotate={rotationEnabled} maxDistance={950} />
                         <Stars count={50000} depth={400} />

@@ -2,6 +2,9 @@ import './App.scss';
 import { Canvas } from '@react-three/fiber'
 import NeuralNetwork from './components/NeuralNetwork';
 import React, { useEffect, useRef, useCallback, useState} from 'react'
+import { StatsGl } from '@react-three/drei';
+
+
 
 
 
@@ -13,8 +16,20 @@ function App() {
 
     const cameraPosition = useRef([0,0,575]);
 
+	// const stats = useRef(document.createElement('div'));
+
 	const [animateForwardPass, setAnimateForwardPass] = useState(false);
 
+	// useEffect(() => {
+	// 	stats.current.id = 'stats'
+	// 	stats.current.style.position = 'absolute'
+	// 	stats.current.style.top = '100px'
+	// 	stats.current.style.left = '100px'
+	// 	document.body.appendChild(stats.current)
+		
+	// 	return () => document.body.removeChild(stats.current)
+	// }, [])
+	
 	function visualizePretrainedModel(){
 	}
 	const updateVisualizationState = useCallback(() => {
@@ -44,6 +59,7 @@ function App() {
             </div>
 			<Canvas camera = {{ position: cameraPosition.current, fov: 53, aspect: width / height, near: 1, far: 5000 }}>
 				<NeuralNetwork animateForwardPass={animateForwardPass}/>
+				{/* <StatsGl className='stats' horizontal={false}/> */}
 			</Canvas>
 		</>
   );
