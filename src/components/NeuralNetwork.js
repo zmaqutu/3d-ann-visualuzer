@@ -116,32 +116,42 @@ function NeuralNetwork(props) {
                 animationPackage: {}		// a package of neural network properties that will be used to animate the network, sent from the worker
         })
 
-        // useEffect(() => {
-        //         worker.onmessage = (e) => {
-        //                 console.log('Message received from worker', e.data)
-        //                 if(e.data.action == 'drawPredictionInput'){
-        //                         const imagePixels = e.data.imagePixels
-        //                         let tempColorBuffers = []
-        //                         const colorScheme = Float32Array.from(imagePixels)
+        useEffect(() => {
+                worker.onmessage = (e) => {
+                        console.log('Message received from worker', e.data)
+                        if(e.data.action == 'drawPredictionInput'){
+                                const inputPixels = e.data.inputPixels
+                                let tempColorBuffers = []
+                                const colorScheme = Float32Array.from(inputPixels)
 
-        //                         const currentColorAttribute = new THREE.InstancedBufferAttribute(colorScheme, 4)
+                                const currentColorAttribute = new THREE.InstancedBufferAttribute(colorScheme, 4)
 
-        //                         tempColorBuffers.push(currentColorAttribute)
+                                tempColorBuffers.push(currentColorAttribute)
 
-        //                         setColorAttributesArray(tempColorBuffers)
-        //                 }
-        //                 if(e.data.action == 'animatePrediction'){
-        //                         console.log(e.data)
-        //                 }
-        //         }
-        //         const message = {action: 'initializeNetwork'}
-        //         worker.postMessage(message)
-        //         return () => {
-        //                 console.log('terminating worker')
-        //                 worker.terminate()
-        //         }
+                                setColorAttributesArray(tempColorBuffers)
+                        }
+                        if(e.data.action == 'animatePrediction'){
+                                console.log(e.data)
 
-        // }, [])
+                                // the inputLayer pixels
+                                const inputPixels = e.data.inputPixels
+                        
+                                // the predicted output
+                                const predictionIndex = e.data.prediction
+
+                                const predictionInstance = e.data.predictionInstance
+                                
+                                processAnimationPackage(inputPixels, predictionIndex, predictionInstance)
+                        }
+                }
+                const message = {action: 'initializeNetwork'}
+                worker.postMessage(message)
+                return () => {
+                        console.log('terminating worker')
+                        worker.terminate()
+                }
+
+        }, [])
 
         useEffect(() => {
                 if(props.trainNetwork){
@@ -163,17 +173,17 @@ function NeuralNetwork(props) {
                 inputLayerMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
                 const layerOneGeometry = new THREE.BoxGeometry(10, 10, 10)
-                const layerOneMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, color: 'red' })
+                const layerOneMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, color: 'red', vertexColors: true })
                 const layerOneMesh = new THREE.InstancedMesh(layerOneGeometry, layerOneMaterial, 16);
                 layerOneMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
                 const layerTwoGeometry = new THREE.BoxGeometry(10, 10, 10)
-                const layerTwoMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, color: 'hotpink' })
+                const layerTwoMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, color: 'hotpink', vertexColors: true })
                 const layerTwoMesh = new THREE.InstancedMesh(layerTwoGeometry, layerTwoMaterial, 16);
                 layerTwoMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
                 const outputLayerGeometry = new THREE.BoxGeometry(10, 10, 10)
-                const outputLayerMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, color: 'green' })
+                const outputLayerMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, color: 'green', vertexColors: true })
                 const outputLayerMesh = new THREE.InstancedMesh(outputLayerGeometry, outputLayerMaterial, 10);
                 outputLayerMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
@@ -311,13 +321,47 @@ function NeuralNetwork(props) {
 
         }, [])
 
+        
+        function processAnimationPackage(inputPixels,predictionIndex,predictionInstance){
+
+                const colorAttributeArray = []
+                const prediction = predictionInstance.prediction
+                const hiddenLayersActivations = predictionInstance.hiddenLayersActivations
+
+                console.log('inputPixels',inputPixels)
+
+                
+                // create the inputLayerMesh's color buffer attribute
+                const inputColorArray = Float32Array.from(inputPixels)
+                console.log('inputColorArray', inputColorArray)
+                colorAttributeArray.push(new THREE.InstancedBufferAttribute(inputColorArray, 4))
+
+                // create hidden layer's color buffer attribute
+                for(let i = 0; i < hiddenLayersActivations.length; i++){
+                        const colorArray = Float32Array.from(hiddenLayersActivations[i])
+                        console.log('colorArray',colorArray)
+                        colorAttributeArray.push(new THREE.InstancedBufferAttribute(inputColorArray, 1))
+                }
+
+                // TODO: create and process output layer color buffer attribute
+                // const outputColorArray = new Float32Array(10)
+                // outputColorArray[prediction] = 1
+                // colorAttributeArray.push(new THREE.InstancedBufferAttribute(outputColorArray, 1))
+                // console.log('output color array',outputColorArray,colorAttributeArray)
+
+                neuralNetwork.animationPackage = {colorAttributeArray: colorAttributeArray, prediction: prediction}
+
+                
+
+
+        }
+
         function visualizePretrainedModel() {
                 // toggleShowCasing(true)
                 togglePretrainedVisualization(!visualizationState)
         }
         const updateVisualizationState = useCallback(() => {
                 // toggleShowCasing(newState)
-                worker.postMessage({ action: 'printGlobals' })
                 togglePretrainedVisualization(!visualizationState)
         }, [])
 
@@ -367,6 +411,9 @@ function NeuralNetwork(props) {
         function forwardPass(action) {
                 // define a target position for the instances
 
+                inputLayerRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage.colorAttributeArray[0])
+                inputLayerRef.current.geometry.getAttribute('color').needsUpdate = true;
+
                 if (action == 'pass-input-to-one') {
 
                         // temporarily hardcoded targetPosition
@@ -383,9 +430,12 @@ function NeuralNetwork(props) {
 
                         // console.log(currentPosition.y, targetPosition.y)
                         if (Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 1 && !animateLayerOneWeights) {
-                                console.log('this condition should be met once')
-                                // setAnimateLayerOneWeights(true)
+
+                                hiddenLayerOneRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage.colorAttributeArray[1])
+                                hiddenLayerOneRef.current.geometry.getAttribute('color').needsUpdate = true;
+
                                 animateLayerOneWeights = true
+
                         }
                 }
                 else if (action == 'pass-one-to-two') {
@@ -399,7 +449,10 @@ function NeuralNetwork(props) {
                         currentPosition.setFromMatrixPosition(currentMatrix)
 
                         if (Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 1 && !animateLayerTwoWeights) {
-                                console.log('this 2 condition should be met once')
+                                
+                                hiddenLayerTwoRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage.colorAttributeArray[2])
+                                hiddenLayerTwoRef.current.geometry.getAttribute('color').needsUpdate = true;
+
                                 animateLayerTwoWeights = true
                         }
                 }
@@ -408,6 +461,22 @@ function NeuralNetwork(props) {
                         // remember to set the target position value to the position of the predicted output value of the neural network
                         const targetPosition = new THREE.Vector3(-7.5, -150, 0)
                         animateInstancesToTarget(neuralNetwork.networkMeshes.layerTwoWeightMesh, targetPosition, 0.075)
+
+                        const currentMatrix = new THREE.Matrix4()
+                        const currentPosition = new THREE.Vector3()
+                        neuralNetwork.networkMeshes.layerTwoWeightMesh.getMatrixAt(0, currentMatrix)
+                        currentPosition.setFromMatrixPosition(currentMatrix)
+
+                        if (Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 1) {
+                                // console.log('is this output condition ever met')
+                                // outputLayerRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage.colorAttributeArray[3])
+                                // outputLayerRef.current.geometry.getAttribute('color').needsUpdate = true;
+                                outputLayerRef.current.setColorAt(neuralNetwork.animationPackage.prediction, new THREE.Color('white'))
+                                // outputLayerRef.current.geometry.getAttribute('color').needsUpdate = true;
+
+
+                               
+                        }
                 }
 
         }
