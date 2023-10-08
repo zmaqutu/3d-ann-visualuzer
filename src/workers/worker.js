@@ -9,7 +9,7 @@ const IMAGE_HEIGHT = 28;
 const NUM_CLASSES = 10;
 const NUM_DATASET_ELEMENTS = 65000;
 const model = tf.sequential();
-const BATCH_SIZE = 64;
+const BATCH_SIZE = 1;
 const TRAIN_BATCHES = 5;
 let data;
 
@@ -129,7 +129,6 @@ async function predict(){
         // postMessage({action: 'drawPredictionInput', imagePixels: imagePixels})
 
         const predictionInstance = getActivations(batch.xs)
-        console.log('sendIT')
         postMessage({action: 'animatePrediction', imagePixels: imagePixels, ...predictionInstance})
 }
 

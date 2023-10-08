@@ -19,6 +19,8 @@ function App() {
 	// const stats = useRef(document.createElement('div'));
 
 	const [animateForwardPass, setAnimateForwardPass] = useState(false);
+	const [trainNetwork, setTrainNetwork] = useState(false);
+	const [predicting, setPredicting] = useState(false)
 
 	// useEffect(() => {
 	// 	stats.current.id = 'stats'
@@ -38,10 +40,12 @@ function App() {
 	function toggleWorldSetup(){
 	}
 
-	function trainNetwork(){
+	function startTrainingNetwork(){
+		setTrainNetwork(!trainNetwork)
 	}
 
-	function predictInput(){
+	function startPrediction(){
+		setPredicting(!predicting)
 	}
 
 	function toggleAnimation(){
@@ -53,12 +57,12 @@ function App() {
 			<div>
             	<button onClick={updateVisualizationState} dir={'rtl'}>Visualize Pretrained Model</button>
 				<button onClick={toggleWorldSetup}>Setup Input</button>
-				<button onClick={predictInput}>Randomly Select Test Data and Predict</button>
-				<button onClick={trainNetwork}>Train Network</button>
+				<button onClick={startPrediction}>Randomly Select Test Data and Predict</button>
+				<button onClick={startTrainingNetwork}>Train Network</button>
 				<button onClick={toggleAnimation}>Animate Lines</button>
             </div>
 			<Canvas camera = {{ position: cameraPosition.current, fov: 53, aspect: width / height, near: 1, far: 5000 }}>
-				<NeuralNetwork animateForwardPass={animateForwardPass}/>
+				<NeuralNetwork animateForwardPass={animateForwardPass} trainNetwork={trainNetwork} predicting={predicting}/>
 				{/* <StatsGl className='stats' horizontal={false}/> */}
 			</Canvas>
 		</>

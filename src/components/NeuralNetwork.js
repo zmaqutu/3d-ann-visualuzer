@@ -98,7 +98,7 @@ function NeuralNetwork(props) {
                 const positions = []
                 for (let row = -75; row < 75; row += 15) {
                         positions.push(new THREE.Vector3(row, -1, 0))
-                        outputLabelPositions.push(new THREE.Vector3(row, 15, 0))
+                        outputLabelPositions.push(new THREE.Vector3(row, 10, 0))
 
                 }
                 return positions
@@ -142,6 +142,18 @@ function NeuralNetwork(props) {
         //         }
 
         // }, [])
+
+        useEffect(() => {
+                if(props.trainNetwork){
+                        trainNetwork()
+                }
+        }, [props.trainNetwork])
+
+        useEffect(() => {
+                if(props.predicting){
+                        predictInput()
+                }
+        }, [props.predicting])
 
         function initializeNeuralNetworkMesh() {
                 //create instance mesh for each layer
@@ -309,9 +321,6 @@ function NeuralNetwork(props) {
                 togglePretrainedVisualization(!visualizationState)
         }, [])
 
-        function toggleWorldSetup() {
-
-        }
 
         function trainNetwork() {
                 worker.postMessage({ action: 'trainNetwork' })
@@ -322,7 +331,7 @@ function NeuralNetwork(props) {
         function predictInput() {
                 // console.log('predicting input')
                 worker.postMessage({ action: 'predictInput' })
-                updateVisualizationState()
+                // updateVisualizationState()
                 // loadXExamples()
         }
 
