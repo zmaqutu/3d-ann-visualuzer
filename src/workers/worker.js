@@ -159,21 +159,21 @@ function getActivations(imageTensor){
         const activationsArrayOutput = Array.from(activationsOutput.dataSync())
         const prediction = activationsArrayOutput.indexOf(Math.max(...activationsArrayOutput))
 
-        return {hiddenLayersActivations: hiddenLayersActivations,  prediction: prediction}
-        //get weights and biases
-        // const weightsAndBiases = model.getWeights()
-        // const weights = []
-        // const biases = []
+        // const prediction = activationsOutput.argMax(-1)
+        // const binaryArray = tf.oneHot(prediction, 10)
 
-        // for(const tensor of weightsAndBiases){
-        //         if(tensor.shape.length == 1){
-        //                 biases.push(tensor.dataSync())
-        //         }else{
-        //                 weights.push(tensor.dataSync())
-        //         }
-        // }
-        // console.log('weights', weights)
-        // console.log('biases', biases)        
+        // const uint8Array = binaryArray.toFloat().mul(1).toInt();
+
+        // const predictionArray = Uint8Array.from(uint8Array.dataSync());
+
+
+        // console.log('hiddenLayersActivations, binaryArray',hiddenLayersActivations,binaryArray)
+
+        const ac = activationsOutput.greater(tf.scalar(0)).toInt().dataSync()
+
+        
+
+        return {hiddenLayersActivations: hiddenLayersActivations, predictionArray : ac}       
 }
 function getBlackBoxActivations(imageTensor){
         // const layer = model.getLayer('hiddenLayerOne')
@@ -183,7 +183,7 @@ function getBlackBoxActivations(imageTensor){
 
         const layers = model.layers
         // iterate through the models hidden layers
-        for(let i = 0; i < layers.length-1;i++){
+        for(let i = 0; i < layers.length - 1;i++){
                 const layer = layers[i]
 
                 const interMediateModel = tf.model({inputs: model.input, outputs: layer.output});

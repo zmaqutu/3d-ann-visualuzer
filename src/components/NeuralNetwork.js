@@ -137,11 +137,9 @@ function NeuralNetwork(props) {
                                 const inputPixels = e.data.inputPixels
                         
                                 // the predicted output
-                                const predictionIndex = e.data.prediction
-
                                 const predictionInstance = e.data.predictionInstance
                                 
-                                processAnimationPackage(inputPixels, predictionIndex, predictionInstance)
+                                processAnimationPackage(inputPixels, predictionInstance)
                         }
                 }
                 const message = {action: 'initializeNetwork'}
@@ -183,7 +181,7 @@ function NeuralNetwork(props) {
                 layerTwoMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
                 const outputLayerGeometry = new THREE.BoxGeometry(10, 10, 10)
-                const outputLayerMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, color: 'green', vertexColors: true })
+                const outputLayerMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, color: 'green',vertexColors: true })
                 const outputLayerMesh = new THREE.InstancedMesh(outputLayerGeometry, outputLayerMaterial, 10);
                 outputLayerMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
@@ -322,34 +320,47 @@ function NeuralNetwork(props) {
         }, [])
 
         
-        function processAnimationPackage(inputPixels,predictionIndex,predictionInstance){
+        function processAnimationPackage(inputPixels,predictionInstance){
 
                 const colorAttributeArray = []
-                const prediction = predictionInstance.prediction
+                // const prediction = predictionInstance.prediction
                 const hiddenLayersActivations = predictionInstance.hiddenLayersActivations
+                const predictionArray = predictionInstance.predictionArray
 
-                console.log('inputPixels',inputPixels)
-
-                
                 // create the inputLayerMesh's color buffer attribute
                 const inputColorArray = Float32Array.from(inputPixels)
-                console.log('inputColorArray', inputColorArray)
                 colorAttributeArray.push(new THREE.InstancedBufferAttribute(inputColorArray, 4))
 
                 // create hidden layer's color buffer attribute
                 for(let i = 0; i < hiddenLayersActivations.length; i++){
                         const colorArray = Float32Array.from(hiddenLayersActivations[i])
-                        console.log('colorArray',colorArray)
-                        colorAttributeArray.push(new THREE.InstancedBufferAttribute(inputColorArray, 1))
+                        colorAttributeArray.push(new THREE.InstancedBufferAttribute(colorArray, 1))
                 }
 
                 // TODO: create and process output layer color buffer attribute
-                // const outputColorArray = new Float32Array(10)
-                // outputColorArray[prediction] = 1
-                // colorAttributeArray.push(new THREE.InstancedBufferAttribute(outputColorArray, 1))
-                // console.log('output color array',outputColorArray,colorAttributeArray)
+                const outputColorArray = Float32Array.from(predictionArray)
+                colorAttributeArray.push(new THREE.InstancedBufferAttribute(outputColorArray, 2))
 
-                neuralNetwork.animationPackage = {colorAttributeArray: colorAttributeArray, prediction: prediction}
+                console.log('avc',colorAttributeArray)
+
+                neuralNetwork.animationPackage = {colorAttributeArray: colorAttributeArray}
+
+                console.log(hiddenLayerTwoRef, outputLayerRef)
+                // const colors = new Float32Array(10 * 3); // Each cube has an RGB color
+
+                // colors[0] = 1; // Red
+                // colors[1] = 0; // Green
+                // colors[2] = 0; // Blue
+
+                // const colorAttribute = new THREE.InstancedBufferAttribute(colors, 3);
+
+                // outputLayerRef.current.geometry.setAttribute('color', colorAttribute);
+                // outputLayerRef.current.geometry.getAttribute('color').needsUpdate = true;
+
+
+
+
+
 
                 
 
@@ -467,15 +478,13 @@ function NeuralNetwork(props) {
                         neuralNetwork.networkMeshes.layerTwoWeightMesh.getMatrixAt(0, currentMatrix)
                         currentPosition.setFromMatrixPosition(currentMatrix)
 
-                        if (Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 1) {
+                        if (Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 1 ) {
                                 // console.log('is this output condition ever met')
-                                // outputLayerRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage.colorAttributeArray[3])
-                                // outputLayerRef.current.geometry.getAttribute('color').needsUpdate = true;
-                                outputLayerRef.current.setColorAt(neuralNetwork.animationPackage.prediction, new THREE.Color('white'))
-                                // outputLayerRef.current.geometry.getAttribute('color').needsUpdate = true;
+                                outputLayerRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage.colorAttributeArray[3])
+                                outputLayerRef.current.geometry.getAttribute('color').needsUpdate = true;
 
 
-                               
+                                
                         }
                 }
 
