@@ -143,13 +143,6 @@ async function getImagePixels(batch){
         return await tf.browser.toPixels(imageTensor)
 }
 async function getActivations(imageTensor){
-        // intermediate model from hiddenLayerOne to to hiddenLayerTwo
-        // const layerOneBinaryActivations = getLayerBinaryActivations(imageTensor, 'hiddenLayerOne')
-        
-        // intermediate model from hiddenLayerTwo to outputLayer
-        // const layerTwoBinaryActivations = getLayerBinaryActivations(imageTensor, 'hiddenLayerTwo')
-
-        // refactor above code, store binary activations in an object
         const hiddenLayersActivations = getBlackBoxActivations(imageTensor)
 
         // output layer
@@ -157,33 +150,11 @@ async function getActivations(imageTensor){
         const intermediateModelOutput = tf.model({inputs: model.input, outputs: outputLayer.output});
         const activationsOutput = intermediateModelOutput.predict(imageTensor)
         const activationsArrayOutput = Array.from(activationsOutput.dataSync())
-        const prediction = activationsArrayOutput.indexOf(Math.max(...activationsArrayOutput))
-
-        // const prediction = activationsOutput.argMax(-1)
-        // const binaryArray = tf.oneHot(prediction, activationsOutput.shape[1])
-
-        // const uint8Array = binaryArray.toFloat().mul(1).toInt();
-        // const predictionArray = Uint8Array.from(uint8Array.dataSync());
-        // const ac = Uint8Array.from(binaryArray.dataSync());
-
-        // const outputPixels = await tf.browser.toPixels(activationsOutput)
-
-
-
-
-
-        // console.log('hiddenLayersActivations, binaryArray',hiddenLayersActivations,binaryArray)
-
-        // const ac = activationsOutput.greater(tf.scalar(0)).toInt().dataSync()
-
-        
+        const prediction = activationsArrayOutput.indexOf(Math.max(...activationsArrayOutput))        
 
         return {hiddenLayersActivations: hiddenLayersActivations, prediction : prediction}       
 }
 function getBlackBoxActivations(imageTensor){
-        // const layer = model.getLayer('hiddenLayerOne')
-        // const intermediateModel = tf.model({inputs: model.input, outputs: layer.output});
-
         const blackBoxActivations = []
 
         const layers = model.layers
@@ -197,7 +168,6 @@ function getBlackBoxActivations(imageTensor){
 
                 blackBoxActivations.push(binaryActivations)
         }
-        // // console.log('blackBoxActivations', blackBoxActivations)
         return blackBoxActivations
 }
 /* eslint-enable no-restricted-globals */

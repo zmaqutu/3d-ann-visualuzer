@@ -37,12 +37,6 @@ function NeuralNetwork(props) {
         // config: { duration: 5000 }, // Animation duration and easing
         //       });
 
-        // console.log('active',position)
-
-        const dummyPositions = [new THREE.Vector3(10, 60, 100), new THREE.Vector3(40, 100, 70), new THREE.Vector3(15, 12, 6)]
-
-
-
 
         // state values for layer animation
         let animateInputWeights = props.animateForwardPass
@@ -187,9 +181,6 @@ function NeuralNetwork(props) {
                 outputLayerMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
                 outputLayerMesh.setColorAt(0, new THREE.Color('black'))
 
-                // for(let i = 0; i < outputLayerMesh.count; i++){
-                // }
-
                 // create instanced mesh for weight trail objects
                 const inputWeightGeometry = new THREE.SphereGeometry(2, 32, 32);
                 const inputWeightMaterial = new THREE.MeshNormalMaterial();
@@ -304,7 +295,6 @@ function NeuralNetwork(props) {
                 let tempColorBuffers = []
 
                 for (let i = 0; i < numExamples; i++) {
-                        // console.log('iteration', i)
                         const imageTensor = tf.tidy(() => {
                                 // Reshape the image to 28x28 px
                                 return examples.xs
@@ -330,7 +320,6 @@ function NeuralNetwork(props) {
                 const colorAttributeArray = []
                 const prediction = predictionInstance.prediction
                 const hiddenLayersActivations = predictionInstance.hiddenLayersActivations
-                // const predictionArray = predictionInstance.predictionArray
 
                 // create the inputLayerMesh's color buffer attribute
                 const inputColorArray = Float32Array.from(inputPixels)
@@ -341,34 +330,7 @@ function NeuralNetwork(props) {
                         const colorArray = Float32Array.from(hiddenLayersActivations[i])
                         colorAttributeArray.push(new THREE.InstancedBufferAttribute(colorArray, 1))
                 }
-
-                // TODO: create and process output layer color buffer attribute
-                // const outputColorArray = Float32Array.from(predictionArray)
-                // colorAttributeArray.push(new THREE.InstancedBufferAttribute(outputColorArray, 1))
-
-                // console.log('avc',colorAttributeArray)
-
-                // neuralNetwork.animationPackage = {colorAttributeArray: colorAttributeArray}
-
-                // console.log(hiddenLayerTwoRef, outputLayerRef)
-                // const colors = new Float32Array(10); // Each cube has an RGB color
-
-                // colors[0] = 1; // Red
-                // colors[1] = 0; // Green
-                // colors[2] = 0; // Blue
-
-                // const colorAttribute = new THREE.InstancedBufferAttribute(colors, 2);
-                // colorAttributeArray.push(colorAttribute)
-
-                // console.log('avc',colorAttributeArray)
-
-
-                // outputLayerRef.current.geometry.setAttribute('color', colorAttribute);
-                // outputLayerRef.current.geometry.getAttribute('color').needsUpdate = true;
                 neuralNetwork.animationPackage = {colorAttributeArray: colorAttributeArray, prediction: prediction}
-      
-
-
         }
 
         function visualizePretrainedModel() {
@@ -424,7 +386,6 @@ function NeuralNetwork(props) {
 
         // TODO rename this function
         function forwardPass(action) {
-                // define a target position for the instances
 
                 inputLayerRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage.colorAttributeArray[0])
                 inputLayerRef.current.geometry.getAttribute('color').needsUpdate = true;
@@ -435,7 +396,7 @@ function NeuralNetwork(props) {
                         const targetPosition = new THREE.Vector3(-7.5, -200, -7.5)
 
                         // animate the input layer instances to the target position
-                        animateInstancesToTarget(neuralNetwork.networkMeshes.inputWeightMesh, targetPosition, 0.075)
+                        animateInstancesToTarget(neuralNetwork.networkMeshes.inputWeightMesh, targetPosition, 0.1)
                         
                         // check if we are at the target position
                         const currentMatrix = new THREE.Matrix4()
@@ -443,7 +404,6 @@ function NeuralNetwork(props) {
                         neuralNetwork.networkMeshes.inputWeightMesh.getMatrixAt(0, currentMatrix)
                         currentPosition.setFromMatrixPosition(currentMatrix)
 
-                        // console.log(currentPosition.y, targetPosition.y)
                         if (Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 1 && !animateLayerOneWeights) {
 
                                 hiddenLayerOneRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage.colorAttributeArray[1])
@@ -455,7 +415,7 @@ function NeuralNetwork(props) {
                 }
                 else if (action == 'pass-one-to-two') {
                         const targetPosition = new THREE.Vector3(-7.5, -150, -7.5)
-                        animateInstancesToTarget(neuralNetwork.networkMeshes.layerOneWeightMesh, targetPosition, 0.075)
+                        animateInstancesToTarget(neuralNetwork.networkMeshes.layerOneWeightMesh, targetPosition, 0.1)
 
                         // check if we are at the target position
                         const currentMatrix = new THREE.Matrix4()
@@ -475,7 +435,7 @@ function NeuralNetwork(props) {
 
                         // remember to set the target position value to the position of the predicted output value of the neural network
                         const targetPosition = new THREE.Vector3(-7.5, -150, 0)
-                        animateInstancesToTarget(neuralNetwork.networkMeshes.layerTwoWeightMesh, targetPosition, 0.075)
+                        animateInstancesToTarget(neuralNetwork.networkMeshes.layerTwoWeightMesh, targetPosition, 0.1)
 
                         const currentMatrix = new THREE.Matrix4()
                         const currentPosition = new THREE.Vector3()
@@ -483,9 +443,8 @@ function NeuralNetwork(props) {
                         currentPosition.setFromMatrixPosition(currentMatrix)
 
                         if (Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 1 && !animateOutputLayer) {
-                                // console.log('is this output condition ever met')
-                                // outputLayerRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage.colorAttributeArray[3])
-                                // outputLayerRef.current.geometry.getAttribute('color').needsUpdate = true;
+                                
+                                // TODO if the prediction is correct set the color to green, else set it to red
                                 outputLayerRef.current.setColorAt(neuralNetwork.animationPackage.prediction, new THREE.Color('green'))
                                 outputLayerRef.current.instanceColor.needsUpdate = true;
 
