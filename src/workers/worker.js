@@ -128,7 +128,7 @@ async function predict(){
         // post animation information to main thread
         // postMessage({action: 'drawPredictionInput', imagePixels: imagePixels})
 
-        const predictionInstance = getActivations(batch.xs)
+        const predictionInstance = await getActivations(batch.xs)
         console.log('predictionInsance', predictionInstance)
         postMessage({action: 'animatePrediction', inputPixels: imagePixels, predictionInstance: predictionInstance})
 }
@@ -142,7 +142,7 @@ async function getImagePixels(batch){
         });
         return await tf.browser.toPixels(imageTensor)
 }
-function getActivations(imageTensor){
+async function getActivations(imageTensor){
         // intermediate model from hiddenLayerOne to to hiddenLayerTwo
         // const layerOneBinaryActivations = getLayerBinaryActivations(imageTensor, 'hiddenLayerOne')
         
@@ -160,20 +160,25 @@ function getActivations(imageTensor){
         const prediction = activationsArrayOutput.indexOf(Math.max(...activationsArrayOutput))
 
         // const prediction = activationsOutput.argMax(-1)
-        // const binaryArray = tf.oneHot(prediction, 10)
+        // const binaryArray = tf.oneHot(prediction, activationsOutput.shape[1])
 
         // const uint8Array = binaryArray.toFloat().mul(1).toInt();
-
         // const predictionArray = Uint8Array.from(uint8Array.dataSync());
+        // const ac = Uint8Array.from(binaryArray.dataSync());
+
+        // const outputPixels = await tf.browser.toPixels(activationsOutput)
+
+
+
 
 
         // console.log('hiddenLayersActivations, binaryArray',hiddenLayersActivations,binaryArray)
 
-        const ac = activationsOutput.greater(tf.scalar(0)).toInt().dataSync()
+        // const ac = activationsOutput.greater(tf.scalar(0)).toInt().dataSync()
 
         
 
-        return {hiddenLayersActivations: hiddenLayersActivations, predictionArray : ac}       
+        return {hiddenLayersActivations: hiddenLayersActivations, prediction : prediction}       
 }
 function getBlackBoxActivations(imageTensor){
         // const layer = model.getLayer('hiddenLayerOne')
