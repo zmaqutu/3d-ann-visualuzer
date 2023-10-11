@@ -103,7 +103,7 @@ async function trainNetwork(){
                         batch.labels,                           // classification data
                         {batchSize: BATCH_SIZE, epochs: 1}      // training parameters
                 );
-                tf.dispose(batch);
+                // tf.dispose(batch);
                 await tf.nextFrame();
         }
         console.log('Training complete')
@@ -130,6 +130,7 @@ async function predict(){
 
         const predictionInstance = await getActivations(batch.xs)
         console.log('predictionInsance', predictionInstance)
+        console.log(tf.memory())
         postMessage({action: 'animatePrediction', inputPixels: imagePixels, predictionInstance: predictionInstance})
 }
 
@@ -150,7 +151,9 @@ async function getActivations(imageTensor){
         const intermediateModelOutput = tf.model({inputs: model.input, outputs: outputLayer.output});
         const activationsOutput = intermediateModelOutput.predict(imageTensor)
         const activationsArrayOutput = Array.from(activationsOutput.dataSync())
-        const prediction = activationsArrayOutput.indexOf(Math.max(...activationsArrayOutput))        
+        const prediction = activationsArrayOutput.indexOf(Math.max(...activationsArrayOutput))
+
+        activationsOutput.dispose()
 
         return {hiddenLayersActivations: hiddenLayersActivations, prediction : prediction}       
 }
@@ -167,7 +170,9 @@ function getBlackBoxActivations(imageTensor){
                 const binaryActivations = activations.greater(tf.scalar(0)).toInt().dataSync();         //relu
 
                 blackBoxActivations.push(binaryActivations)
+                activations.dispose()
         }
+        tf.dispose()
         return blackBoxActivations
 }
 /* eslint-enable no-restricted-globals */
