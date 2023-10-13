@@ -448,6 +448,72 @@ function NeuralNetwork(props) {
                                 outputLayerRef.current.setColorAt(neuralNetwork.animationPackage.prediction, new THREE.Color('green'))
                                 outputLayerRef.current.instanceColor.needsUpdate = true;
 
+                                animateOutputLayer = true       //set these to false after back propagation is complete  
+                        }
+                }
+
+        }
+
+        function backPropagation(action){
+
+                if (action == 'output-to-two') {
+
+                        // temporarily hardcoded targetPosition
+                        const targetPosition = new THREE.Vector3(-7.5, -200, -7.5)
+
+                        // animate the input layer instances to the target position
+                        animateInstancesToTarget(neuralNetwork.networkMeshes.inputWeightMesh, targetPosition, 0.1)
+                        
+                        // check if we are at the target position
+                        const currentMatrix = new THREE.Matrix4()
+                        const currentPosition = new THREE.Vector3()
+                        neuralNetwork.networkMeshes.inputWeightMesh.getMatrixAt(0, currentMatrix)
+                        currentPosition.setFromMatrixPosition(currentMatrix)
+
+                        if (Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 1 && !animateLayerOneWeights) {
+
+                                hiddenLayerOneRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage.colorAttributeArray[1])
+                                hiddenLayerOneRef.current.geometry.getAttribute('color').needsUpdate = true;
+
+                                animateLayerOneWeights = true
+
+                        }
+                }
+                else if (action == 'two-to-one') {
+                        const targetPosition = new THREE.Vector3(-7.5, -150, -7.5)
+                        animateInstancesToTarget(neuralNetwork.networkMeshes.layerOneWeightMesh, targetPosition, 0.1)
+
+                        // check if we are at the target position
+                        const currentMatrix = new THREE.Matrix4()
+                        const currentPosition = new THREE.Vector3()
+                        neuralNetwork.networkMeshes.layerOneWeightMesh.getMatrixAt(0, currentMatrix)
+                        currentPosition.setFromMatrixPosition(currentMatrix)
+
+                        if (Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 1 && !animateLayerTwoWeights) {
+                                
+                                hiddenLayerTwoRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage.colorAttributeArray[2])
+                                hiddenLayerTwoRef.current.geometry.getAttribute('color').needsUpdate = true;
+
+                                animateLayerTwoWeights = true
+                        }
+                }
+                else if (action == 'one-to-input') {
+
+                        // remember to set the target position value to the position of the predicted output value of the neural network
+                        const targetPosition = new THREE.Vector3(-7.5, -150, 0)
+                        animateInstancesToTarget(neuralNetwork.networkMeshes.layerTwoWeightMesh, targetPosition, 0.1)
+
+                        const currentMatrix = new THREE.Matrix4()
+                        const currentPosition = new THREE.Vector3()
+                        neuralNetwork.networkMeshes.layerTwoWeightMesh.getMatrixAt(0, currentMatrix)
+                        currentPosition.setFromMatrixPosition(currentMatrix)
+
+                        if (Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 1 && !animateOutputLayer) {
+                                
+                                // TODO if the prediction is correct set the color to green, else set it to red
+                                outputLayerRef.current.setColorAt(neuralNetwork.animationPackage.prediction, new THREE.Color('green'))
+                                outputLayerRef.current.instanceColor.needsUpdate = true;
+
                                 animateOutputLayer = true       //set these to false after back propagation is complete
 
 
