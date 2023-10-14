@@ -111,7 +111,7 @@ function NeuralNetwork(props) {
 
         useEffect(() => {
                 worker.onmessage = (e) => {
-                        console.log('Message received from worker', e.data)
+                        // console.log('Message received from worker', e.data)
                         if(e.data.action == 'drawPredictionInput'){
                                 const inputPixels = e.data.inputPixels
                                 let tempColorBuffers = []
@@ -124,7 +124,7 @@ function NeuralNetwork(props) {
                                 setColorAttributesArray(tempColorBuffers)
                         }
                         if(e.data.action == 'animatePrediction'){
-                                console.log(e.data)
+                                // console.log(e.data)
 
                                 // the inputLayer pixels
                                 const inputPixels = e.data.inputPixels
@@ -133,6 +133,9 @@ function NeuralNetwork(props) {
                                 const predictionInstance = e.data.predictionInstance
                                 
                                 processAnimationPackage(inputPixels, predictionInstance)
+                        }
+                        if(e.data.action == 'batchComplete'){
+                                console.log('Batch complete', e.data.loss, e.data)
                         }
                 }
                 const message = {action: 'initializeNetwork'}
@@ -417,7 +420,7 @@ function NeuralNetwork(props) {
                         animateInstancesToTarget(neuralNetwork.networkMeshes.inputWeightMesh, targetPosition, 0.1)
                         
                         // animate input layer weight line segments
-                        animateInputWeightsToTarget(inputLayerWeightsRef.current, animatedInputWeightsRef.current,0.1) 
+                        // animateInputWeightsToTarget(inputLayerWeightsRef.current, animatedInputWeightsRef.current,0.1) 
 
 
                         // check if we are at the target position
@@ -439,7 +442,7 @@ function NeuralNetwork(props) {
                         const targetPosition = new THREE.Vector3(-7.5, -150, -7.5)
                         animateInstancesToTarget(neuralNetwork.networkMeshes.layerOneWeightMesh, targetPosition, 0.1)
 
-                        animateInputWeightsToTarget(hiddenLayerOneWeightsRef.current,animatedHiddenLayerOneWeightsRef.current,0.1)
+                        // animateInputWeightsToTarget(hiddenLayerOneWeightsRef.current,animatedHiddenLayerOneWeightsRef.current,0.1)
 
                         // check if we are at the target position
                         const currentMatrix = new THREE.Matrix4()
@@ -460,7 +463,7 @@ function NeuralNetwork(props) {
                         // remember to set the target position value to the position of the predicted output value of the neural network
                         const targetPosition = new THREE.Vector3(-7.5, -150, 0)
                         animateInstancesToTarget(neuralNetwork.networkMeshes.layerTwoWeightMesh, targetPosition, 0.1)
-                        animateInputWeightsToTarget(hiddenLayerTwoWeightsRef.current,animatedHiddenLayerTwoWeightsRef.current,0.1)
+                        // animateInputWeightsToTarget(hiddenLayerTwoWeightsRef.current,animatedHiddenLayerTwoWeightsRef.current,0.1)
 
 
                         const currentMatrix = new THREE.Matrix4()

@@ -9,8 +9,8 @@ const IMAGE_HEIGHT = 28;
 const NUM_CLASSES = 10;
 const NUM_DATASET_ELEMENTS = 65000;
 const model = tf.sequential();
-const BATCH_SIZE = 1;
-const TRAIN_BATCHES = 5;
+const BATCH_SIZE = 16;
+const TRAIN_BATCHES = 150;
 let data;
 
 /**Potential list of actions the worker will recieve
@@ -93,17 +93,21 @@ async function trainNetwork(){
                 const batch = tf.tidy(() => {
                         // retrieve the next batch of training data of size BATCH_SIZE
                         const currentBatch = data.nextTrainBatch(BATCH_SIZE);
+                        // console.log('currentBatch', currentBatch)
                         
                         // train the model on the batch
                         currentBatch.xs = currentBatch.xs.reshape([BATCH_SIZE, 784]);
                         return currentBatch;
                 });
-                await model.fit(
+                const loss = await model.fit(
                         batch.xs,                               // input data
                         batch.labels,                           // classification data
                         {batchSize: BATCH_SIZE, epochs: 1}      // training parameters
                 );
+                // console.log('loss', loss)
                 // tf.dispose(batch);
+                postMessage({action: 'batchComplete', loss: loss.history.loss[0], accuracy: loss.history.acc[0]})
+                predict()
                 await tf.nextFrame();
         }
         console.log('Training complete')
@@ -129,8 +133,8 @@ async function predict(){
         // postMessage({action: 'drawPredictionInput', imagePixels: imagePixels})
 
         const predictionInstance = await getActivations(batch.xs)
-        console.log('predictionInsance', predictionInstance)
-        console.log(tf.memory())
+        // console.log('predictionInsance', predictionInstance)
+        // console.log(tf.memory())
         postMessage({action: 'animatePrediction', inputPixels: imagePixels, predictionInstance: predictionInstance})
 }
 
