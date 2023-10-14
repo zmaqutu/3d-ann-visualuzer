@@ -25,18 +25,16 @@ function NeuralNetwork(props) {
         const hiddenLayerTwoRef = useRef();
         const outputLayerRef = useRef();
 
-        // const { time, start, pause, reset, status } = useTimer({
-        //         autoStart: true
-        // });
+        const inputLayerWeightsRef = useRef([])
+        const animatedInputWeightsRef = useRef([])
+
+        const hiddenLayerOneWeightsRef = useRef([])
+        const animatedHiddenLayerOneWeightsRef = useRef([])
+
+        const hiddenLayerTwoWeightsRef = useRef([])
+        const animatedHiddenLayerTwoWeightsRef = useRef([])
+
         const [active, setActive] = useState(false)
-
-        // useSpring value to animate the input layer
-
-        // const { position } = useSpring({
-        //         position: active ? [20, 10, 100] : [0,0,0], // Target position for your object
-        // config: { duration: 5000 }, // Animation duration and easing
-        //       });
-
 
         // state values for layer animation
         let animateInputWeights = props.animateForwardPass
@@ -384,6 +382,26 @@ function NeuralNetwork(props) {
                 instanceMesh.instanceMatrix.needsUpdate = true;
         }
 
+        function animateInputWeightsToTarget(targetLayer,animatedWeightMesh, speed) {
+                animatedWeightMesh.forEach((segment, i) => {
+                        if (segment) {
+                                if(i % 10 == 0){
+                                        const currentPosition = segment.end
+                                        const targetPosition = targetLayer[i].end
+
+                                        const dx = targetPosition.x - currentPosition.x;
+                                        const dy = targetPosition.y - currentPosition.y;
+                                        const dz = targetPosition.z - currentPosition.z;
+
+                                        const x = currentPosition.x + dx * speed;
+                                        const y = currentPosition.y + dy * speed;
+                                        const z = currentPosition.z + dz * speed;
+                                        segment.end.set(x, y, z)
+                                }
+                        }
+                });
+        }
+
         // TODO rename this function
         function forwardPass(action) {
 
@@ -395,9 +413,13 @@ function NeuralNetwork(props) {
                         // temporarily hardcoded targetPosition
                         const targetPosition = new THREE.Vector3(-7.5, -200, -7.5)
 
-                        // animate the input layer instances to the target position
+                        // animate the input layer weight instances to the target position
                         animateInstancesToTarget(neuralNetwork.networkMeshes.inputWeightMesh, targetPosition, 0.1)
                         
+                        // animate input layer weight line segments
+                        animateInputWeightsToTarget(inputLayerWeightsRef.current, animatedInputWeightsRef.current,0.1) 
+
+
                         // check if we are at the target position
                         const currentMatrix = new THREE.Matrix4()
                         const currentPosition = new THREE.Vector3()
@@ -416,6 +438,8 @@ function NeuralNetwork(props) {
                 else if (action == 'pass-one-to-two') {
                         const targetPosition = new THREE.Vector3(-7.5, -150, -7.5)
                         animateInstancesToTarget(neuralNetwork.networkMeshes.layerOneWeightMesh, targetPosition, 0.1)
+
+                        animateInputWeightsToTarget(hiddenLayerOneWeightsRef.current,animatedHiddenLayerOneWeightsRef.current,0.1)
 
                         // check if we are at the target position
                         const currentMatrix = new THREE.Matrix4()
@@ -436,6 +460,8 @@ function NeuralNetwork(props) {
                         // remember to set the target position value to the position of the predicted output value of the neural network
                         const targetPosition = new THREE.Vector3(-7.5, -150, 0)
                         animateInstancesToTarget(neuralNetwork.networkMeshes.layerTwoWeightMesh, targetPosition, 0.1)
+                        animateInputWeightsToTarget(hiddenLayerTwoWeightsRef.current,animatedHiddenLayerTwoWeightsRef.current,0.1)
+
 
                         const currentMatrix = new THREE.Matrix4()
                         const currentPosition = new THREE.Vector3()
@@ -453,6 +479,8 @@ function NeuralNetwork(props) {
                 }
 
         }
+
+        
 
         function backPropagation(action){
 
@@ -525,9 +553,11 @@ function NeuralNetwork(props) {
 
         useFrame(({ clock }) => {
                 const time = clock.elapsedTime
+
                 if (animateInputWeights) {
                         // console.log('calling forwardPass')
                         forwardPass('pass-input-to-one')
+
                 }
                 if (animateLayerOneWeights) {
                         // console.log('calling forward pass 2')
@@ -550,10 +580,22 @@ function NeuralNetwork(props) {
                                         limit={neuralNetwork.connectionVertices.inputToLayerOneVertices.length} lineWidth={0.01}>
                                         {neuralNetwork.connectionVertices.inputToLayerOneVertices.map((line, i) => (
                                                 <Segment key={i}
-                                                        // ref={(r) => (lineRef.current[i] = r)} 
+                                                        ref={(r) => (inputLayerWeightsRef.current[i] = r)} 
                                                         color={'#396e04'}
                                                         start={[line.startPoint.x, line.startPoint.y, line.startPoint.z]}
                                                         end={[line.endPoint.x, line.endPoint.y - 200, line.endPoint.z]}
+                                                />
+                                        ))}
+                                </Segments>
+                                {/* The line segments to animate */}
+                                <Segments
+                                        limit={neuralNetwork.connectionVertices.inputToLayerOneVertices.length} lineWidth={0.1}>
+                                        {neuralNetwork.connectionVertices.inputToLayerOneVertices.map((line, i) => (
+                                                <Segment key={i}
+                                                        ref={(r) => (animatedInputWeightsRef.current[i] = r)} 
+                                                        color={'#F8D628'}
+                                                        start={[line.startPoint.x, line.startPoint.y, line.startPoint.z]}
+                                                        end={[line.startPoint.x, line.startPoint.y, line.startPoint.z]}
                                                 />
                                         ))}
                                 </Segments>
@@ -566,10 +608,22 @@ function NeuralNetwork(props) {
                                         limit={neuralNetwork.connectionVertices.layerOneToLayerTwoVertices.length} lineWidth={0.2}>
                                         {neuralNetwork.connectionVertices.layerOneToLayerTwoVertices.map((line, i) => (
                                                 <Segment key={i}
-                                                        // ref={(r) => (lineRef.current[i] = r)} 
+                                                        ref={(r) => (hiddenLayerOneWeightsRef.current[i] = r)} 
                                                         color={'#396e04'}
                                                         start={[line.startPoint.x, line.startPoint.y, line.startPoint.z]}
                                                         end={[line.endPoint.x, line.endPoint.y - 150, line.endPoint.z]}
+                                                />
+                                        ))}
+                                </Segments>
+                                {/* The line segments to animate */}
+                                <Segments
+                                        limit={neuralNetwork.connectionVertices.layerOneToLayerTwoVertices.length} lineWidth={0.2}>
+                                        {neuralNetwork.connectionVertices.layerOneToLayerTwoVertices.map((line, i) => (
+                                                <Segment key={i}
+                                                        ref={(r) => (animatedHiddenLayerOneWeightsRef.current[i] = r)} 
+                                                        color={'#F8D628'}
+                                                        start={[line.startPoint.x, line.startPoint.y, line.startPoint.z]}
+                                                        end={[line.startPoint.x, line.startPoint.y, line.startPoint.z]}
                                                 />
                                         ))}
                                 </Segments>
@@ -582,10 +636,22 @@ function NeuralNetwork(props) {
                                         limit={neuralNetwork.connectionVertices.layerTwoToOutputVertices.length} lineWidth={0.2}>
                                         {neuralNetwork.connectionVertices.layerTwoToOutputVertices.map((line, i) => (
                                                 <Segment key={i}
-                                                        // ref={(r) => (lineRef.current[i] = r)} 
+                                                        ref={(r) => (hiddenLayerTwoWeightsRef.current[i] = r)} 
                                                         color={'#396e04'}
                                                         start={[line.startPoint.x, line.startPoint.y, line.startPoint.z]}
                                                         end={[line.endPoint.x, line.endPoint.y - 150, line.endPoint.z]}
+                                                />
+                                        ))}
+                                </Segments>
+                                {/* The line segments to animate */}
+                                <Segments
+                                        limit={neuralNetwork.connectionVertices.layerTwoToOutputVertices.length} lineWidth={0.2}>
+                                        {neuralNetwork.connectionVertices.layerTwoToOutputVertices.map((line, i) => (
+                                                <Segment key={i}
+                                                        ref={(r) => (animatedHiddenLayerTwoWeightsRef.current[i] = r)} 
+                                                        color={'#F8D628'}
+                                                        start={[line.startPoint.x, line.startPoint.y, line.startPoint.z]}
+                                                        end={[line.startPoint.x, line.startPoint.y, line.startPoint.z]}
                                                 />
                                         ))}
                                 </Segments>
