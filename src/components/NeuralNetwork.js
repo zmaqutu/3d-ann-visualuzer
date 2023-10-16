@@ -406,7 +406,7 @@ function NeuralNetwork(props) {
         }
 
         // TODO rename this function
-        function forwardPass(action) {
+        function animateForwardPassTransition(action) {
 
                 inputLayerRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage.colorAttributeArray[0])
                 inputLayerRef.current.geometry.getAttribute('color').needsUpdate = true;
@@ -480,6 +480,13 @@ function NeuralNetwork(props) {
                                 animateOutputLayer = true       //set these to false after back propagation is complete  
                         }
                 }
+                // reverse the animations
+                // else if(action == 'output-to-two'){
+                //         // const targetPosition = new THREE.Vector3(-7.5, -150, -7.5)
+                //         animateInstancesToTarget(neuralNetwork.networkMeshes.layerTwoWeightMesh, targetPosition = null, 0.1)
+                //         // animateInputWeightsToTarget(hiddenLayerTwoWeightsRef.current,animatedHiddenLayerTwoWeightsRef.current,0.1)
+                // }
+
 
         }
 
@@ -554,21 +561,34 @@ function NeuralNetwork(props) {
 
         }
 
+        function shouldAnimate(action){
+                switch(action){
+                        case 'pass-input-to-one':
+                                return animateInputWeights
+                        case 'pass-one-to-two':
+                                return animateLayerOneWeights
+                        case 'pass-two-to-output':
+                                return animateLayerTwoWeights
+                        default:
+                                return false
+                }
+        }
+
         useFrame(({ clock }) => {
                 const time = clock.elapsedTime
 
                 if (animateInputWeights) {
                         // console.log('calling forwardPass')
-                        forwardPass('pass-input-to-one')
+                        animateForwardPassTransition('pass-input-to-one')
 
                 }
                 if (animateLayerOneWeights) {
                         // console.log('calling forward pass 2')
-                        forwardPass('pass-one-to-two')
+                        animateForwardPassTransition('pass-one-to-two')
                 }
                 if (animateLayerTwoWeights ){
                         // console.log('calling forwardpass 3')
-                        forwardPass('pass-two-to-output')
+                        animateForwardPassTransition('pass-two-to-output')
                 }
 
 
