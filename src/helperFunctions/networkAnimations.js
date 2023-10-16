@@ -27,7 +27,7 @@ function animateLinesToTarget(targetLayer,animatedWeightMesh, speed, isReverse =
     }
     else{
             animatedWeightMesh.forEach((segment, i) => {
-                    if (segment) {
+                    if (segment && segment.end) {
                             if(i % 10 == 0){
                                     const currentPosition = segment.end
                                     const targetPosition = targetLayer[i].end

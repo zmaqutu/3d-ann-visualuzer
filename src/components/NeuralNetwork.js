@@ -41,6 +41,7 @@ function NeuralNetwork(props) {
         let animateLayerOneWeights = false
         let animateLayerTwoWeights = false
         let animateOutputLayer = false
+        let reverseLayerTwoWeights = false
 
         const outputLabels = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
         
@@ -424,6 +425,37 @@ function NeuralNetwork(props) {
                 });
         }
 
+        function restoreInstancePosition(instanceMesh, targetMesh, speed){  
+                for (let i = 0; i < instanceMesh.count; i++) {
+                        // get the target position
+                        const targetPosition = layerTwoPositions[i]
+
+                        
+                        // get the current position
+                        const currentMatrix = new THREE.Matrix4();
+                        const currentPosition = new THREE.Vector3();
+                        
+                        instanceMesh.getMatrixAt(i, currentMatrix);
+                        currentPosition.setFromMatrixPosition(currentMatrix);
+
+                        // calculate the distance between the current position and the target position
+                        const dx = targetPosition.x - currentPosition.x;
+                        const dy = targetPosition.y - currentPosition.y;
+                        const dz = targetPosition.z - currentPosition.z;
+
+                        // calculate the new position
+                        const x = currentPosition.x + dx * speed;
+                        const y = currentPosition.y + dy * speed;
+                        const z = currentPosition.z + dz * speed;
+
+                        // set the new position
+                        const matrix = new THREE.Matrix4();
+                        matrix.setPosition(new THREE.Vector3(x, y, z));
+                        instanceMesh.setMatrixAt(i, matrix);
+                }
+                instanceMesh.instanceMatrix.needsUpdate = true;
+        }
+
         // TODO rename this function
         function animateForwardPassTransition(action) {
 
@@ -455,22 +487,6 @@ function NeuralNetwork(props) {
 
                                 animateLayerOneWeights = true
                         }
-                        // if (animatedInputWeightsRef.current[0].end.distanceTo(inputLayerWeightsRef.current[0].end) < 1 && !animateLayerOneWeights) {
-                        //         // console.log(animatedInputWeightsRef.current[10].start.distanceTo(animatedInputWeightsRef.current[10].end))
-
-                        //         //while the line start is not the same as the line end
-                        //         while(animatedInputWeightsRef.current[0].start.distanceTo(animatedInputWeightsRef.current[0].end) > 5){
-                        //                 // console.log('enter while loop here')
-                        //                 console.log(animatedInputWeightsRef.current[0].start.distanceTo(animatedInputWeightsRef.current[0].end))
-
-                        //                 animateLineStartsToTarget(inputLayerWeightsRef.current, animatedInputWeightsRef.current, 0.1)
-                        //         }
-                                
-                        //         hiddenLayerOneRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage.colorAttributeArray[1])
-                        //         hiddenLayerOneRef.current.geometry.getAttribute('color').needsUpdate = true;
-
-                        //         animateLayerOneWeights = true
-                        // }
                 }
                 else if (action == 'pass-one-to-two') {
                         const targetPosition = new THREE.Vector3(-7.5, -150, -7.5)
@@ -511,7 +527,8 @@ function NeuralNetwork(props) {
                                 outputLayerRef.current.setColorAt(neuralNetwork.animationPackage.prediction, new THREE.Color('green'))
                                 outputLayerRef.current.instanceColor.needsUpdate = true;
 
-                                animateOutputLayer = true       //set these to false after back propagation is complete  
+                                animateOutputLayer = true       //set these to false after back propagation is complete
+                                reverseLayerTwoWeights = true  
                         }
                 }
                 // reverse the animations
@@ -530,26 +547,24 @@ function NeuralNetwork(props) {
 
                 if (action == 'output-to-two') {
 
-                        // temporarily hardcoded targetPosition
-                        const targetPosition = new THREE.Vector3(-7.5, -200, -7.5)
-
+                        const targetMesh = neuralNetwork.networkMeshes.layerTwoMesh
                         // animate the input layer instances to the target position
-                        animateInstancesToTarget(neuralNetwork.networkMeshes.inputWeightMesh, targetPosition, 0.1)
+                        restoreInstancePosition(neuralNetwork.networkMeshes.layerTwoWeightMesh, targetMesh, 0.1)
                         
                         // check if we are at the target position
-                        const currentMatrix = new THREE.Matrix4()
-                        const currentPosition = new THREE.Vector3()
-                        neuralNetwork.networkMeshes.inputWeightMesh.getMatrixAt(0, currentMatrix)
-                        currentPosition.setFromMatrixPosition(currentMatrix)
+                        // const currentMatrix = new THREE.Matrix4()
+                        // const currentPosition = new THREE.Vector3()
+                        // neuralNetwork.networkMeshes.inputWeightMesh.getMatrixAt(0, currentMatrix)
+                        // currentPosition.setFromMatrixPosition(currentMatrix)
 
-                        if (Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 1 && !animateLayerOneWeights) {
+                        // if (Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 1 && !animateLayerOneWeights) {
 
-                                hiddenLayerOneRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage.colorAttributeArray[1])
-                                hiddenLayerOneRef.current.geometry.getAttribute('color').needsUpdate = true;
+                        //         hiddenLayerOneRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage.colorAttributeArray[1])
+                        //         hiddenLayerOneRef.current.geometry.getAttribute('color').needsUpdate = true;
 
-                                animateLayerOneWeights = true
+                        //         animateLayerOneWeights = true
 
-                        }
+                        // }
                 }
                 else if (action == 'two-to-one') {
                         const targetPosition = new THREE.Vector3(-7.5, -150, -7.5)
@@ -624,6 +639,16 @@ function NeuralNetwork(props) {
                         // console.log('calling forwardpass 3')
                         animateForwardPassTransition('pass-two-to-output')
                 }
+                // aimate back propagation
+                if(reverseLayerTwoWeights){
+                        backPropagation('output-to-two')
+                }
+                // if(reverseLayerOneWeights){
+                //         backPropagation('two-to-one')
+                // }
+                // if(reverseInputWeights){
+                //         backPropagation('one-to-input')
+                // }
 
 
 
