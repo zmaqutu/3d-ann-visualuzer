@@ -388,7 +388,7 @@ function NeuralNetwork(props) {
         function animateInputWeightsToTarget(targetLayer,animatedWeightMesh, speed) {
                 animatedWeightMesh.forEach((segment, i) => {
                         if (segment) {
-                                if(i % 10 == 0){
+                                // if(i % 10 == 0){
                                         const currentPosition = segment.end
                                         const targetPosition = targetLayer[i].end
 
@@ -400,7 +400,26 @@ function NeuralNetwork(props) {
                                         const y = currentPosition.y + dy * speed;
                                         const z = currentPosition.z + dz * speed;
                                         segment.end.set(x, y, z)
-                                }
+                                // }
+                        }
+                });
+        }
+        function animateLineStartsToTarget(targetLayer,animatedWeightMesh, speed) {
+                animatedWeightMesh.forEach((segment, i) => {
+                        if (segment) {
+                                // if(i % 10 == 0){
+                                        const currentPosition = segment.start
+                                        const targetPosition = targetLayer[i].end
+
+                                        const dx = targetPosition.x - currentPosition.x;
+                                        const dy = targetPosition.y - currentPosition.y;
+                                        const dz = targetPosition.z - currentPosition.z;
+
+                                        const x = currentPosition.x + dx * speed;
+                                        const y = currentPosition.y + dy * speed;
+                                        const z = currentPosition.z + dz * speed;
+                                        segment.start.set(x, y, z)
+                                // }
                         }
                 });
         }
@@ -435,8 +454,23 @@ function NeuralNetwork(props) {
                                 hiddenLayerOneRef.current.geometry.getAttribute('color').needsUpdate = true;
 
                                 animateLayerOneWeights = true
-
                         }
+                        // if (animatedInputWeightsRef.current[0].end.distanceTo(inputLayerWeightsRef.current[0].end) < 1 && !animateLayerOneWeights) {
+                        //         // console.log(animatedInputWeightsRef.current[10].start.distanceTo(animatedInputWeightsRef.current[10].end))
+
+                        //         //while the line start is not the same as the line end
+                        //         while(animatedInputWeightsRef.current[0].start.distanceTo(animatedInputWeightsRef.current[0].end) > 5){
+                        //                 // console.log('enter while loop here')
+                        //                 console.log(animatedInputWeightsRef.current[0].start.distanceTo(animatedInputWeightsRef.current[0].end))
+
+                        //                 animateLineStartsToTarget(inputLayerWeightsRef.current, animatedInputWeightsRef.current, 0.1)
+                        //         }
+                                
+                        //         hiddenLayerOneRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage.colorAttributeArray[1])
+                        //         hiddenLayerOneRef.current.geometry.getAttribute('color').needsUpdate = true;
+
+                        //         animateLayerOneWeights = true
+                        // }
                 }
                 else if (action == 'pass-one-to-two') {
                         const targetPosition = new THREE.Vector3(-7.5, -150, -7.5)
@@ -590,6 +624,7 @@ function NeuralNetwork(props) {
                         // console.log('calling forwardpass 3')
                         animateForwardPassTransition('pass-two-to-output')
                 }
+
 
 
         })
