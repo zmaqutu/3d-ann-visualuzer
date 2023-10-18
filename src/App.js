@@ -44,14 +44,17 @@ function App() {
 	}
 
 	function startTrainingNetwork(){
+		console.log(!trainNetwork)
 		setTrainNetwork(!trainNetwork)
 	}
 
 	function startPrediction(){
+		console.log(!predicting)
 		setPredicting(!predicting)
 	}
 
 	function toggleAnimation(){
+		console.log(!animateForwardPass)
 		setAnimateForwardPass(!animateForwardPass)
 	}
 
