@@ -10,8 +10,9 @@ const NUM_CLASSES = 10;
 const NUM_DATASET_ELEMENTS = 65000;
 const model = tf.sequential();
 const BATCH_SIZE = 16;
-const TRAIN_BATCHES = 150;
+const TRAIN_BATCHES = 50;
 let data;
+let isTraining = false;
 
 /**Potential list of actions the worker will recieve
  * initialize network
@@ -89,6 +90,9 @@ async function loadTrainingExamples(){
 
 async function trainNetwork(){
         console.log('Start training...')
+        // isTraining = true;
+        console.log('isTraining', isTraining)
+        // while(isTraining){
         for(let i = 0; i < TRAIN_BATCHES; i++){
                 const batch = tf.tidy(() => {
                         // retrieve the next batch of training data of size BATCH_SIZE
@@ -102,15 +106,23 @@ async function trainNetwork(){
                 const loss = await model.fit(
                         batch.xs,                               // input data
                         batch.labels,                           // classification data
-                        {batchSize: BATCH_SIZE, epochs: 1}      // training parameters
+                        {
+                                batchSize: BATCH_SIZE,
+                                epochs: 1,
+                                shuffle: true,
+                        }      // training parameters
                 );
                 // console.log('loss', loss)
-                // tf.dispose(batch);
+                tf.dispose(batch);
                 postMessage({action: 'batchComplete', loss: loss.history.loss[0], accuracy: loss.history.acc[0]})
                 predict()
                 await tf.nextFrame();
         }
         console.log('Training complete')
+}
+
+function toggleTraining(){
+        isTraining = !isTraining;
 }
 
 async function predict(){
@@ -134,7 +146,7 @@ async function predict(){
 
         const predictionInstance = await getActivations(batch.xs)
         // console.log('predictionInsance', predictionInstance)
-        // console.log(tf.memory())
+        console.log(tf.memory())
         postMessage({action: 'animatePrediction', inputPixels: imagePixels, predictionInstance: predictionInstance})
 }
 
