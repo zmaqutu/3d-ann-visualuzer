@@ -127,10 +127,11 @@ function toggleTraining(){
 
 async function predict(){
         // console.log('Predicting...')
+        let inputValue = null
         const batch = data.nextTestBatch(1);
         const imagePixels = await getImagePixels(batch)
         tf.tidy(() => {
-                const inputValue = Array.from(batch.labels.argMax(1).dataSync());
+                inputValue = Array.from(batch.labels.argMax(1).dataSync());
 
                 const output = model.predict(batch.xs.reshape([-1, 784]))
 
@@ -147,7 +148,7 @@ async function predict(){
         const predictionInstance = await getActivations(batch.xs)
         // console.log('predictionInsance', predictionInstance)
         console.log(tf.memory())
-        postMessage({action: 'animatePrediction', inputPixels: imagePixels, predictionInstance: predictionInstance})
+        postMessage({action: 'animatePrediction', inputPixels: imagePixels, predictionInstance: predictionInstance, inputValue: inputValue[0]})
 }
 
 async function getImagePixels(batch){

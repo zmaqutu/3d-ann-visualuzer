@@ -130,6 +130,7 @@ function NeuralNetwork(props) {
                         }
                         if(e.data.action == 'animatePrediction'){
                                 // console.log(e.data)
+                                const inputValue = e.data.inputValue
 
                                 // the inputLayer pixels
                                 const inputPixels = e.data.inputPixels
@@ -137,7 +138,7 @@ function NeuralNetwork(props) {
                                 // the predicted output
                                 const predictionInstance = e.data.predictionInstance
                                 
-                                processAnimationPackage(inputPixels, predictionInstance)
+                                processAnimationPackage(inputPixels, predictionInstance, inputValue)
                         }
                         if(e.data.action == 'batchComplete'){
                                 console.log('Batch complete', e.data.loss, e.data)
@@ -321,7 +322,7 @@ function NeuralNetwork(props) {
         }, [])
 
         
-        function processAnimationPackage(inputPixels,predictionInstance){
+        function processAnimationPackage(inputPixels,predictionInstance, inputValue){
 
                 const colorAttributeArray = []
                 const prediction = predictionInstance.prediction
@@ -336,7 +337,7 @@ function NeuralNetwork(props) {
                         const colorArray = Float32Array.from(hiddenLayersActivations[i])
                         colorAttributeArray.push(new THREE.InstancedBufferAttribute(colorArray, 1))
                 }
-                neuralNetwork.animationPackage.push({colorAttributeArray: colorAttributeArray, prediction: prediction})
+                neuralNetwork.animationPackage.push({colorAttributeArray: colorAttributeArray, prediction: prediction, inputValue: inputValue})
         }
 
         function visualizePretrainedModel() {
@@ -481,7 +482,7 @@ function NeuralNetwork(props) {
                         const targetPosition = new THREE.Vector3(-7.5, -200, -7.5)
 
                         // animate the input layer weight instances to the target position
-                        animateInstancesToTarget(neuralNetwork.networkMeshes.inputWeightMesh, targetPosition, 0.175)
+                        animateInstancesToTarget(neuralNetwork.networkMeshes.inputWeightMesh, targetPosition, 0.25)
                         
                         // animate input layer weight line segments
                         // animateInputWeightsToTarget(inputLayerWeightsRef.current, animatedInputWeightsRef.current,0.1) 
@@ -504,7 +505,7 @@ function NeuralNetwork(props) {
                 }
                 else if (action == 'pass-one-to-two') {
                         const targetPosition = new THREE.Vector3(-7.5, -150, -7.5)
-                        animateInstancesToTarget(neuralNetwork.networkMeshes.layerOneWeightMesh, targetPosition, 0.175)
+                        animateInstancesToTarget(neuralNetwork.networkMeshes.layerOneWeightMesh, targetPosition, 0.25)
 
                         // animateInputWeightsToTarget(hiddenLayerOneWeightsRef.current,animatedHiddenLayerOneWeightsRef.current,0.1)
 
@@ -527,7 +528,7 @@ function NeuralNetwork(props) {
 
                         // remember to set the target position value to the position of the predicted output value of the neural network
                         const targetPosition = new THREE.Vector3(-7.5, -150, 0)
-                        animateInstancesToTarget(neuralNetwork.networkMeshes.layerTwoWeightMesh, targetPosition, 0.175)
+                        animateInstancesToTarget(neuralNetwork.networkMeshes.layerTwoWeightMesh, targetPosition, 0.25)
                         // animateInputWeightsToTarget(hiddenLayerTwoWeightsRef.current,animatedHiddenLayerTwoWeightsRef.current,0.1)
 
                         const currentMatrix = new THREE.Matrix4()
@@ -537,10 +538,13 @@ function NeuralNetwork(props) {
 
                         if (Math.abs(targetPosition.y) - Math.abs(currentPosition.y) < 1 && !animateOutputLayer) {
                                 
-                                // TODO if the prediction is correct set the color to green, else set it to red
+                                // if the prediction is correct set the color to green, else set it to red
                                 for(let i = 0; i < outputLabels.length; i++){
-                                        if(i == neuralNetwork.animationPackage[trainingInstanceID].prediction){
+                                        if(i == neuralNetwork.animationPackage[trainingInstanceID].prediction && neuralNetwork.animationPackage[trainingInstanceID].prediction == neuralNetwork.animationPackage[trainingInstanceID].inputValue){
                                                 outputLayerRef.current.setColorAt(neuralNetwork.animationPackage[trainingInstanceID].prediction, new THREE.Color('green'))
+                                        }
+                                        else if(i == neuralNetwork.animationPackage[trainingInstanceID].prediction && neuralNetwork.animationPackage[trainingInstanceID].prediction != neuralNetwork.animationPackage[trainingInstanceID].inputValue){
+                                                outputLayerRef.current.setColorAt(neuralNetwork.animationPackage[trainingInstanceID].prediction, new THREE.Color('red'))
                                         }
                                         else{
                                                 outputLayerRef.current.setColorAt(i, new THREE.Color('black'))
@@ -558,7 +562,7 @@ function NeuralNetwork(props) {
                 // reverse the animations
                 else if(action == 'output-to-two'){
                         const targetMesh = neuralNetwork.networkMeshes.layerTwoMesh
-                        restoreInstancePosition(neuralNetwork.networkMeshes.layerTwoWeightMesh, targetMesh, 0.2)
+                        restoreInstancePosition(neuralNetwork.networkMeshes.layerTwoWeightMesh, targetMesh, 0.3)
 
                         // check if we are at the desired position
                         const currentMatrix = new THREE.Matrix4()
@@ -573,7 +577,7 @@ function NeuralNetwork(props) {
                 }
                 else if(action == 'two-to-one'){
                         const targetMesh = neuralNetwork.networkMeshes.layerOneMesh
-                        restoreInstancePosition(neuralNetwork.networkMeshes.layerOneWeightMesh, targetMesh, 0.2)
+                        restoreInstancePosition(neuralNetwork.networkMeshes.layerOneWeightMesh, targetMesh, 0.3)
 
                         // check if we are at the desired position
                         const currentMatrix = new THREE.Matrix4()
@@ -588,7 +592,7 @@ function NeuralNetwork(props) {
                 }
                 else if(action == 'one-to-input'){
                         const targetMesh = neuralNetwork.networkMeshes.inputLayerMesh
-                        restoreInstancePosition(neuralNetwork.networkMeshes.inputWeightMesh, targetMesh, 0.2)
+                        restoreInstancePosition(neuralNetwork.networkMeshes.inputWeightMesh, targetMesh, 0.3)
 
                         // check if we are at the desired position
                         const currentMatrix = new THREE.Matrix4()
