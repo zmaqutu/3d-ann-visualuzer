@@ -394,7 +394,7 @@ function NeuralNetwork(props) {
         function animateInputWeightsToTarget(targetLayer,animatedWeightMesh, speed) {
                 animatedWeightMesh.forEach((segment, i) => {
                         if (segment) {
-                                // if(i % 10 == 0){
+                                if(i % 10 == 0){
                                         const currentPosition = segment.end
                                         const targetPosition = targetLayer[i].end
 
@@ -406,14 +406,14 @@ function NeuralNetwork(props) {
                                         const y = currentPosition.y + dy * speed;
                                         const z = currentPosition.z + dz * speed;
                                         segment.end.set(x, y, z)
-                                // }
+                                }
                         }
                 });
         }
         function animateLineStartsToTarget(targetLayer,animatedWeightMesh, speed) {
                 animatedWeightMesh.forEach((segment, i) => {
                         if (segment) {
-                                // if(i % 10 == 0){
+                                if(i % 10 == 0){
                                         const currentPosition = segment.start
                                         const targetPosition = targetLayer[i].end
 
@@ -425,7 +425,7 @@ function NeuralNetwork(props) {
                                         const y = currentPosition.y + dy * speed;
                                         const z = currentPosition.z + dz * speed;
                                         segment.start.set(x, y, z)
-                                // }
+                                }
                         }
                 });
         }
@@ -470,12 +470,11 @@ function NeuralNetwork(props) {
 
         // TODO rename this function
         function animateForwardPassTransition(action) {
-                inputLayerRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage[trainingInstanceID].colorAttributeArray[0])
-                inputLayerRef.current.geometry.getAttribute('color').needsUpdate = true;
                 
                 if (action == 'pass-input-to-one') {
 
-                       
+                        inputLayerRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage[trainingInstanceID].colorAttributeArray[0])
+                        inputLayerRef.current.geometry.getAttribute('color').needsUpdate = true;
 
 
                         // temporarily hardcoded targetPosition
@@ -485,7 +484,7 @@ function NeuralNetwork(props) {
                         animateInstancesToTarget(neuralNetwork.networkMeshes.inputWeightMesh, targetPosition, 0.25)
                         
                         // animate input layer weight line segments
-                        // animateInputWeightsToTarget(inputLayerWeightsRef.current, animatedInputWeightsRef.current,0.1) 
+                        // animateInputWeightsToTarget(inputLayerWeightsRef.current, animatedInputWeightsRef.current,0.25) 
 
 
                         // check if we are at the target position
@@ -498,6 +497,7 @@ function NeuralNetwork(props) {
 
                                 hiddenLayerOneRef.current.geometry.setAttribute('color', neuralNetwork.animationPackage[trainingInstanceID].colorAttributeArray[1])
                                 hiddenLayerOneRef.current.geometry.getAttribute('color').needsUpdate = true;
+
 
                                 animateInputWeights = false
                                 animateLayerOneWeights = true
@@ -748,7 +748,7 @@ function NeuralNetwork(props) {
                                 ))}
                         </group>
                         <OrbitControls enableRotate={rotationEnabled} maxDistance={950} />
-                        <Stars count={50000} depth={400} />
+                        <Stars count={50000} depth={550}/>
                         <axesHelper />
                 </>
         )

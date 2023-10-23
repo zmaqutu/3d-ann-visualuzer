@@ -55,14 +55,23 @@ function App() {
 		setAnimateForwardPass(!animateForwardPass)
 	}
 
+	// Use a ternary operator to conditionally set the image source
+	const imageSrc = animateForwardPass
+		? require('./assets/pause1.png') // Path to the enabled button image
+		: require('./assets/play1.png'); // Path to the disabled button image
+
   	return (
 		<>
 			<div>
-            	<button onClick={updateVisualizationState} dir={'rtl'}>Visualize Pretrained Model</button>
+            	{/* <button onClick={updateVisualizationState} dir={'rtl'}>Visualize Pretrained Model</button>
 				<button onClick={toggleWorldSetup}>Setup Input</button>
-				<button onClick={startPrediction}>Randomly Select Test Data and Predict</button>
-				<button onClick={startTrainingNetwork}>Train Network</button>
-				<button onClick={toggleAnimation}>Animate Lines</button>
+				<button onClick={startPrediction}>Randomly Select Test Data and Predict</button> */}
+				<button onClick={startTrainingNetwork}>
+					<img src={require('./assets/train.png')} alt="play"/>
+					</button>
+				<button onClick={toggleAnimation}>
+					<img src={imageSrc} alt="play"/>
+				</button>
             </div>
 			<Canvas camera = {{ position: cameraPosition.current, fov: 53, aspect: width / height, near: 1, far: 5000 }}>
 				<NeuralNetwork animateForwardPass={animateForwardPass} trainNetwork={trainNetwork} predicting={predicting}/>

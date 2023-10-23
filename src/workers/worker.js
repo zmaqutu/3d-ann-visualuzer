@@ -9,7 +9,7 @@ const IMAGE_HEIGHT = 28;
 const NUM_CLASSES = 10;
 const NUM_DATASET_ELEMENTS = 65000;
 const model = tf.sequential();
-const BATCH_SIZE = 16;
+const BATCH_SIZE = 64;
 const TRAIN_BATCHES = 50;
 let data;
 let isTraining = false;
@@ -109,13 +109,14 @@ async function trainNetwork(){
                         {
                                 batchSize: BATCH_SIZE,
                                 epochs: 1,
-                                shuffle: true,
                         }      // training parameters
                 );
                 // console.log('loss', loss)
                 tf.dispose(batch);
                 postMessage({action: 'batchComplete', loss: loss.history.loss[0], accuracy: loss.history.acc[0]})
                 predict()
+                const weights = model.getLayer('hiddenLayerTwo').getWeights()[0].dataSync()
+                console.log('weights', weights)
                 await tf.nextFrame();
         }
         console.log('Training complete')
@@ -147,7 +148,7 @@ async function predict(){
 
         const predictionInstance = await getActivations(batch.xs)
         // console.log('predictionInsance', predictionInstance)
-        console.log(tf.memory())
+        // console.log(tf.memory())
         postMessage({action: 'animatePrediction', inputPixels: imagePixels, predictionInstance: predictionInstance, inputValue: inputValue[0]})
 }
 
