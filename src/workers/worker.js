@@ -108,15 +108,13 @@ async function trainNetwork(){
                         batch.labels,                           // classification data
                         {
                                 batchSize: BATCH_SIZE,
-                                epochs: 1,
+                                epochs: 5,
                         }      // training parameters
                 );
                 // console.log('loss', loss)
                 tf.dispose(batch);
                 postMessage({action: 'batchComplete', loss: loss.history.loss[0], accuracy: loss.history.acc[0]})
                 predict()
-                const weights = model.getLayer('hiddenLayerTwo').getWeights()[0].dataSync()
-                console.log('weights', weights)
                 await tf.nextFrame();
         }
         console.log('Training complete')

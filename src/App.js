@@ -62,13 +62,16 @@ function App() {
 
   	return (
 		<>
-			<div>
+			<div className='header'>
             	{/* <button onClick={updateVisualizationState} dir={'rtl'}>Visualize Pretrained Model</button>
 				<button onClick={toggleWorldSetup}>Setup Input</button>
 				<button onClick={startPrediction}>Randomly Select Test Data and Predict</button> */}
-				<button onClick={startTrainingNetwork}>
+				{ trainNetwork ?
+					null :
+					<button onClick={startTrainingNetwork}>
 					<img src={require('./assets/train.png')} alt="play"/>
 					</button>
+				}
 				<button onClick={toggleAnimation}>
 					<img src={imageSrc} alt="play"/>
 				</button>

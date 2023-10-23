@@ -748,7 +748,7 @@ function NeuralNetwork(props) {
                                 ))}
                         </group>
                         <OrbitControls enableRotate={rotationEnabled} maxDistance={950} />
-                        <Stars count={50000} depth={550}/>
+                        <Stars count={50000} depth={400} speed={3}/>
                         <axesHelper />
                 </>
         )
