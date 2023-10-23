@@ -76,6 +76,10 @@ function App() {
 					<img src={imageSrc} alt="play"/>
 				</button>
             </div>
+			<div className='metrics'>
+				<div className='loss'>Batch Loss: ---</div>
+				<div className='accuracy'>Batch Accuracy: ---</div>
+			</div>
 			<Canvas camera = {{ position: cameraPosition.current, fov: 53, aspect: width / height, near: 1, far: 5000 }}>
 				<NeuralNetwork animateForwardPass={animateForwardPass} trainNetwork={trainNetwork} predicting={predicting}/>
 				{/* <StatsGl className='stats' horizontal={false}/> */}

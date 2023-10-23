@@ -230,6 +230,18 @@ body {
     bottom: 120px;
 }
 
+.metrics {
+    background: rgba(128, 128, 128, 0.5); // Greyish background
+    // background: white;
+    padding: 10px;
+    color: white;
+    width: 200px;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    border-radius: 5px;
+}
+
 .stats {
     position: absolute;
     bottom: 50px;
