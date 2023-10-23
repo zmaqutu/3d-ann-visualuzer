@@ -60,6 +60,8 @@ function NeuralNetwork(props) {
         // an array of 20 color InstancedBufferAttributes
         const [colorAttributesArray, setColorAttributesArray] = useState([])
 
+        const lossDiv = document.getElementsByClassName('loss')[0]
+        const accuracyDiv = document.getElementsByClassName('accuracy')[0]
 
         // memoize positions for each neuron in each layer
         const inputLayerPositions = useMemo(() => {
@@ -137,8 +139,14 @@ function NeuralNetwork(props) {
                         
                                 // the predicted output
                                 const predictionInstance = e.data.predictionInstance
+
+                                // training batch loss
+                                const loss = e.data.loss
+
+                                // training accuracy
+                                const accuracy = e.data.accuracy
                                 
-                                processAnimationPackage(inputPixels, predictionInstance, inputValue)
+                                processAnimationPackage(inputPixels, predictionInstance, inputValue, loss, accuracy)
                         }
                         if(e.data.action == 'batchComplete'){
                                 console.log('Batch complete', e.data.loss, e.data)
@@ -322,7 +330,7 @@ function NeuralNetwork(props) {
         }, [])
 
         
-        function processAnimationPackage(inputPixels,predictionInstance, inputValue){
+        function processAnimationPackage(inputPixels,predictionInstance, inputValue, loss, accuracy){
 
                 const colorAttributeArray = []
                 const prediction = predictionInstance.prediction
@@ -337,7 +345,7 @@ function NeuralNetwork(props) {
                         const colorArray = Float32Array.from(hiddenLayersActivations[i])
                         colorAttributeArray.push(new THREE.InstancedBufferAttribute(colorArray, 1))
                 }
-                neuralNetwork.animationPackage.push({colorAttributeArray: colorAttributeArray, prediction: prediction, inputValue: inputValue})
+                neuralNetwork.animationPackage.push({colorAttributeArray: colorAttributeArray, prediction: prediction, inputValue: inputValue, loss: loss, accuracy: accuracy})
         }
 
         function visualizePretrainedModel() {
@@ -610,6 +618,13 @@ function NeuralNetwork(props) {
                                 animateLayerTwoToOne = false
                                 animateLayerOneToInput = false
                                 trainingInstanceID++
+
+                                const loss = neuralNetwork.animationPackage[trainingInstanceID].loss
+                                const accuracy = neuralNetwork.animationPackage[trainingInstanceID].accuracy
+
+                                // update the loss and accuracy values
+                                lossDiv.innerHTML = 'Bstch Loss: ' + loss
+                                accuracyDiv.innerHTML = 'Batch Accuracy: ' + accuracy
 
                                 if(trainingInstanceID >= neuralNetwork.animationPackage.length){
                                         animateInputWeights = 0

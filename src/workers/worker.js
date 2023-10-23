@@ -103,18 +103,18 @@ async function trainNetwork(){
                         currentBatch.xs = currentBatch.xs.reshape([BATCH_SIZE, 784]);
                         return currentBatch;
                 });
-                const loss = await model.fit(
+                const history = await model.fit(
                         batch.xs,                               // input data
                         batch.labels,                           // classification data
                         {
                                 batchSize: BATCH_SIZE,
-                                epochs: 5,
+                                epochs: 2,
                         }      // training parameters
                 );
                 // console.log('loss', loss)
                 tf.dispose(batch);
-                postMessage({action: 'batchComplete', loss: loss.history.loss[0], accuracy: loss.history.acc[0]})
-                predict()
+                // postMessage({action: 'batchComplete', loss: loss.history.loss[0], accuracy: loss.history.acc[0]})
+                predict(history)
                 await tf.nextFrame();
         }
         console.log('Training complete')
@@ -124,8 +124,10 @@ function toggleTraining(){
         isTraining = !isTraining;
 }
 
-async function predict(){
+async function predict(history = null){
         // console.log('Predicting...')
+        const loss = history.history.loss[0].toFixed(3)
+        const accuracy = history.history.acc[0].toFixed(3)
         let inputValue = null
         const batch = data.nextTestBatch(1);
         const imagePixels = await getImagePixels(batch)
@@ -147,7 +149,7 @@ async function predict(){
         const predictionInstance = await getActivations(batch.xs)
         // console.log('predictionInsance', predictionInstance)
         // console.log(tf.memory())
-        postMessage({action: 'animatePrediction', inputPixels: imagePixels, predictionInstance: predictionInstance, inputValue: inputValue[0]})
+        postMessage({action: 'animatePrediction', inputPixels: imagePixels, predictionInstance: predictionInstance, inputValue: inputValue[0], loss: loss, accuracy: accuracy})
 }
 
 async function getImagePixels(batch){
