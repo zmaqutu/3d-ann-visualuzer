@@ -77,6 +77,7 @@ function App() {
 				</button>
             </div>
 			<div className='metrics'>
+				<div className='batchNo'>Batch: ---</div>
 				<div className='loss'>Batch Loss: ---</div>
 				<div className='accuracy'>Batch Accuracy: ---</div>
 			</div>

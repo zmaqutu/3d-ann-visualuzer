@@ -60,6 +60,7 @@ function NeuralNetwork(props) {
         // an array of 20 color InstancedBufferAttributes
         const [colorAttributesArray, setColorAttributesArray] = useState([])
 
+        const batchDiv = document.getElementsByClassName('batchNo')[0]
         const lossDiv = document.getElementsByClassName('loss')[0]
         const accuracyDiv = document.getElementsByClassName('accuracy')[0]
 
@@ -623,6 +624,7 @@ function NeuralNetwork(props) {
                                 const accuracy = neuralNetwork.animationPackage[trainingInstanceID].accuracy
 
                                 // update the loss and accuracy values
+                                batchDiv.innerHTML = 'Batch: ' + trainingInstanceID
                                 lossDiv.innerHTML = 'Bstch Loss: ' + loss
                                 accuracyDiv.innerHTML = 'Batch Accuracy: ' + accuracy
 
