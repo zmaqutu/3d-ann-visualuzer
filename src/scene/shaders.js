@@ -1,0 +1,93 @@
+export const neuronVertex = `
+attribute float aValue;
+attribute float aAfter;
+attribute float aSelected;
+attribute float aKind;
+attribute float aLayer;
+uniform float uTime;
+uniform float uMode;
+varying float vValue;
+varying float vSelected;
+varying float vKind;
+varying vec3 vNormal;
+varying vec3 vView;
+void main() {
+  float blend = uTime >= 5.0 ? 1.0 : 0.0;
+  float reveal = aLayer < 0.5 ? 1.0 : step(1.0 + aLayer / 3.0, uTime);
+  vValue = mix(aValue, aAfter, blend) * reveal;
+  vSelected = aSelected; vKind = aKind;
+  vec4 mv = modelViewMatrix * instanceMatrix * vec4(position, 1.0);
+  vNormal = normalize(normalMatrix * mat3(instanceMatrix) * normal);
+  vView = normalize(-mv.xyz);
+  gl_Position = projectionMatrix * mv;
+}`;
+export const neuronFragment = `
+uniform float uGlow;
+uniform float uMode;
+varying float vValue;
+varying float vSelected;
+varying float vKind;
+varying vec3 vNormal;
+varying vec3 vView;
+void main() {
+  float rim = pow(1.0 - abs(dot(normalize(vNormal), normalize(vView))), 2.4);
+  float strength = clamp(abs(vValue), 0.0, 1.0);
+  vec3 tint = vValue < 0.0 ? vec3(1.0, 0.55, 0.28) : vec3(0.25, 0.76, 0.94);
+  if (uMode < 0.5) tint = vec3(0.39, 0.95, 0.74);
+  vec3 color = mix(vec3(0.09, 0.16, 0.20), tint, strength * 0.85);
+  color += rim * (0.12 + uGlow * strength * 0.24);
+  color = mix(color, vec3(0.95, 0.98, 1.0), vSelected * rim);
+  if (vKind < 0.5) color = mix(vec3(0.09, 0.15, 0.19), vec3(0.90, 0.98, 0.96), strength);
+  gl_FragColor = vec4(color, 1.0);
+}`;
+export const edgeVertex = `
+attribute vec3 aStart;
+attribute vec3 aEnd;
+attribute float aValue;
+attribute float aAfter;
+attribute float aLayer;
+attribute float aFocus;
+uniform vec2 uResolution;
+uniform float uTime;
+uniform float uScale;
+varying float vAlong;
+varying float vAcross;
+varying float vValue;
+varying float vLayer;
+varying float vFocus;
+void main() {
+  float blend = clamp(uTime - 4.0, 0.0, 1.0);
+  vValue = mix(aValue, aAfter, blend);
+  vLayer = aLayer; vFocus = aFocus;
+  vAlong = position.x; vAcross = position.y;
+  vec4 start = projectionMatrix * modelViewMatrix * vec4(aStart, 1.0);
+  vec4 end = projectionMatrix * modelViewMatrix * vec4(aEnd, 1.0);
+  vec2 direction = (end.xy / end.w - start.xy / start.w) * uResolution;
+  vec2 normal = normalize(vec2(-direction.y, direction.x) + vec2(0.00001));
+  vec4 projected = mix(start, end, position.x);
+  float thickness = 0.6 + 1.8 * clamp(abs(vValue) / uScale, 0.0, 1.0) + aFocus * 0.5;
+  projected.xy += normal * position.y * thickness / uResolution * projected.w * 2.0;
+  gl_Position = projected;
+}`;
+export const edgeFragment = `
+uniform float uTime;
+uniform float uScale;
+uniform float uGlow;
+varying float vAlong;
+varying float vAcross;
+varying float vValue;
+varying float vLayer;
+varying float vFocus;
+void main() {
+  float strength = clamp(abs(vValue) / uScale, 0.0, 1.0);
+  float forward = (uTime - 1.0) * 3.0 - vLayer;
+  float backward = (uTime - 3.0) * 3.0 - (2.0 - vLayer);
+  float distanceToPulse = 10.0;
+  if (uTime >= 1.0 && uTime < 2.0 && forward >= 0.0 && forward <= 1.0) distanceToPulse = abs(vAlong - forward);
+  if (uTime >= 3.0 && uTime < 4.0 && backward >= 0.0 && backward <= 1.0) distanceToPulse = abs(vAlong - (1.0 - backward));
+  float pulse = exp(-distanceToPulse * distanceToPulse * 180.0) * step(0.000001, abs(vValue));
+  float updateFlash = uTime >= 4.0 && uTime < 5.0 ? sin((uTime - 4.0) * 3.14159) : 0.0;
+  vec3 tint = vValue < 0.0 ? vec3(1.0, 0.57, 0.29) : vec3(0.25, 0.75, 0.94);
+  float alpha = (0.035 + 0.22 * strength + pulse * 0.65 + vFocus * 0.12 + updateFlash * strength * 0.2) * (1.0 - smoothstep(0.45, 1.0, abs(vAcross)));
+  gl_FragColor = vec4(tint * (1.0 + pulse * uGlow * 0.7), alpha);
+}`;

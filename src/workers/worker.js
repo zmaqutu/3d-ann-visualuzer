@@ -1,196 +1,81 @@
-import { MnistData } from '../ML Files/mnist_data'
-import * as tf from '@tensorflow/tfjs';
-import * as THREE from 'three'
-
-
-// global variables
-const IMAGE_WIDTH = 28;
-const IMAGE_HEIGHT = 28;
-const NUM_CLASSES = 10;
-const NUM_DATASET_ELEMENTS = 65000;
-const model = tf.sequential();
-const BATCH_SIZE = 64;
-const TRAIN_BATCHES = 50;
-let data;
-let isTraining = false;
-
-/**Potential list of actions the worker will recieve
- * initialize network
- * load examples
- * train network
- * visualize network
- */
 /* eslint-disable no-restricted-globals */
-self.onmessage = async function(event){
-        const { action, data } = event.data;
-
-        switch(action){
-                case 'initializeNetwork':
-                        initializeNetwork()
-                        loadTrainingExamples()
-                        break;
-                case 'trainNetwork':
-                        trainNetwork()
-                        break;
-                case 'predictInput':
-                        console.log('predicting input from worker')
-                        predict()
-                        break;
-                default:
-                        console.log('no valid action provided')
-        }
-        
-}
-
-/** Function to define model architecture */
-function initializeNetwork(){
-        console.log('Initializing model...')
-        // if model is already initialized, return
-        if(model.layers.length > 0){
-                return
-        }
-
-        // the first hidden layer with 16 neurons takes in the input of 784 pixels
-        model.add(tf.layers.dense({
-                inputShape: [784],
-                units: 16,
-                activation: 'relu',
-                name: 'hiddenLayerOne'
-        }))
-
-        // hidden layer with 16 neurons
-        model.add(tf.layers.dense({
-                units: 16,
-                activation: 'relu',
-                name: 'hiddenLayerTwo'
-        }))
-
-        // output layer with 10 neurons
-        model.add(tf.layers.dense({
-                units: 10,
-                activation: 'softmax',
-                name: 'outputLayer'
-        }))
-
-        // Compile the model with Adam optimizer and categorical crossentropy loss
-        model.compile({
-                optimizer: tf.train.adam(),
-                loss: 'categoricalCrossentropy',
-                metrics: ['accuracy']
-        })
-        console.log('Model initialized')
-}
-
-async function loadTrainingExamples(){
-        console.log('Loading training examples...')
-        data = new MnistData()
-        await data.load()
-        console.log('Training examples loaded')
-}
-
-async function trainNetwork(){
-        console.log('Start training...')
-        // isTraining = true;
-        console.log('isTraining', isTraining)
-        // while(isTraining){
-        for(let i = 0; i < TRAIN_BATCHES; i++){
-                const batch = tf.tidy(() => {
-                        // retrieve the next batch of training data of size BATCH_SIZE
-                        const currentBatch = data.nextTrainBatch(BATCH_SIZE);
-                        // console.log('currentBatch', currentBatch)
-                        
-                        // train the model on the batch
-                        currentBatch.xs = currentBatch.xs.reshape([BATCH_SIZE, 784]);
-                        return currentBatch;
-                });
-                const history = await model.fit(
-                        batch.xs,                               // input data
-                        batch.labels,                           // classification data
-                        {
-                                batchSize: BATCH_SIZE,
-                                epochs: 2,
-                        }      // training parameters
-                );
-                // console.log('loss', loss)
-                tf.dispose(batch);
-                // postMessage({action: 'batchComplete', loss: loss.history.loss[0], accuracy: loss.history.acc[0]})
-                predict(history)
-                await tf.nextFrame();
-        }
-        console.log('Training complete')
-}
-
-function toggleTraining(){
-        isTraining = !isTraining;
-}
-
-async function predict(history = null){
-        // console.log('Predicting...')
-        const loss = history.history.loss[0].toFixed(3)
-        const accuracy = history.history.acc[0].toFixed(3)
-        let inputValue = null
-        const batch = data.nextTestBatch(1);
-        const imagePixels = await getImagePixels(batch)
-        tf.tidy(() => {
-                inputValue = Array.from(batch.labels.argMax(1).dataSync());
-
-                const output = model.predict(batch.xs.reshape([-1, 784]))
-
-                const prediction = Array.from(output.argMax(1).dataSync());
-                const image = batch.xs.slice([0, 0], [1, batch.xs.shape[1]]);
-
-                console.log('Original Value', inputValue)
-                console.log('Predicted Value', prediction)
-        })
-
-        // post animation information to main thread
-        // postMessage({action: 'drawPredictionInput', imagePixels: imagePixels})
-
-        const predictionInstance = await getActivations(batch.xs)
-        // console.log('predictionInsance', predictionInstance)
-        // console.log(tf.memory())
-        postMessage({action: 'animatePrediction', inputPixels: imagePixels, predictionInstance: predictionInstance, inputValue: inputValue[0], loss: loss, accuracy: accuracy})
-}
-
-async function getImagePixels(batch){
-        const imageTensor = tf.tidy(() => {
-                // Reshape the image to 28x28 px
-                return batch.xs
-                  .slice([0, 0], [1, batch.xs.shape[1]])
-                  .reshape([28, 28, 1]);
-        });
-        return await tf.browser.toPixels(imageTensor)
-}
-async function getActivations(imageTensor){
-        const hiddenLayersActivations = getBlackBoxActivations(imageTensor)
-
-        // output layer
-        const outputLayer = model.getLayer('outputLayer')
-        const intermediateModelOutput = tf.model({inputs: model.input, outputs: outputLayer.output});
-        const activationsOutput = intermediateModelOutput.predict(imageTensor)
-        const activationsArrayOutput = Array.from(activationsOutput.dataSync())
-        const prediction = activationsArrayOutput.indexOf(Math.max(...activationsArrayOutput))
-
-        activationsOutput.dispose()
-
-        return {hiddenLayersActivations: hiddenLayersActivations, prediction : prediction}       
-}
-function getBlackBoxActivations(imageTensor){
-        const blackBoxActivations = []
-
-        const layers = model.layers
-        // iterate through the models hidden layers
-        for(let i = 0; i < layers.length - 1;i++){
-                const layer = layers[i]
-
-                const interMediateModel = tf.model({inputs: model.input, outputs: layer.output});
-                const activations = interMediateModel.predict(imageTensor)
-                const binaryActivations = activations.greater(tf.scalar(0)).toInt().dataSync();         //relu
-
-                blackBoxActivations.push(binaryActivations)
-                activations.dispose()
-        }
-        tf.dispose()
-        return blackBoxActivations
-}
-/* eslint-enable no-restricted-globals */
+import { DenseNetwork, compactTrace, argmax } from '../model/network';
+import { loadMnist, createSampler } from '../model/dataset';
+let dataset, model, sampler, pending, controller, runId, settings;
+let initialized = false;
+const send = (message) => self.postMessage({ ...message, runId });
+self.onmessage = async ({ data }) => {
+  if (data.type !== 'initialize' && data.runId !== runId) return;
+  try {
+    if (data.type === 'initialize') {
+      controller?.abort();
+      controller = new AbortController();
+      const signal = controller.signal;
+      initialized = false;
+      runId = data.runId;
+      settings = data.settings;
+      pending = null;
+      model = new DenseNetwork({ ...settings, sizes: [784, settings.width, settings.width, 10] });
+      send({ type: 'initial', weights: model.snapshot(), sizes: model.sizes });
+      if (!dataset)
+        dataset = await loadMnist((message) => {
+          if (!signal.aborted) send({ type: 'loading', message });
+        }, signal);
+      if (signal.aborted) return;
+      sampler = createSampler(dataset, settings.seed);
+      initialized = true;
+      send({ type: 'ready' });
+    } else if (data.type === 'prepare') {
+      if (!initialized) throw new Error('Training data is not ready.');
+      if (pending) throw new Error('Finish the pending update before requesting another batch.');
+      const batch = sampler.batch(settings.batchSize);
+      const prepared = model.prepare(batch);
+      const record = {
+        id: model.step + 1,
+        sizes: model.sizes,
+        settings,
+        batchIds: batch.map((x) => x.id),
+        input: batch[0].input,
+        label: batch[0].label,
+        sampleId: batch[0].id,
+        before: model.snapshot(),
+        trace: compactTrace(prepared.selected),
+        gradients: prepared.gradients.map((g) => ({
+          weights: Float32Array.from(g.weights),
+          biases: Float32Array.from(g.biases),
+        })),
+        loss: prepared.loss,
+        accuracy: prepared.accuracy,
+        committed: false,
+      };
+      pending = { prepared, batch, record };
+      send({ type: 'prepared', record });
+    } else if (data.type === 'commit') {
+      // Repeated UI events must never apply the same optimizer step twice.
+      if (!pending || pending.record.id !== data.id) return;
+      const delta = model.apply(pending.prepared);
+      const { record, batch } = pending;
+      record.after = model.snapshot();
+      record.delta = delta;
+      record.afterTrace = compactTrace(model.forward(batch[0].input));
+      record.afterTrace.loss = model.loss(record.afterTrace, batch[0].label);
+      record.afterLoss =
+        batch.reduce(
+          (sum, sample) => sum + model.loss(model.forward(sample.input), sample.label),
+          0,
+        ) / batch.length;
+      record.probeAccuracy =
+        sampler.probes.reduce(
+          (correct, sample) =>
+            correct + (argmax(model.forward(sample.input).activations[3]) === sample.label ? 1 : 0),
+          0,
+        ) / sampler.probes.length;
+      record.committed = true;
+      pending = null;
+      send({ type: 'committed', record });
+    }
+  } catch (error) {
+    if (data.runId === runId && error.name !== 'AbortError')
+      send({ type: 'error', message: error.message || 'Training failed. Reset the run to retry.' });
+  }
+};
