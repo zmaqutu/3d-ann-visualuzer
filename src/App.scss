@@ -524,7 +524,7 @@ strong {
 .legend-gradient {
   width: 58px;
   height: 3px;
-  background: linear-gradient(90deg, #ed995c, #293c46, #59c1e9);
+  background: linear-gradient(90deg, #ff380b, #293c46, #008fff);
 }
 .legend small {
   font-size: 8px;
@@ -1039,4 +1039,59 @@ strong {
 }
 .connection-inspector .metric-grid strong {
   font-size: 16px;
+}
+
+.output-prediction {
+  min-width: 120px;
+  padding: 8px 12px;
+  text-align: center;
+  background: #09151dea;
+  border: 1px solid #84632e;
+  border-radius: 6px;
+  display: grid;
+  gap: 3px;
+  color: #ffd16c;
+}
+.output-prediction > span {
+  font-size: 7px;
+  letter-spacing: 0.12em;
+}
+.output-prediction strong {
+  font:
+    600 26px ui-monospace,
+    monospace;
+}
+.output-prediction small {
+  font-size: 10px;
+  color: #b7c8d0;
+  font-weight: 400;
+}
+.output-prediction em {
+  font-size: 9px;
+  font-style: normal;
+}
+.output-prediction .correct {
+  color: #3bff9c;
+}
+.output-prediction .incorrect {
+  color: #ff8860;
+}
+.class-label.predicted {
+  color: #ffe09a;
+  background: #624b17;
+  outline: 1px solid #ffce63;
+  border-radius: 3px;
+  padding: 2px 4px;
+  font-weight: 700;
+}
+
+.output-prediction.compact {
+  min-width: 96px;
+  padding: 6px 8px;
+}
+.output-prediction.compact strong {
+  font-size: 20px;
+}
+.output-prediction.compact small {
+  font-size: 9px;
 }

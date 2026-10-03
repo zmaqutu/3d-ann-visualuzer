@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import App from './App';
+import NetworkScene from './scene/NetworkScene';
 import useTraining from './hooks/useTraining';
 jest.mock('./hooks/useTraining', () => ({
   __esModule: true,
@@ -9,7 +10,7 @@ jest.mock('./hooks/useTraining', () => ({
 }));
 jest.mock('./scene/NetworkScene', () => ({
   __esModule: true,
-  default: () => <div>Network scene</div>,
+  default: jest.fn(() => <div>Network scene</div>),
   SCALES: { activation: 1 },
 }));
 jest.mock('./ui/Readouts', () => ({
@@ -90,4 +91,23 @@ test('resuming a pending batch from history starts its own timeline without comm
   fireEvent.click(screen.getByRole('button', { name: /Resume this update/ }));
   expect(screen.getByRole('slider', { name: 'Training phase playhead' })).toHaveValue('0');
   expect(request).not.toHaveBeenCalled();
+});
+
+test('scene defaults restore full connectivity, horizontal output, and optional stars', () => {
+  useTraining.mockReturnValue({
+    status: 'ready',
+    records: [],
+    settings,
+    initialize: jest.fn(),
+    request: jest.fn(),
+  });
+  render(<App />);
+  const sceneProps = () => NetworkScene.mock.calls.at(-1)[0];
+  expect(sceneProps()).toMatchObject({ filter: 'all', outputLayout: 'horizontal', stars: true });
+  fireEvent.click(screen.getByRole('button', { name: 'Scene', exact: true }));
+  fireEvent.change(screen.getByRole('combobox', { name: 'Output arrangement' }), {
+    target: { value: 'vertical' },
+  });
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Starfield' }));
+  expect(sceneProps()).toMatchObject({ filter: 'all', outputLayout: 'vertical', stars: false });
 });

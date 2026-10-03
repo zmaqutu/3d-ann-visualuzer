@@ -41,7 +41,7 @@ export default function App() {
   const { request, status } = training;
   const [draft, setDraft] = useState(DEFAULT_SETTINGS);
   const [mode, setMode] = useState('activation');
-  const [filter, setFilter] = useState('strongest');
+  const [filter, setFilter] = useState('all');
   const [selection, setSelection] = useState(null);
   const [activeId, setActiveId] = useState(null);
   const [playing, setPlaying] = useState(false);
@@ -59,6 +59,9 @@ export default function App() {
     () => !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
   );
   const [spacing, setSpacing] = useState(1);
+  const [outputLayout, setOutputLayout] = useState('horizontal');
+  const [stars, setStars] = useState(true);
+  const [intensity, setIntensity] = useState(1.4);
   const [edgeCount, setEdgeCount] = useState(0);
   const [rightTab, setRightTab] = useState('story');
   const [leftTab, setLeftTab] = useState('train');
@@ -400,9 +403,35 @@ export default function App() {
                 </select>
               </label>
               <p className="microcopy">
-                Filtering changes the picture, never the network. Before training, strongest
-                connections are ranked by weight.
+                All connections are shown by default. Filtering changes only the picture. In
+                Signals, strongest ranks forward contributions (weights before the first batch).
               </p>
+              <label>
+                Output arrangement
+                <select value={outputLayout} onChange={(e) => setOutputLayout(e.target.value)}>
+                  <option value="horizontal">Horizontal row</option>
+                  <option value="vertical">Vertical column</option>
+                </select>
+              </label>
+              <label>
+                Connection intensity · {intensity.toFixed(1)}×
+                <input
+                  type="range"
+                  min="0.5"
+                  max="2.5"
+                  step="0.1"
+                  value={intensity}
+                  onChange={(e) => setIntensity(+e.target.value)}
+                />
+              </label>
+              <label className="switch-row">
+                <span>Starfield</span>
+                <input
+                  type="checkbox"
+                  checked={stars}
+                  onChange={(e) => setStars(e.target.checked)}
+                />
+              </label>
               <label>
                 Camera
                 <select value={cameraPreset} onChange={(e) => setCameraPreset(e.target.value)}>
@@ -477,7 +506,7 @@ export default function App() {
               <NetworkScene
                 record={record}
                 initial={training.initial}
-                mode={effectiveMode}
+                mode={mode}
                 playhead={time}
                 playing={playing}
                 filter={filter}
@@ -488,6 +517,9 @@ export default function App() {
                 cameraKey={cameraKey}
                 quality={quality}
                 glow={glow}
+                outputLayout={outputLayout}
+                stars={stars}
+                intensity={intensity}
                 spacing={spacing}
                 onCount={setEdgeCount}
               />
@@ -507,13 +539,13 @@ export default function App() {
                 <button
                   onClick={() => {
                     setSelection(null);
-                    if (filter === 'focus') setFilter('strongest');
+                    if (filter === 'focus') setFilter('all');
                   }}
                   aria-label="Clear selected neuron"
                 >
                   ×
                 </button>
-                <button onClick={() => setFilter(filter === 'focus' ? 'strongest' : 'focus')}>
+                <button onClick={() => setFilter(filter === 'focus' ? 'all' : 'focus')}>
                   {filter === 'focus' ? 'Show network' : 'Isolate'}
                 </button>
               </div>

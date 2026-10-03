@@ -1,10 +1,13 @@
-export function layerPositions(sizes) {
+export function layerPositions(sizes, outputLayout = 'horizontal') {
   const xs = [-6, -1.8, 2.1, 6];
   return sizes.map((count, layer) =>
     Array.from({ length: count }, (_, index) => {
       if (layer === 0)
         return [xs[layer], (13.5 - Math.floor(index / 28)) * 0.17, (13.5 - (index % 28)) * 0.17];
-      if (layer === 3) return [xs[layer], (4.5 - index) * 0.48, 0];
+      if (layer === 3)
+        return outputLayout === 'horizontal'
+          ? [xs[layer] + (index - 4.5) * 0.48, 0, 0]
+          : [xs[layer], (4.5 - index) * 0.48, 0];
       const columns = Math.ceil(Math.sqrt(count));
       const rows = Math.ceil(count / columns);
       return [
@@ -48,6 +51,14 @@ export function connectionData(sizes, positions, record, initial, mode, filter, 
           end: positions[l + 1][j],
           value,
           after,
+          weight,
+          weightAfter: afterWeight,
+          contribution: weight * (record?.trace.activations[l][i] ?? 0),
+          contributionAfter:
+            afterWeight *
+            (record?.afterTrace?.activations[l][i] ?? record?.trace.activations[l][i] ?? 0),
+          gradient: record?.gradients[l].weights[k] ?? 0,
+          update: record?.delta?.[l].weights[k] ?? 0,
           layer: l,
           related,
           rank: Math.abs(mode === 'activation' && !record ? weight : value),

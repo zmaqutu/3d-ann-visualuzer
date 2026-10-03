@@ -45,3 +45,25 @@ test('strongest filter limits each target and input columns face the overview ca
   );
   expect(positions[0][0][2]).toBeGreaterThan(positions[0][27][2]);
 });
+
+test('output orientation preserves classes and all adjacent-layer connections', () => {
+  const sizes = [784, 16, 16, 10];
+  const horizontal = layerPositions(sizes, 'horizontal');
+  const vertical = layerPositions(sizes, 'vertical');
+  expect(new Set(horizontal[3].map((p) => p[1])).size).toBe(1);
+  expect(new Set(horizontal[3].map((p) => p[0])).size).toBe(10);
+  expect(new Set(vertical[3].map((p) => p[0])).size).toBe(1);
+  expect(new Set(vertical[3].map((p) => p[1])).size).toBe(10);
+  const weights = sizes
+    .slice(1)
+    .map((count, l) => ({ weights: new Float32Array(count * sizes[l]) }));
+  for (const positions of [horizontal, vertical]) {
+    const edges = connectionData(sizes, positions, null, { weights }, 'weight', 'all', null);
+    for (let l = 0; l < 3; l++) {
+      expect(edges.filter((e) => e.layer === l)).toHaveLength(sizes[l] * sizes[l + 1]);
+      for (const target of positions[l + 1]) {
+        expect(edges.filter((e) => e.end === target)).toHaveLength(sizes[l]);
+      }
+    }
+  }
+});
