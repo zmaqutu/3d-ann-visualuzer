@@ -4,6 +4,7 @@ import useTraining, { DEFAULT_SETTINGS } from './hooks/useTraining';
 import NetworkScene, { SCALES } from './scene/NetworkScene';
 import { PHASES, advanceTime } from './model/playback';
 import { argmax } from './model/network';
+import { predictionAt } from './scene/timing';
 import {
   PixelImage,
   Probabilities,
@@ -78,6 +79,7 @@ export default function App() {
   const after = time >= 5 && record?.committed;
   const probabilities = (after ? record?.afterTrace : record?.trace)?.activations[3];
   const prediction = probabilities ? argmax(probabilities) : null;
+  const scenePrediction = predictionAt(record, time);
   const setPlayhead = useCallback((value) => {
     timeRef.current = value;
     setTime(value);
@@ -516,6 +518,22 @@ export default function App() {
                 onCount={setEdgeCount}
               />
             </SceneBoundary>
+            <div className="output-prediction">
+              <span>TOP PREDICTION</span>
+              {scenePrediction ? (
+                <>
+                  <strong>
+                    {scenePrediction.index}{' '}
+                    <small>{(scenePrediction.probability * 100).toFixed(1)}%</small>
+                  </strong>
+                  <em className={scenePrediction.correct ? 'correct' : 'incorrect'}>
+                    {scenePrediction.correct ? 'Correct' : 'Incorrect'}
+                  </em>
+                </>
+              ) : (
+                <small>Awaiting forward pass</small>
+              )}
+            </div>
             <div className="scene-caption">
               <span>
                 {edgeCount.toLocaleString()} / {totalEdges.toLocaleString()} connections

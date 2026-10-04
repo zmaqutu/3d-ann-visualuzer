@@ -255,6 +255,9 @@ function CameraRig({ preset, cameraKey, spacing, outputLayout }) {
             : [6, 4.8, 14];
     camera.position.set(...target.map((value) => value * ratio * Math.max(1, spacing)));
     controls.current.target.set(preset === 'input' ? -6 : wide ? 1 : 0, 0, 0);
+    // Bring the overview closer without changing its viewing angle or the input close-up.
+    if (preset !== 'input')
+      camera.position.sub(controls.current.target).multiplyScalar(0.9).add(controls.current.target);
     controls.current.update();
   }, [preset, cameraKey, camera, size.width, size.height, spacing, outputLayout]);
   return (
@@ -269,8 +272,7 @@ function CameraRig({ preset, cameraKey, spacing, outputLayout }) {
   );
 }
 function SceneContents(props) {
-  const { invalidate, size } = useThree();
-  const compact = size.width < 500;
+  const { invalidate } = useThree();
   useEffect(() => {
     invalidate();
   }, [props.playhead, props.playing, invalidate]);
@@ -302,11 +304,7 @@ function SceneContents(props) {
       {positions.map((layer, i) => (
         <Html
           key={i}
-          position={[
-            i === 3 ? 6 * props.spacing : layer[0][0],
-            i === 3 && horizontal && compact ? 4.2 : 3.1,
-            0,
-          ]}
+          position={[i === 3 ? 6 * props.spacing : layer[0][0], 3.1, 0]}
           center
           style={{ pointerEvents: 'none' }}
         >
@@ -324,27 +322,6 @@ function SceneContents(props) {
         spacing={props.spacing}
         prediction={prediction}
       />
-      <Html
-        position={[6 * props.spacing, horizontal ? (compact ? 2.0 : 1.25) : -3.6, 0]}
-        center
-        style={{ pointerEvents: 'none' }}
-      >
-        <div className={`output-prediction ${compact ? 'compact' : ''}`}>
-          <span>TOP PREDICTION</span>
-          {prediction ? (
-            <>
-              <strong>
-                {prediction.index} <small>{(prediction.probability * 100).toFixed(1)}%</small>
-              </strong>
-              <em className={prediction.correct ? 'correct' : 'incorrect'}>
-                {prediction.correct ? 'Correct' : 'Incorrect'}
-              </em>
-            </>
-          ) : (
-            <small>Awaiting forward pass</small>
-          )}
-        </div>
-      </Html>
       <gridHelper args={[28, 28, '#203d47', '#152a34']} position={[0, -3.3, 0]} />
     </>
   );
@@ -353,6 +330,7 @@ export default function NetworkScene(props) {
   return (
     <Canvas
       frameloop="demand"
+      style={{ zIndex: 0 }}
       camera={{ position: [10, 7, 19], fov: 43, near: 0.1, far: 100 }}
       dpr={props.quality === 'low' ? 1 : [1, 1.5]}
       gl={{ antialias: true, alpha: false }}
@@ -380,7 +358,7 @@ function Starfield() {
     const random = randomGenerator(718);
     const positions = [],
       colors = [];
-    for (let i = 0; i < 2400; i++) {
+    for (let i = 0; i < 3000; i++) {
       const y = random() * 2 - 1;
       const angle = random() * Math.PI * 2;
       const radius = 32 + random() * 30;

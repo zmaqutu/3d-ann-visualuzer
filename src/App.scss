@@ -1042,6 +1042,10 @@ strong {
 }
 
 .output-prediction {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  pointer-events: none;
   min-width: 120px;
   padding: 8px 12px;
   text-align: center;
@@ -1085,13 +1089,17 @@ strong {
   font-weight: 700;
 }
 
-.output-prediction.compact {
-  min-width: 96px;
-  padding: 6px 8px;
-}
-.output-prediction.compact strong {
-  font-size: 20px;
-}
-.output-prediction.compact small {
-  font-size: 9px;
+@media (max-width: 640px) {
+  .output-prediction {
+    top: 10px;
+    right: 10px;
+    min-width: 96px;
+    padding: 6px 8px;
+  }
+  .output-prediction strong {
+    font-size: 20px;
+  }
+  .output-prediction small {
+    font-size: 9px;
+  }
 }
