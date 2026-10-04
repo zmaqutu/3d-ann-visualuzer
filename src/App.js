@@ -41,7 +41,7 @@ export default function App() {
   const { request, status } = training;
   const [draft, setDraft] = useState(DEFAULT_SETTINGS);
   const [mode, setMode] = useState('activation');
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState('input-sparse');
   const [selection, setSelection] = useState(null);
   const [activeId, setActiveId] = useState(null);
   const [playing, setPlaying] = useState(false);
@@ -60,7 +60,6 @@ export default function App() {
   );
   const [spacing, setSpacing] = useState(1);
   const [outputLayout, setOutputLayout] = useState('horizontal');
-  const [stars, setStars] = useState(true);
   const [intensity, setIntensity] = useState(1.4);
   const [edgeCount, setEdgeCount] = useState(0);
   const [rightTab, setRightTab] = useState('story');
@@ -395,6 +394,7 @@ export default function App() {
               <label>
                 Connection visibility
                 <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+                  <option value="input-sparse">Clear input · 8 per unit</option>
                   <option value="strongest">Strongest 8 per neuron</option>
                   <option value="all">All connections</option>
                   <option value="focus" disabled={!selection}>
@@ -403,8 +403,9 @@ export default function App() {
                 </select>
               </label>
               <p className="microcopy">
-                All connections are shown by default. Filtering changes only the picture. In
-                Signals, strongest ranks forward contributions (weights before the first batch).
+                Clear input shows eight strongest pixel links per hidden unit; every hidden and
+                output connection remains visible. Filtering changes only the picture. Signals ranks
+                forward contributions, or weights before training.
               </p>
               <label>
                 Output arrangement
@@ -422,14 +423,6 @@ export default function App() {
                   step="0.1"
                   value={intensity}
                   onChange={(e) => setIntensity(+e.target.value)}
-                />
-              </label>
-              <label className="switch-row">
-                <span>Starfield</span>
-                <input
-                  type="checkbox"
-                  checked={stars}
-                  onChange={(e) => setStars(e.target.checked)}
                 />
               </label>
               <label>
@@ -518,7 +511,6 @@ export default function App() {
                 quality={quality}
                 glow={glow}
                 outputLayout={outputLayout}
-                stars={stars}
                 intensity={intensity}
                 spacing={spacing}
                 onCount={setEdgeCount}
@@ -539,13 +531,13 @@ export default function App() {
                 <button
                   onClick={() => {
                     setSelection(null);
-                    if (filter === 'focus') setFilter('all');
+                    if (filter === 'focus') setFilter('input-sparse');
                   }}
                   aria-label="Clear selected neuron"
                 >
                   ×
                 </button>
-                <button onClick={() => setFilter(filter === 'focus' ? 'all' : 'focus')}>
+                <button onClick={() => setFilter(filter === 'focus' ? 'input-sparse' : 'focus')}>
                   {filter === 'focus' ? 'Show network' : 'Isolate'}
                 </button>
               </div>
@@ -562,6 +554,7 @@ export default function App() {
               <i className="positive-key" />
             </span>
             <small>
+              {!record && 'Violet lines show resting connections. '}
               Edges:{' '}
               {effectiveMode === 'activation'
                 ? 'a × w'

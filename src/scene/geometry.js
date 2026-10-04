@@ -1,3 +1,9 @@
+// Camera-right is a unit vector: equal offsets stay left-to-right at equal camera depth.
+export function outputRowPosition(index, count, spacing, right) {
+  const offset = (index - (count - 1) / 2) * 0.52;
+  return [6 * spacing + offset * right.x, offset * right.y, offset * right.z];
+}
+
 export function layerPositions(sizes, outputLayout = 'horizontal') {
   const xs = [-6, -1.8, 2.1, 6];
   return sizes.map((count, layer) =>
@@ -60,12 +66,14 @@ export function connectionData(sizes, positions, record, initial, mode, filter, 
           gradient: record?.gradients[l].weights[k] ?? 0,
           update: record?.delta?.[l].weights[k] ?? 0,
           layer: l,
+          target: j,
           related,
           rank: Math.abs(mode === 'activation' && !record ? weight : value),
         });
       }
-      if (filter === 'strongest') candidates.sort((a, b) => b.rank - a.rank);
-      edges.push(...(filter === 'strongest' ? candidates.slice(0, 8) : candidates));
+      const sparse = filter === 'strongest' || (filter === 'input-sparse' && l === 0);
+      if (sparse) candidates.sort((a, b) => b.rank - a.rank);
+      edges.push(...(sparse ? candidates.slice(0, 8) : candidates));
     }
   }
   return edges;

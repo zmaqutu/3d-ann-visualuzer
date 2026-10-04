@@ -67,3 +67,61 @@ test('output orientation preserves classes and all adjacent-layer connections', 
     }
   }
 });
+
+test('horizontal output is left-to-right at equal camera depth for arbitrary viewing angles', () => {
+  const { outputRowPosition } = require('./geometry');
+  const { PerspectiveCamera, Vector3 } = require('three');
+  for (const viewpoint of [
+    [8, 4.8, 17],
+    [18, 7, 3],
+    [-8, 4, 17],
+  ]) {
+    const camera = new PerspectiveCamera(43, 1.4, 0.1, 100);
+    camera.position.set(...viewpoint);
+    camera.lookAt(1, 0, 0);
+    camera.updateMatrixWorld();
+    const right = new Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+    const projected = Array.from({ length: 10 }, (_, index) =>
+      new Vector3(...outputRowPosition(index, 10, 1, right)).project(camera),
+    );
+    for (let index = 1; index < projected.length; index++) {
+      expect(projected[index].x).toBeGreaterThan(projected[index - 1].x);
+      expect(projected[index].y).toBeCloseTo(projected[0].y, 10);
+      expect(projected[index].z).toBeCloseTo(projected[0].z, 10);
+    }
+  }
+});
+
+test('clear-input view keeps the strongest eight pixel links and every hidden/output link', () => {
+  const sizes = [784, 16, 16, 10];
+  const positions = layerPositions(sizes);
+  const weights = sizes.slice(1).map((count, layer) => ({
+    weights: Float32Array.from(
+      { length: count * sizes[layer] },
+      (_, index) => (index % sizes[layer]) + 1,
+    ),
+  }));
+  const edges = connectionData(
+    sizes,
+    positions,
+    null,
+    { weights },
+    'activation',
+    'input-sparse',
+    null,
+  );
+  expect(edges).toHaveLength(544);
+  expect(
+    edges.filter((edge) => edge.layer === 0 && edge.target === 0).map((edge) => edge.start),
+  ).toEqual(positions[0].slice(-8).reverse());
+  for (let layer = 0; layer < 3; layer++) {
+    for (let target = 0; target < sizes[layer + 1]; target++) {
+      expect(edges.filter((edge) => edge.layer === layer && edge.target === target)).toHaveLength(
+        layer === 0 ? 8 : sizes[layer],
+      );
+    }
+  }
+  expect(
+    connectionData(sizes, positions, null, { weights }, 'activation', 'all', null),
+  ).toHaveLength(12960);
+});

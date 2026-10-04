@@ -93,7 +93,7 @@ test('resuming a pending batch from history starts its own timeline without comm
   expect(request).not.toHaveBeenCalled();
 });
 
-test('scene defaults restore full connectivity, horizontal output, and optional stars', () => {
+test('scene defaults simplify only input connections with horizontal output and permanent stars', () => {
   useTraining.mockReturnValue({
     status: 'ready',
     records: [],
@@ -103,11 +103,11 @@ test('scene defaults restore full connectivity, horizontal output, and optional 
   });
   render(<App />);
   const sceneProps = () => NetworkScene.mock.calls.at(-1)[0];
-  expect(sceneProps()).toMatchObject({ filter: 'all', outputLayout: 'horizontal', stars: true });
+  expect(sceneProps()).toMatchObject({ filter: 'input-sparse', outputLayout: 'horizontal' });
   fireEvent.click(screen.getByRole('button', { name: 'Scene', exact: true }));
   fireEvent.change(screen.getByRole('combobox', { name: 'Output arrangement' }), {
     target: { value: 'vertical' },
   });
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Starfield' }));
-  expect(sceneProps()).toMatchObject({ filter: 'all', outputLayout: 'vertical', stars: false });
+  expect(screen.queryByRole('checkbox', { name: 'Starfield' })).not.toBeInTheDocument();
+  expect(sceneProps()).toMatchObject({ filter: 'input-sparse', outputLayout: 'vertical' });
 });

@@ -55,7 +55,7 @@ void main() {
   float strength = sqrt(clamp(abs(vValue), 0.0, 1.0));
   vec3 tint = vValue < 0.0 ? vec3(1.0, 0.20, 0.045) : vec3(0.02, 0.62, 1.0);
   if (vMode < 1.5) tint = vec3(0.06, 1.0, 0.48);
-  vec3 color = mix(vec3(0.055, 0.12, 0.19), tint, strength);
+  vec3 color = mix(vec3(0.11, 0.16, 0.25), tint, strength);
   color *= 0.65 + 0.35 * facing;
   color += rim * (0.07 + uGlow * strength * 0.28);
   color = mix(color, vec3(1.0, 0.73, 0.12), vWinner * smoothstep(0.15, 0.6, rim));
@@ -98,7 +98,7 @@ void main() {
   vec2 direction = (end.xy / end.w - start.xy / start.w) * uResolution;
   vec2 normal = normalize(vec2(-direction.y, direction.x) + vec2(0.00001));
   vec4 projected = mix(start, end, position.x);
-  float thickness = 0.4 + 1.25 * sqrt(clamp(abs(vValue), 0.0, 1.0)) + aFocus * 0.4;
+  float thickness = 0.65 + 1.25 * sqrt(clamp(abs(vValue), 0.0, 1.0)) + aFocus * 0.4;
   projected.xy += normal * position.y * thickness / uResolution * projected.w * 2.0;
   gl_Position = projected;
 }`;
@@ -107,6 +107,7 @@ ${timingGLSL}
 uniform float uTime;
 uniform float uGlow;
 uniform float uIntensity;
+uniform float uDenseInput;
 varying float vAlong;
 varying float vAcross;
 varying float vValue;
@@ -129,8 +130,11 @@ void main() {
   float updateFlash = uTime >= BACKWARD_END && uTime < UPDATE_END ? sin((uTime - BACKWARD_END) * 3.14159) : 0.0;
   float signalVisible = step(0.000001, abs(vValue)) * reveal;
   vec3 tint = vValue < 0.0 ? vec3(1.0, 0.22, 0.045) : vec3(0.01, 0.56, 1.0);
-  tint = mix(vec3(0.15, 0.30, 0.43), tint, signalVisible);
-  float alpha = (0.009 + signalVisible * (0.035 + 0.42 * strength) + pulse * 0.8 + vFocus * 0.1 + updateFlash * strength * 0.25) * uIntensity;
+  tint = mix(vec3(0.48, 0.55, 0.92), tint, signalVisible);
+  // The dense input bundle needs less opacity than the sparse hidden/output bundles.
+  // This structural layer remains visible even when all activations are still zero.
+  float restingAlpha = vLayer < 0.5 && uDenseInput > 0.5 ? 0.028 : 0.22;
+  float alpha = (restingAlpha + signalVisible * (0.035 + 0.42 * strength) + pulse * 0.8 + vFocus * 0.1 + updateFlash * strength * 0.25) * uIntensity;
   alpha *= 1.0 - smoothstep(0.4, 1.0, abs(vAcross));
   gl_FragColor = vec4(tint * (1.0 + pulse * uGlow * 0.6), clamp(alpha, 0.0, 1.0));
 }`;

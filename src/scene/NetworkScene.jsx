@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Html, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { layerPositions, connectionData } from './geometry';
+import { layerPositions, connectionData, outputRowPosition } from './geometry';
 import { VIEW_MODES, predictionAt } from './timing';
 import { argmax, randomGenerator } from '../model/network';
 import { neuronVertex, neuronFragment, edgeVertex, edgeFragment } from './shaders';
@@ -19,9 +19,13 @@ function Edges({
   timeRef,
   glow,
   intensity,
+  outputLayout,
+  spacing,
   onCount,
 }) {
   const material = useRef();
+  const rowCamera = useRef(new THREE.Quaternion(0, 0, 0, 0));
+  const right = useMemo(() => new THREE.Vector3(), []);
   const edges = useMemo(
     () => connectionData(sizes, positions, record, initial, mode, filter, selection),
     [sizes, positions, record, initial, mode, filter, selection],
@@ -61,21 +65,36 @@ function Edges({
     return mesh;
   }, [edges]);
   useEffect(() => () => geometry.dispose(), [geometry]);
+  useLayoutEffect(() => {
+    rowCamera.current.set(0, 0, 0, 0);
+  }, [geometry]);
   useEffect(() => onCount(edges.length), [edges.length, onCount]);
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
       uMode: { value: 0 },
       uIntensity: { value: 1.4 },
+      uDenseInput: { value: 0 },
       uGlow: { value: 1 },
       uResolution: { value: new THREE.Vector2(1, 1) },
     }),
     [],
   );
-  useFrame(({ size }) => {
+  useFrame(({ size, camera }) => {
+    if (outputLayout === 'horizontal' && !rowCamera.current.equals(camera.quaternion)) {
+      right.set(1, 0, 0).applyQuaternion(camera.quaternion);
+      const ends = geometry.getAttribute('aEnd');
+      edges.forEach((edge, index) => {
+        if (edge.layer === sizes.length - 2)
+          ends.setXYZ(index, ...outputRowPosition(edge.target, sizes.at(-1), spacing, right));
+      });
+      ends.needsUpdate = true;
+      rowCamera.current.copy(camera.quaternion);
+    }
     uniforms.uTime.value = timeRef.current;
     uniforms.uMode.value = VIEW_MODES[mode];
     uniforms.uIntensity.value = intensity;
+    uniforms.uDenseInput.value = filter === 'all' ? 1 : 0;
     uniforms.uGlow.value = glow ? 1 : 0;
     uniforms.uResolution.value.set(size.width, size.height);
   });
@@ -93,8 +112,29 @@ function Edges({
     </mesh>
   );
 }
-function Nodes({ positions, record, mode, selection, onSelect, timeRef, glow }) {
+function Nodes({
+  positions,
+  record,
+  mode,
+  selection,
+  onSelect,
+  timeRef,
+  glow,
+  outputLayout,
+  spacing,
+}) {
   const mesh = useRef();
+  const rowCamera = useRef(new THREE.Quaternion(0, 0, 0, 0));
+  const rowMath = useMemo(
+    () => ({
+      right: new THREE.Vector3(),
+      position: new THREE.Vector3(),
+      matrix: new THREE.Matrix4(),
+      rotation: new THREE.Quaternion(),
+      scale: new THREE.Vector3(0.19, 0.19, 0.19),
+    }),
+    [],
+  );
   const flat = useMemo(
     () =>
       positions.flatMap((layer, l) =>
@@ -158,12 +198,24 @@ function Nodes({ positions, record, mode, selection, onSelect, timeRef, glow }) 
     });
     mesh.current.instanceMatrix.needsUpdate = true;
     mesh.current.computeBoundingSphere?.();
+    rowCamera.current.set(0, 0, 0, 0);
   }, [flat, geometry]);
   const uniforms = useMemo(
     () => ({ uTime: { value: 0 }, uGlow: { value: 1 }, uMode: { value: 0 } }),
     [],
   );
-  useFrame(() => {
+  useFrame(({ camera }) => {
+    if (outputLayout === 'horizontal' && !rowCamera.current.equals(camera.quaternion)) {
+      const count = positions[3].length;
+      rowMath.right.set(1, 0, 0).applyQuaternion(camera.quaternion);
+      for (let index = 0; index < count; index++) {
+        rowMath.position.set(...outputRowPosition(index, count, spacing, rowMath.right));
+        rowMath.matrix.compose(rowMath.position, rowMath.rotation, rowMath.scale);
+        mesh.current.setMatrixAt(flat.length - count + index, rowMath.matrix);
+      }
+      mesh.current.instanceMatrix.needsUpdate = true;
+      rowCamera.current.copy(camera.quaternion);
+    }
     uniforms.uTime.value = timeRef.current;
     uniforms.uGlow.value = glow ? 1 : 0;
     uniforms.uMode.value = VIEW_MODES[mode];
@@ -244,7 +296,7 @@ function SceneContents(props) {
         spacing={props.spacing}
         outputLayout={props.outputLayout}
       />
-      {props.stars && <Starfield />}
+      <Starfield />
       <Edges {...props} positions={positions} sizes={sizes} />
       <Nodes {...props} positions={positions} />
       {positions.map((layer, i) => (
@@ -266,20 +318,12 @@ function SceneContents(props) {
           </div>
         </Html>
       ))}
-      {positions[3].map((position, i) => (
-        <Html
-          key={i}
-          position={
-            horizontal
-              ? [position[0], -0.45, position[2]]
-              : [position[0] + 0.4, position[1], position[2]]
-          }
-          center
-          style={{ pointerEvents: 'none' }}
-        >
-          <span className={`class-label ${prediction?.index === i ? 'predicted' : ''}`}>{i}</span>
-        </Html>
-      ))}
+      <OutputLabels
+        positions={positions[3]}
+        horizontal={horizontal}
+        spacing={props.spacing}
+        prediction={prediction}
+      />
       <Html
         position={[6 * props.spacing, horizontal ? (compact ? 2.0 : 1.25) : -3.6, 0]}
         center
@@ -355,5 +399,33 @@ function Starfield() {
     <points geometry={geometry} raycast={() => null}>
       <pointsMaterial vertexColors size={0.085} transparent opacity={0.85} depthWrite={false} />
     </points>
+  );
+}
+
+function OutputLabels({ positions, horizontal, spacing, prediction }) {
+  const row = useRef();
+  useFrame(({ camera }) => {
+    if (horizontal) row.current.quaternion.copy(camera.quaternion);
+    else row.current.quaternion.identity();
+  });
+  return (
+    <group ref={row} position={horizontal ? [6 * spacing, 0, 0] : [0, 0, 0]}>
+      {positions.map((position, index) => (
+        <Html
+          key={index}
+          position={
+            horizontal
+              ? [(index - (positions.length - 1) / 2) * 0.52, -0.45, 0]
+              : [position[0] + 0.4, position[1], position[2]]
+          }
+          center
+          style={{ pointerEvents: 'none' }}
+        >
+          <span className={`class-label ${prediction?.index === index ? 'predicted' : ''}`}>
+            {index}
+          </span>
+        </Html>
+      ))}
+    </group>
   );
 }
