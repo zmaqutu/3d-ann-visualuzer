@@ -4,7 +4,7 @@ export function outputRowPosition(index, count, spacing, right) {
   return [6 * spacing + offset * right.x, offset * right.y, offset * right.z];
 }
 
-export function layerPositions(sizes, outputLayout = 'horizontal') {
+export function layerPositions(sizes, outputLayout = 'vertical') {
   const xs = [-6, -1.8, 2.1, 6];
   return sizes.map((count, layer) =>
     Array.from({ length: count }, (_, index) => {

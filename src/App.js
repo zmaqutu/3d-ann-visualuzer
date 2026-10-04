@@ -60,7 +60,7 @@ export default function App() {
     () => !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
   );
   const [spacing, setSpacing] = useState(1);
-  const [outputLayout, setOutputLayout] = useState('horizontal');
+  const [outputLayout, setOutputLayout] = useState('vertical');
   const [intensity, setIntensity] = useState(1.4);
   const [edgeCount, setEdgeCount] = useState(0);
   const [rightTab, setRightTab] = useState('story');
