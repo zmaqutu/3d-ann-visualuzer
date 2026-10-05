@@ -498,7 +498,6 @@ export default function App() {
             </div>
           </div>
           <div className="scene-viewport">
-            <ProjectCredit />
             <SceneBoundary>
               <NetworkScene
                 record={record}
@@ -520,21 +519,24 @@ export default function App() {
                 onCount={setEdgeCount}
               />
             </SceneBoundary>
-            <div className="output-prediction">
-              <span>TOP PREDICTION</span>
-              {scenePrediction ? (
-                <>
-                  <strong>
-                    {scenePrediction.index}{' '}
-                    <small>{(scenePrediction.probability * 100).toFixed(1)}%</small>
-                  </strong>
-                  <em className={scenePrediction.correct ? 'correct' : 'incorrect'}>
-                    {scenePrediction.correct ? 'Correct' : 'Incorrect'}
-                  </em>
-                </>
-              ) : (
-                <small>Awaiting forward pass</small>
-              )}
+            <div className="scene-badges">
+              <ProjectCredit />
+              <div className="output-prediction">
+                <span>TOP PREDICTION</span>
+                {scenePrediction ? (
+                  <>
+                    <strong>
+                      {scenePrediction.index}{' '}
+                      <small>{(scenePrediction.probability * 100).toFixed(1)}%</small>
+                    </strong>
+                    <em className={scenePrediction.correct ? 'correct' : 'incorrect'}>
+                      {scenePrediction.correct ? 'Correct' : 'Incorrect'}
+                    </em>
+                  </>
+                ) : (
+                  <small>Awaiting forward pass</small>
+                )}
+              </div>
             </div>
             <div className="scene-caption">
               <span>
