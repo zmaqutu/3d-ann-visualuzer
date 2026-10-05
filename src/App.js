@@ -1,3 +1,4 @@
+import ProjectCredit from './ProjectCredit';
 import React, { Component, useCallback, useEffect, useRef, useState } from 'react';
 import './App.scss';
 import useTraining, { DEFAULT_SETTINGS } from './hooks/useTraining';
@@ -180,6 +181,7 @@ export default function App() {
             <span>A network, learning in plain sight.</span>
           </div>
         </div>
+        <ProjectCredit />
         <div className="run-status">
           <i className={playing ? 'live' : ''} />
           <span>
