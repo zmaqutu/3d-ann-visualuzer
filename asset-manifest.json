@@ -1,12 +1,12 @@
 {
   "files": {
-    "main.css": "/3d-ann-visualuzer/static/css/main.fd79565a.css",
-    "main.js": "/3d-ann-visualuzer/static/js/main.7748c3f7.js",
+    "main.css": "/3d-ann-visualuzer/static/css/main.d3cf226d.css",
+    "main.js": "/3d-ann-visualuzer/static/js/main.b572c74e.js",
     "static/js/799.5caa6e8b.chunk.js": "/3d-ann-visualuzer/static/js/799.5caa6e8b.chunk.js",
     "index.html": "/3d-ann-visualuzer/index.html"
   },
   "entrypoints": [
-    "static/css/main.fd79565a.css",
-    "static/js/main.7748c3f7.js"
+    "static/css/main.d3cf226d.css",
+    "static/js/main.b572c74e.js"
   ]
 }
