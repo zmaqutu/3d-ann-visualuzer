@@ -194,6 +194,7 @@ export default function App() {
           </span>
           <b>MNIST / DENSE</b>
         </div>
+        <ProjectCredit />
       </header>
       <div className="workspace">
         <aside className="panel control-rail" aria-label="Training and visual controls">
@@ -520,7 +521,6 @@ export default function App() {
               />
             </SceneBoundary>
             <div className="scene-badges">
-              <ProjectCredit />
               <div className="output-prediction">
                 <span>TOP PREDICTION</span>
                 {scenePrediction ? (

@@ -101,6 +101,7 @@ strong {
 }
 .topbar {
   height: 76px;
+  gap: 24px;
   flex-shrink: 0;
   border-bottom: 1px solid var(--border);
   display: flex;
@@ -110,6 +111,7 @@ strong {
   background: #0d181f;
 }
 .brand {
+  margin-right: auto;
   display: flex;
   align-items: center;
   gap: 13px;
@@ -1104,7 +1106,7 @@ strong {
   }
 }
 
-/* Both canvas badges share a compact footprint, including during prediction updates. */
+/* Keep the prediction in the scene and the portfolio credit in the page header. */
 .scene-badges {
   position: absolute;
   top: 12px;
@@ -1112,12 +1114,11 @@ strong {
   right: 12px;
   z-index: 2;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: stretch;
   gap: 12px;
   pointer-events: none;
 }
-.scene-badges > .project-credit,
 .scene-badges > .output-prediction {
   position: static;
   flex: 0 1 160px;
@@ -1128,6 +1129,11 @@ strong {
   gap: 3px;
 }
 .project-credit {
+  flex: 0 0 auto;
+  width: 144px;
+  padding: 8px 12px;
+  display: grid;
+  gap: 5px;
   color: #dfeee6;
   text-decoration: none;
   border: 1px solid #526b63;
@@ -1152,7 +1158,9 @@ strong {
   font-size: 7px;
 }
 .project-credit-mark {
-  font: italic 10px/1 Georgia, serif;
+  font:
+    italic 16px/1 Georgia,
+    serif;
   color: #9bd8c4;
   white-space: nowrap;
 }
@@ -1176,12 +1184,49 @@ strong {
     left: 10px;
     right: 10px;
   }
-  .scene-badges > .project-credit,
   .scene-badges > .output-prediction {
     flex-basis: 128px;
     padding: 6px 8px;
   }
   .project-credit-author {
     font-size: 9px;
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar {
+    height: auto;
+    min-height: 100px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 12px;
+    padding: 12px 14px;
+  }
+  .topbar > .project-credit {
+    grid-column: 2;
+    grid-row: 1;
+    width: 128px;
+    padding: 7px 9px;
+  }
+  .topbar > .run-status {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: end;
+    max-width: none;
+  }
+  .brand {
+    gap: 9px;
+  }
+}
+@media (max-width: 360px) {
+  .topbar > .project-credit {
+    width: 112px;
+  }
+  .brand-mark {
+    width: 30px;
+    flex-shrink: 0;
+  }
+  .brand strong {
+    font-size: 8px;
   }
 }
