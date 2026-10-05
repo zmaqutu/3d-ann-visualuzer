@@ -1113,6 +1113,19 @@ strong {
 .project-credit-author strong { display:block; font-size:13px; font-weight:600; color:#edf5ef; }
 .project-credit-return { flex-shrink:0; font-size:12px; white-space:nowrap; }
 
-.topbar { gap:18px; }
-.topbar .project-credit { margin-left:auto; }
-@media(max-width:900px) { .topbar { height:auto; min-height:76px; flex-wrap:wrap; padding-top:12px; padding-bottom:12px; gap:12px; } .topbar .project-credit { order:3; flex-basis:100%; margin-left:0; } .run-status { margin-left:auto; } }
+/* Anchor the credit to the canvas rather than the page header. */
+.scene-viewport {
+  container-type: inline-size;
+}
+.scene-viewport > .project-credit {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  max-width: calc(100% - 24px);
+}
+@container (max-width: 420px) {
+  .output-prediction {
+    top: 80px;
+  }
+}

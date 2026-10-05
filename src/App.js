@@ -181,7 +181,6 @@ export default function App() {
             <span>A network, learning in plain sight.</span>
           </div>
         </div>
-        <ProjectCredit />
         <div className="run-status">
           <i className={playing ? 'live' : ''} />
           <span>
@@ -499,6 +498,7 @@ export default function App() {
             </div>
           </div>
           <div className="scene-viewport">
+            <ProjectCredit />
             <SceneBoundary>
               <NetworkScene
                 record={record}
