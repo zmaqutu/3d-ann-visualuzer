@@ -19,7 +19,7 @@ npm test -- --watchAll=false --runInBand
 npm run build
 ```
 
-The existing GitHub Pages `homepage` and deployment script are retained. Building does not deploy the site.
+Building does not deploy the site. `npm run deploy` builds and publishes the current checkout to the `gh-pages` branch, which GitHub Pages serves at [the live observatory](https://zongo-is.me/3d-ann-visualuzer/). The `homepage` path matches the repository name, including its `visualuzer` spelling, so assets and the training worker load correctly under the project subdirectory.
 
 ## Explore
 
